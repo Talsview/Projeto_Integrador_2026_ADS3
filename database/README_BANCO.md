@@ -23,3 +23,16 @@ Essa decisão evita dependência do Hibernate para criação automática das tab
 ## Observação
 
 Os campos de identificador usam `BIGSERIAL`, compatível com o uso de `Long` no Java.
+
+## Atualização da Etapa 5
+
+O script `01_create_schema.sql` já contempla as tabelas do módulo de Serviços:
+
+```text
+servico
+servico_interno
+servico_terceirizado
+empresa_terceirizada
+```
+
+O script `02_seed_inicial.sql` inclui serviços iniciais para testes do Swagger e do Angular, separando serviços internos e terceirizados conforme a generalização/especialização validada no MER.

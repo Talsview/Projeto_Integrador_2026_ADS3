@@ -37,3 +37,33 @@ ON CONFLICT (id_marca, nome_modelo) DO NOTHING;
 INSERT INTO modelo (id_marca, nome_modelo)
 SELECT id_marca, 'Captiva' FROM marca WHERE nome_marca = 'GM'
 ON CONFLICT (id_marca, nome_modelo) DO NOTHING;
+
+-- Serviços iniciais para testes e demonstração do módulo Serviço.
+INSERT INTO servico (nome_servico, descricao, prazo_garantia_dias, valor_base)
+VALUES
+    ('Serviços mecânicos', 'Serviço técnico geral de manutenção mecânica.', 90, 180.00),
+    ('Alinhamento', 'Serviço de alinhamento de direção.', 30, 120.00),
+    ('Balanceamento', 'Serviço de balanceamento de rodas.', 30, 80.00),
+    ('Cambagem', 'Serviço de correção de cambagem.', 30, 120.00),
+    ('Serviço de ar-condicionado', 'Diagnóstico, limpeza ou manutenção do sistema de ar-condicionado.', 90, 220.00),
+    ('Funilaria terceirizada', 'Serviço de funilaria executado por empresa parceira.', 90, 0.00),
+    ('Pintura terceirizada', 'Serviço de pintura executado por empresa parceira.', 90, 0.00)
+ON CONFLICT (nome_servico) DO NOTHING;
+
+INSERT INTO servico_interno (id_servico, observacao_interna)
+SELECT id_servico, 'Serviço executado diretamente pela equipe da oficina.'
+  FROM servico
+ WHERE nome_servico IN ('Serviços mecânicos', 'Alinhamento', 'Balanceamento', 'Cambagem', 'Serviço de ar-condicionado')
+ON CONFLICT (id_servico) DO NOTHING;
+
+INSERT INTO servico_terceirizado (id_servico, observacao_terceirizacao)
+SELECT id_servico, 'Serviço encaminhado a empresa parceira; a oficina mantém responsabilidade perante o cliente.'
+  FROM servico
+ WHERE nome_servico IN ('Funilaria terceirizada', 'Pintura terceirizada')
+ON CONFLICT (id_servico) DO NOTHING;
+
+INSERT INTO empresa_terceirizada (nome_empresa, telefone, email, endereco)
+VALUES
+    ('Parceiro de Funilaria e Pintura', '(62) 0000-0000', 'parceiro.funilaria@email.com', 'Goiânia-GO'),
+    ('Parceiro de Ar-condicionado Automotivo', '(62) 0000-0001', 'parceiro.ar@email.com', 'Goiânia-GO')
+ON CONFLICT DO NOTHING;

@@ -276,3 +276,66 @@ Etapa 5 — Serviço, Serviço Interno, Serviço Terceirizado e Empresa Terceiri
 ```
 
 Essa próxima etapa permitirá cadastrar os serviços executados pela oficina e preparar a composição da Ordem de Serviço.
+
+---
+
+# Etapa 5 — Módulo Serviço e Empresa Terceirizada
+
+Foram implementados:
+
+```text
+Servico
+ServicoInterno
+ServicoTerceirizado
+EmpresaTerceirizada
+```
+
+Regra acadêmica atendida:
+
+```text
+Servico especializa em ServicoInterno e ServicoTerceirizado.
+Tipo: exclusiva e total (xt).
+Todo Serviço é Interno ou Terceirizado, nunca ambos.
+```
+
+Também foi preservada a regra de que o serviço terceirizado continua sob responsabilidade da oficina perante o cliente.
+
+Endpoints de serviço:
+
+```text
+POST   /api/servicos
+PUT    /api/servicos/{id}
+GET    /api/servicos/{id}
+GET    /api/servicos
+GET    /api/servicos/tipo/{tipoServico}
+GET    /api/servicos/pesquisar?termo=valor
+DELETE /api/servicos/{id}
+```
+
+Endpoints de empresa terceirizada:
+
+```text
+POST   /api/empresas-terceirizadas
+PUT    /api/empresas-terceirizadas/{id}
+GET    /api/empresas-terceirizadas/{id}
+GET    /api/empresas-terceirizadas
+GET    /api/empresas-terceirizadas/pesquisar?termo=valor
+DELETE /api/empresas-terceirizadas/{id}
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA5_SERVICOS.md
+docs/adr/ADR-008-especializacao-servico.md
+```
+
+---
+
+## Próxima etapa recomendada
+
+```text
+Etapa 6 — Peça, Fornecedor e ItemPeca
+```
+
+Essa próxima etapa permitirá registrar peças aplicáveis aos veículos, identificar fornecedores e preparar a rastreabilidade das peças utilizadas nas ordens de serviço.
