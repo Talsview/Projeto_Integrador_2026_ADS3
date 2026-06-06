@@ -1,0 +1,25 @@
+# Banco de Dados Local - AV CAR AUTO CENTER
+
+## Decisão adotada
+
+O banco físico será criado por script SQL, e a aplicação Spring Boot apenas validará a estrutura existente com:
+
+```properties
+spring.jpa.hibernate.ddl-auto=validate
+```
+
+Essa decisão evita dependência do Hibernate para criação automática das tabelas e facilita a entrega acadêmica do modelo físico.
+
+## Ordem de execução no pgAdmin
+
+```text
+1. Criar o banco car_repair no PostgreSQL.
+2. Executar database/01_create_schema.sql.
+3. Executar database/02_seed_inicial.sql.
+4. Iniciar a aplicação Spring Boot.
+5. Acessar o Swagger em http://localhost:9081/swagger-ui.html.
+```
+
+## Observação
+
+Os campos de identificador usam `BIGSERIAL`, compatível com o uso de `Long` no Java.
