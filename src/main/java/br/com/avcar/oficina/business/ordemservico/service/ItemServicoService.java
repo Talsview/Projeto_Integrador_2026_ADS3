@@ -1,5 +1,6 @@
 package br.com.avcar.oficina.business.ordemservico.service;
 
+import br.com.avcar.oficina.business.garantia.service.GarantiaService;
 import br.com.avcar.oficina.business.ordemservico.dto.ItemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.mapper.ItemServicoMapper;
 import br.com.avcar.oficina.business.ordemservico.model.ExecucaoServicoTerceirizadoModel;
@@ -40,6 +41,7 @@ public class ItemServicoService {
     private final OrdemServicoService ordemServicoService;
     private final ServicoService servicoService;
     private final EmpresaTerceirizadaService empresaTerceirizadaService;
+    private final GarantiaService garantiaService;
     private final ItemServicoValidation validation;
     private final ItemServicoMapper mapper;
 
@@ -50,6 +52,7 @@ public class ItemServicoService {
                               OrdemServicoService ordemServicoService,
                               ServicoService servicoService,
                               EmpresaTerceirizadaService empresaTerceirizadaService,
+                              GarantiaService garantiaService,
                               ItemServicoValidation validation,
                               ItemServicoMapper mapper) {
         this.itemServicoRepository = itemServicoRepository;
@@ -59,6 +62,7 @@ public class ItemServicoService {
         this.ordemServicoService = ordemServicoService;
         this.servicoService = servicoService;
         this.empresaTerceirizadaService = empresaTerceirizadaService;
+        this.garantiaService = garantiaService;
         this.validation = validation;
         this.mapper = mapper;
     }
@@ -74,6 +78,7 @@ public class ItemServicoService {
 
         validarTerceirizacao(servico, dto);
         ItemServicoModel saved = itemServicoRepository.save(mapper.toModel(dto, ordemServico, servico, colaborador));
+        garantiaService.criarGarantiaServicoAguardando(saved);
         salvarOuAtualizarExecucaoTerceirizada(saved, dto, servico);
         ordemServicoService.recalcularValorTotal(ordemServico.getId());
 
@@ -95,6 +100,7 @@ public class ItemServicoService {
         validarTerceirizacao(servico, dto);
         mapper.atualizarModel(itemServico, dto, ordemServico, servico, colaborador);
         ItemServicoModel saved = itemServicoRepository.save(itemServico);
+        garantiaService.criarGarantiaServicoAguardando(saved);
         salvarOuAtualizarExecucaoTerceirizada(saved, dto, servico);
         ordemServicoService.recalcularValorTotal(ordemServico.getId());
         if (!idOrdemServicoAnterior.equals(ordemServico.getId())) {
@@ -145,6 +151,7 @@ public class ItemServicoService {
             execucaoRepository.save(execucao);
         });
 
+        garantiaService.inativarGarantiaPorItemServico(itemServico.getId());
         itemServico.setAtivo(Boolean.FALSE);
         itemServicoRepository.save(itemServico);
         ordemServicoService.recalcularValorTotal(itemServico.getOrdemServico().getId());

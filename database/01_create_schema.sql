@@ -294,11 +294,13 @@ CREATE TABLE IF NOT EXISTS peca (
     modelo_aplicavel VARCHAR(100),
     ano_veiculo INTEGER,
     ano_modelo INTEGER,
+    prazo_garantia_dias INTEGER NOT NULL DEFAULT 90,
     descricao TEXT,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_hora_atualizacao TIMESTAMP,
-    CONSTRAINT ck_peca_anos CHECK ((ano_veiculo IS NULL OR ano_veiculo >= 1900) AND (ano_modelo IS NULL OR ano_modelo >= 1900))
+    CONSTRAINT ck_peca_anos CHECK ((ano_veiculo IS NULL OR ano_veiculo >= 1900) AND (ano_modelo IS NULL OR ano_modelo >= 1900)),
+    CONSTRAINT ck_peca_garantia CHECK (prazo_garantia_dias >= 0)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS uk_peca_codigo_nacional_ativo

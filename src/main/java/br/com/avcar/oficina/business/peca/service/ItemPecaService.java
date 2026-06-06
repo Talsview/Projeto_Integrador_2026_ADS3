@@ -1,5 +1,6 @@
 package br.com.avcar.oficina.business.peca.service;
 
+import br.com.avcar.oficina.business.garantia.service.GarantiaService;
 import br.com.avcar.oficina.business.ordemservico.service.OrdemServicoService;
 import br.com.avcar.oficina.business.peca.dto.ItemPecaDTO;
 import br.com.avcar.oficina.business.peca.mapper.ItemPecaMapper;
@@ -27,6 +28,7 @@ public class ItemPecaService {
     private final PecaService pecaService;
     private final FornecedorService fornecedorService;
     private final OrdemServicoService ordemServicoService;
+    private final GarantiaService garantiaService;
     private final ItemPecaValidation validation;
     private final ItemPecaMapper mapper;
 
@@ -34,12 +36,14 @@ public class ItemPecaService {
                            PecaService pecaService,
                            FornecedorService fornecedorService,
                            OrdemServicoService ordemServicoService,
+                           GarantiaService garantiaService,
                            ItemPecaValidation validation,
                            ItemPecaMapper mapper) {
         this.itemPecaRepository = itemPecaRepository;
         this.pecaService = pecaService;
         this.fornecedorService = fornecedorService;
         this.ordemServicoService = ordemServicoService;
+        this.garantiaService = garantiaService;
         this.validation = validation;
         this.mapper = mapper;
     }
@@ -51,6 +55,7 @@ public class ItemPecaService {
         PecaModel peca = pecaService.buscarModelAtivo(dto.getIdPeca());
         FornecedorModel fornecedor = fornecedorService.buscarModelAtivo(dto.getIdFornecedor());
         ItemPecaModel saved = itemPecaRepository.save(mapper.toModel(dto, peca, fornecedor));
+        garantiaService.criarGarantiaPecaAguardando(saved);
         ordemServicoService.recalcularValorTotal(dto.getIdOrdemServico());
         return mapper.toDto(saved);
     }
@@ -66,6 +71,7 @@ public class ItemPecaService {
         FornecedorModel fornecedor = fornecedorService.buscarModelAtivo(dto.getIdFornecedor());
         mapper.atualizarModel(itemPeca, dto, peca, fornecedor);
         ItemPecaModel saved = itemPecaRepository.save(itemPeca);
+        garantiaService.criarGarantiaPecaAguardando(saved);
         ordemServicoService.recalcularValorTotal(dto.getIdOrdemServico());
         if (!idOrdemServicoAnterior.equals(dto.getIdOrdemServico())) {
             ordemServicoService.recalcularValorTotal(idOrdemServicoAnterior);
@@ -104,6 +110,7 @@ public class ItemPecaService {
         validation.validateId(id);
         ItemPecaModel itemPeca = buscarModelAtivo(id);
         ordemServicoService.validarOrdemNaoFinalizada(itemPeca.getIdOrdemServico());
+        garantiaService.inativarGarantiaPorItemPeca(itemPeca.getId());
         itemPeca.setAtivo(Boolean.FALSE);
         itemPecaRepository.save(itemPeca);
         ordemServicoService.recalcularValorTotal(itemPeca.getIdOrdemServico());

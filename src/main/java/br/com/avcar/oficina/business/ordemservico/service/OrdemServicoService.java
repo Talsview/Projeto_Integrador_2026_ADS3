@@ -1,5 +1,6 @@
 package br.com.avcar.oficina.business.ordemservico.service;
 
+import br.com.avcar.oficina.business.garantia.service.GarantiaService;
 import br.com.avcar.oficina.business.ordemservico.dto.AlterarStatusOrdemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.dto.HistoricoStatusOrdemDTO;
 import br.com.avcar.oficina.business.ordemservico.dto.ItemServicoDTO;
@@ -56,6 +57,7 @@ public class OrdemServicoService {
     private final IItemPecaRepository itemPecaRepository;
     private final IExecucaoServicoTerceirizadoRepository execucaoTerceirizadaRepository;
     private final StatusOrdemServicoService statusService;
+    private final GarantiaService garantiaService;
     private final OrdemServicoValidation validation;
     private final OrdemServicoMapper ordemServicoMapper;
     private final HistoricoStatusOrdemMapper historicoStatusMapper;
@@ -69,6 +71,7 @@ public class OrdemServicoService {
                                IItemPecaRepository itemPecaRepository,
                                IExecucaoServicoTerceirizadoRepository execucaoTerceirizadaRepository,
                                StatusOrdemServicoService statusService,
+                               GarantiaService garantiaService,
                                OrdemServicoValidation validation,
                                OrdemServicoMapper ordemServicoMapper,
                                HistoricoStatusOrdemMapper historicoStatusMapper,
@@ -81,6 +84,7 @@ public class OrdemServicoService {
         this.itemPecaRepository = itemPecaRepository;
         this.execucaoTerceirizadaRepository = execucaoTerceirizadaRepository;
         this.statusService = statusService;
+        this.garantiaService = garantiaService;
         this.validation = validation;
         this.ordemServicoMapper = ordemServicoMapper;
         this.historicoStatusMapper = historicoStatusMapper;
@@ -256,10 +260,11 @@ public class OrdemServicoService {
 
         if (StatusFluxoOrdemServico.FINALIZADO.name().equals(novoStatus.getNomeStatus())) {
             ordemServico.setDataFinalizacao(LocalDateTime.now());
-            // A criação/início de GarantiaPeca e GarantiaServico será executada
-            // na etapa própria de Garantias, conforme RN26 e RN27.
         }
-        ordemServicoRepository.save(ordemServico);
+        OrdemServicoModel saved = ordemServicoRepository.save(ordemServico);
+        if (StatusFluxoOrdemServico.FINALIZADO.name().equals(novoStatus.getNomeStatus())) {
+            garantiaService.iniciarGarantiasDaOrdem(saved.getId(), saved.getDataFinalizacao().toLocalDate());
+        }
     }
 
     private void impedirAlteracaoSeFinalizada(OrdemServicoModel ordemServico) {

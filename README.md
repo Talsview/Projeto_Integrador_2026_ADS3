@@ -467,3 +467,78 @@ Etapa 8 — GarantiaPeca, GarantiaServico e início automático das garantias ap
 ```
 
 Essa próxima etapa completará a regra de garantia, iniciando os prazos de peça e serviço após o status FINALIZADO.
+
+---
+
+# Etapa 8 — Garantias de Peças e Serviços
+
+Nesta etapa foi implementado o módulo de garantias, integrando `GarantiaPeca` e `GarantiaServico` ao fluxo real da Ordem de Serviço.
+
+Foram implementados:
+
+```text
+GarantiaPeca
+GarantiaServico
+StatusGarantia
+ResponsabilidadeGarantiaPeca
+```
+
+Regras atendidas:
+
+```text
+ItemPeca gera GarantiaPeca.
+ItemServico gera GarantiaServico.
+A garantia de peça começa após a finalização da OS.
+A garantia de serviço começa após a finalização da OS.
+O prazo de garantia da peça é definido no cadastro da peça.
+O prazo de garantia do serviço vem do cadastro do serviço.
+A garantia de peça pode ter responsabilidade do fornecedor, mantendo a oficina responsável pelo atendimento ao cliente.
+```
+
+Fluxo implementado:
+
+```text
+1. Cadastrar ItemPeca ou ItemServico.
+2. Sistema cria a garantia com status AGUARDANDO_FINALIZACAO_OS.
+3. Alterar OS para FINALIZADO.
+4. Sistema define dataInicio, dataFim e status VIGENTE nas garantias.
+```
+
+Endpoints de GarantiaPeca:
+
+```text
+GET    /api/garantias/pecas/{id}
+GET    /api/garantias/pecas
+GET    /api/garantias/pecas/item-peca/{idItemPeca}
+GET    /api/garantias/pecas/ordem-servico/{idOrdemServico}
+PATCH  /api/garantias/pecas/{id}/acionar
+PATCH  /api/garantias/pecas/{id}/encerrar
+```
+
+Endpoints de GarantiaServico:
+
+```text
+GET    /api/garantias/servicos/{id}
+GET    /api/garantias/servicos
+GET    /api/garantias/servicos/item-servico/{idItemServico}
+GET    /api/garantias/servicos/ordem-servico/{idOrdemServico}
+PATCH  /api/garantias/servicos/{id}/acionar
+PATCH  /api/garantias/servicos/{id}/encerrar
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA8_GARANTIAS.md
+docs/adr/ADR-011-garantias-apos-finalizacao-os.md
+```
+
+---
+
+## Próxima etapa recomendada
+
+```text
+Etapa 9 — Pagamento
+```
+
+A próxima etapa deve implementar os pagamentos da Ordem de Serviço, permitindo registrar valores pagos, formas de pagamento, status do pagamento e validação do fluxo financeiro da OS.

@@ -78,3 +78,22 @@ FINALIZADO
 ```
 
 Esses registros são necessários para que o fluxo da OS funcione corretamente.
+
+## Atualização da Etapa 8
+
+O script `01_create_schema.sql` passa a contemplar integralmente as tabelas de garantia utilizadas pela aplicação:
+
+```text
+garantia_peca
+garantia_servico
+```
+
+Também foi adicionado o campo abaixo à tabela `peca`:
+
+```text
+prazo_garantia_dias INTEGER NOT NULL DEFAULT 90
+```
+
+Esse campo permite que a garantia da peça aplicada na OS tenha prazo próprio. A garantia de serviço continua utilizando o campo `prazo_garantia_dias` da tabela `servico`.
+
+As garantias são criadas quando os itens são lançados na OS e iniciadas automaticamente quando a Ordem de Serviço passa para o status `FINALIZADO`.

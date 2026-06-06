@@ -17,5 +17,6 @@ public class PecaDTO extends BaseDTO {
     private String modeloAplicavel;
     private Integer anoVeiculo;
     private Integer anoModelo;
+    private Integer prazoGarantiaDias;
     private String descricao;
 }

@@ -46,6 +46,9 @@ public class PecaModel extends BaseModel {
     @Column(name = "ano_modelo")
     private Integer anoModelo;
 
+    @Column(name = "prazo_garantia_dias", nullable = false)
+    private Integer prazoGarantiaDias = 90;
+
     @Column(name = "descricao", columnDefinition = "TEXT")
     private String descricao;
 }

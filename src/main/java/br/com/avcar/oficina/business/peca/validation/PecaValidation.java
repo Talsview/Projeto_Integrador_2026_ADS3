@@ -49,6 +49,9 @@ public class PecaValidation {
         }
         validateAno(dto.getAnoVeiculo(), "ano do veículo");
         validateAno(dto.getAnoModelo(), "ano do modelo");
+        if (dto.getPrazoGarantiaDias() != null && dto.getPrazoGarantiaDias() < 0) {
+            throw new FieldValidationException("O prazo de garantia da peça deve ser maior ou igual a zero.");
+        }
     }
 
     private void validateAno(Integer ano, String campo) {

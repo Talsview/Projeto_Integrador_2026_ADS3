@@ -76,11 +76,11 @@ VALUES
     ('Representante de Lubrificantes', NULL, '(62) 0000-1002', 'lubrificantes@email.com', 'Goiânia-GO')
 ON CONFLICT DO NOTHING;
 
-INSERT INTO peca (nome_peca, codigo_nacional, marca_peca, modelo_aplicavel, ano_veiculo, ano_modelo, descricao)
+INSERT INTO peca (nome_peca, codigo_nacional, marca_peca, modelo_aplicavel, ano_veiculo, ano_modelo, prazo_garantia_dias, descricao)
 VALUES
-    ('Filtro de óleo', 'FOL0113', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 'Peça de manutenção preventiva.'),
-    ('Filtro de ar do motor', 'ART8826', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 'Peça de manutenção preventiva.'),
-    ('Óleo do motor 5W30', 'OLEO5W30', 'Selenia', 'Aplicação conforme especificação do veículo', NULL, NULL, 'Lubrificante automotivo.'),
-    ('Kit distribuição', 'KITDISTRIBUICAO', 'AMX', 'Aplicação conforme motorização', NULL, NULL, 'Kit de manutenção do sistema de distribuição.'),
-    ('Correia micro V', 'CORREIAMICROV', 'Gates', 'Aplicação conforme catálogo', NULL, NULL, 'Correia auxiliar do motor.')
+    ('Filtro de óleo', 'FOL0113', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Peça de manutenção preventiva.'),
+    ('Filtro de ar do motor', 'ART8826', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Peça de manutenção preventiva.'),
+    ('Óleo do motor 5W30', 'OLEO5W30', 'Selenia', 'Aplicação conforme especificação do veículo', NULL, NULL, 90, 'Lubrificante automotivo.'),
+    ('Kit distribuição', 'KITDISTRIBUICAO', 'AMX', 'Aplicação conforme motorização', NULL, NULL, 180, 'Kit de manutenção do sistema de distribuição.'),
+    ('Correia micro V', 'CORREIAMICROV', 'Gates', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Correia auxiliar do motor.')
 ON CONFLICT DO NOTHING;

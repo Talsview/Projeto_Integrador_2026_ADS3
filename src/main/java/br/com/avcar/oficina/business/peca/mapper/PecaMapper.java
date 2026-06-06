@@ -32,6 +32,7 @@ public class PecaMapper {
         dto.setModeloAplicavel(model.getModeloAplicavel());
         dto.setAnoVeiculo(model.getAnoVeiculo());
         dto.setAnoModelo(model.getAnoModelo());
+        dto.setPrazoGarantiaDias(model.getPrazoGarantiaDias());
         dto.setDescricao(model.getDescricao());
         return dto;
     }
@@ -43,6 +44,7 @@ public class PecaMapper {
         model.setModeloAplicavel(normalize(dto.getModeloAplicavel()));
         model.setAnoVeiculo(dto.getAnoVeiculo());
         model.setAnoModelo(dto.getAnoModelo());
+        model.setPrazoGarantiaDias(dto.getPrazoGarantiaDias() == null ? 90 : dto.getPrazoGarantiaDias());
         model.setDescricao(normalize(dto.getDescricao()));
     }
 
