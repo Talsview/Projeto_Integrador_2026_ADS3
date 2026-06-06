@@ -111,3 +111,13 @@ database/03_verificacoes/11_verificacao_carregamento_inicial_telas.sql
 ```
 
 Esse script consulta a quantidade de registros das principais tabelas usadas pelo frontend. Ele ajuda a confirmar se existem dados para serem exibidos automaticamente quando o usuário abre as telas de cadastro e consulta.
+
+## Verificação da Etapa 23
+
+Foi adicionado o script:
+
+```text
+database/03_verificacoes/12_verificacao_atualizacao_imediata_telas.sql
+```
+
+Esse script permite conferir os registros usados nas telas de Clientes e Funções, especialmente após testar cadastros pelo frontend Angular. Ele não cria tabelas nem insere dados; serve apenas para conferência no pgAdmin.

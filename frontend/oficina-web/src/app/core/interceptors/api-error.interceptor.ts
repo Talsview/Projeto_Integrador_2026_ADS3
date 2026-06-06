@@ -1,49 +1,20 @@
-import { ApplicationRef, NgZone, inject } from '@angular/core';
-import { HttpErrorResponse, HttpEvent, HttpInterceptorFn } from '@angular/common/http';
-import { Observable, TimeoutError } from 'rxjs';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { TimeoutError, catchError, throwError } from 'rxjs';
 
 /**
  * Interceptor global de comunicação com a API.
  *
- * Além de padronizar as mensagens de erro, este interceptor garante que as
- * respostas HTTP retornem para dentro do NgZone do Angular e força uma
- * atualização visual após cada resposta. Essa correção evita o problema em que
- * a tela só exibia os dados depois de o usuário clicar em outro botão ou campo.
+ * Responsabilidade: padronizar mensagens de erro vindas do backend.
+ * A atualização visual das telas fica sob responsabilidade natural do Angular
+ * e dos componentes, evitando travamentos de estado como "Salvando..." ou
+ * "Atualizando..." após uma requisição concluída.
  */
 export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
-  const zone = inject(NgZone);
-  const appRef = inject(ApplicationRef);
-
-  const atualizarInterface = () => {
-    window.setTimeout(() => {
-      zone.run(() => appRef.tick());
-    }, 0);
-  };
-
-  return new Observable<HttpEvent<unknown>>((observer) => {
-    const subscription = next(req).subscribe({
-      next: (event) => {
-        zone.run(() => {
-          observer.next(event);
-          atualizarInterface();
-        });
-      },
-      error: (error: HttpErrorResponse | TimeoutError) => {
-        zone.run(() => {
-          observer.error(normalizarErroApi(error));
-          atualizarInterface();
-        });
-      },
-      complete: () => {
-        zone.run(() => {
-          observer.complete();
-          atualizarInterface();
-        });
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  });
+  return next(req).pipe(
+    catchError((error: HttpErrorResponse | TimeoutError) => {
+      return throwError(() => normalizarErroApi(error));
+    })
+  );
 };
 
 function normalizarErroApi(error: HttpErrorResponse | TimeoutError): Error {

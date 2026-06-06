@@ -1,4 +1,4 @@
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable, map, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, PageResponse } from '../models/api-response.model';
@@ -6,6 +6,10 @@ import { ApiResponse, PageResponse } from '../models/api-response.model';
 export abstract class BaseApiService<T> {
   protected readonly apiBaseUrl = environment.apiBaseUrl;
   protected readonly tempoLimiteMs = 10000;
+  private readonly noCacheHeaders = new HttpHeaders({
+    'Cache-Control': 'no-cache',
+    'Pragma': 'no-cache'
+  });
 
   protected constructor(
     protected readonly http: HttpClient,
@@ -13,7 +17,10 @@ export abstract class BaseApiService<T> {
   ) {}
 
   listar(): Observable<T[]> {
-    return this.http.get<ApiResponse<PageResponse<T> | T[]>>(`${this.apiBaseUrl}/${this.resourcePath}`)
+    return this.http.get<ApiResponse<PageResponse<T> | T[]>>(`${this.apiBaseUrl}/${this.resourcePath}`, {
+      headers: this.noCacheHeaders,
+      params: this.parametrosSemCache()
+    })
       .pipe(
         timeout(this.tempoLimiteMs),
         map(response => this.extrairLista(this.extrairDados(response)))
@@ -21,7 +28,10 @@ export abstract class BaseApiService<T> {
   }
 
   buscarPorId(id: number): Observable<T> {
-    return this.http.get<ApiResponse<T>>(`${this.apiBaseUrl}/${this.resourcePath}/${id}`)
+    return this.http.get<ApiResponse<T>>(`${this.apiBaseUrl}/${this.resourcePath}/${id}`, {
+      headers: this.noCacheHeaders,
+      params: this.parametrosSemCache()
+    })
       .pipe(
         timeout(this.tempoLimiteMs),
         map(response => this.extrairDados(response) as T)
@@ -29,8 +39,11 @@ export abstract class BaseApiService<T> {
   }
 
   pesquisar(termo: string): Observable<T[]> {
-    const params = new HttpParams().set('termo', termo ?? '');
-    return this.http.get<ApiResponse<PageResponse<T> | T[]>>(`${this.apiBaseUrl}/${this.resourcePath}/pesquisar`, { params })
+    const params = this.parametrosSemCache().set('termo', termo ?? '');
+    return this.http.get<ApiResponse<PageResponse<T> | T[]>>(`${this.apiBaseUrl}/${this.resourcePath}/pesquisar`, {
+      headers: this.noCacheHeaders,
+      params
+    })
       .pipe(
         timeout(this.tempoLimiteMs),
         map(response => this.extrairLista(this.extrairDados(response)))
@@ -67,6 +80,10 @@ export abstract class BaseApiService<T> {
 
   protected extrairMensagem(response: ApiResponse<unknown>): string {
     return response.message ?? response.mensagem ?? 'Operação executada com sucesso.';
+  }
+
+  private parametrosSemCache(): HttpParams {
+    return new HttpParams().set('_t', Date.now().toString());
   }
 
   private extrairLista(data: PageResponse<T> | T[] | null | undefined): T[] {

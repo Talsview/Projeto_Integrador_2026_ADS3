@@ -32,6 +32,7 @@
       <button type="button" class="secondary" (click)="listar()">Listar todas</button>
     </div>
     <p *ngIf="carregando">Carregando funções...</p>
+    <p *ngIf="sincronizandoTabela">Sincronizando tabela com o banco de dados...</p>
     <div class="table-wrap" style="margin-top: 14px;">
       <table>
         <thead><tr><th>ID</th><th>Função</th><th>Descrição</th><th>Ações</th></tr></thead>

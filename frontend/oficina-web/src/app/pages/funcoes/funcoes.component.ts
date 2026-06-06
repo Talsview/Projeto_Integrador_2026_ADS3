@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { FuncaoApiService } from '../../core/services/funcao-api.service';
 import { Funcao } from '../../models/pessoa.model';
 
@@ -16,23 +16,38 @@ export class FuncoesComponent implements OnInit {
   termo = '';
   carregando = false;
   processando = false;
+  sincronizandoTabela = false;
   mensagem?: string;
   erro?: string;
 
   form: Funcao = { nomeFuncao: '', descricao: '' };
 
-  constructor(private readonly funcaoApi: FuncaoApiService) {}
+  constructor(
+    private readonly funcaoApi: FuncaoApiService,
+    private readonly changeDetector: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void { this.listar(); }
 
   listar(): void {
     this.carregando = true;
     this.erro = undefined;
+    this.atualizarTela();
+
     this.funcaoApi.listar()
-      .pipe(finalize(() => this.carregando = false))
+      .pipe(finalize(() => {
+        this.carregando = false;
+        this.atualizarTela();
+      }))
       .subscribe({
-        next: funcoes => this.funcoes = funcoes,
-        error: error => this.erro = error.message
+        next: funcoes => {
+          this.funcoes = [...funcoes];
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message;
+          this.atualizarTela();
+        }
       });
   }
 
@@ -41,11 +56,22 @@ export class FuncoesComponent implements OnInit {
     if (!consulta) { this.listar(); return; }
     this.carregando = true;
     this.erro = undefined;
+    this.atualizarTela();
+
     this.funcaoApi.pesquisar(consulta)
-      .pipe(finalize(() => this.carregando = false))
+      .pipe(finalize(() => {
+        this.carregando = false;
+        this.atualizarTela();
+      }))
       .subscribe({
-        next: funcoes => this.funcoes = funcoes,
-        error: error => this.erro = error.message
+        next: funcoes => {
+          this.funcoes = [...funcoes];
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message;
+          this.atualizarTela();
+        }
       });
   }
 
@@ -53,42 +79,72 @@ export class FuncoesComponent implements OnInit {
     this.mensagem = undefined;
     this.erro = undefined;
     this.processando = true;
+    this.sincronizandoTabela = true;
+    this.atualizarTela();
+
     const acao = this.form.id ? this.funcaoApi.atualizar(this.form.id, this.form) : this.funcaoApi.criar(this.form);
-    acao.pipe(finalize(() => this.processando = false)).subscribe({
-      next: funcao => {
-        this.mensagem = 'Função salva com sucesso.';
-        this.inserirOuAtualizar(funcao);
+    acao.pipe(
+      switchMap(() => this.funcaoApi.listar()),
+      finalize(() => {
+        this.processando = false;
+        this.sincronizandoTabela = false;
+        this.atualizarTela();
+      })
+    ).subscribe({
+      next: funcoesAtualizadas => {
+        this.funcoes = [...funcoesAtualizadas];
+        this.mensagem = 'Função salva com sucesso. A tabela foi atualizada automaticamente.';
         this.limpar();
-        this.listar();
+        this.atualizarTela();
       },
-      error: error => this.erro = error.message
+      error: error => {
+        this.erro = error.message;
+        this.atualizarTela();
+      }
     });
   }
 
-  editar(funcao: Funcao): void { this.form = { ...funcao }; }
+  editar(funcao: Funcao): void {
+    this.form = { ...funcao };
+    this.atualizarTela();
+  }
 
   excluir(funcao: Funcao): void {
     if (!funcao.id) return;
+    this.mensagem = undefined;
+    this.erro = undefined;
     this.processando = true;
+    this.sincronizandoTabela = true;
+    this.atualizarTela();
+
     this.funcaoApi.excluir(funcao.id)
-      .pipe(finalize(() => this.processando = false))
+      .pipe(
+        switchMap(() => this.funcaoApi.listar()),
+        finalize(() => {
+          this.processando = false;
+          this.sincronizandoTabela = false;
+          this.atualizarTela();
+        })
+      )
       .subscribe({
-        next: () => {
-          this.mensagem = 'Função inativada com sucesso.';
-          this.funcoes = this.funcoes.filter(item => item.id !== funcao.id);
-          this.listar();
+        next: funcoesAtualizadas => {
+          this.funcoes = [...funcoesAtualizadas];
+          this.mensagem = 'Função inativada com sucesso. A tabela foi atualizada automaticamente.';
+          this.atualizarTela();
         },
-        error: error => this.erro = error.message
+        error: error => {
+          this.erro = error.message;
+          this.atualizarTela();
+        }
       });
   }
 
-  limpar(): void { this.form = { nomeFuncao: '', descricao: '' }; }
+  limpar(): void {
+    this.form = { nomeFuncao: '', descricao: '' };
+    this.atualizarTela();
+  }
 
-  private inserirOuAtualizar(funcao: Funcao | null | undefined): void {
-    if (!funcao?.id) return;
-    const existe = this.funcoes.some(item => item.id === funcao.id);
-    this.funcoes = existe
-      ? this.funcoes.map(item => item.id === funcao.id ? funcao : item)
-      : [funcao, ...this.funcoes];
+  private atualizarTela(): void {
+    this.changeDetector.detectChanges();
   }
 }

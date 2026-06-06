@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { ClientePessoaFisica, ClientePessoaJuridica, ClienteResumo, TipoCliente } from '../../models/cliente.model';
 
@@ -18,12 +18,9 @@ export class ClientesComponent implements OnInit {
   mensagem?: string;
   erro?: string;
 
-  /**
-   * Estados separados para evitar que o botão de salvar fique preso em "Processando..."
-   * quando a tela estiver apenas atualizando a tabela.
-   */
   consultando = false;
   salvando = false;
+  sincronizandoTabela = false;
 
   form = {
     nome: '',
@@ -39,7 +36,10 @@ export class ClientesComponent implements OnInit {
     inscricaoEstadual: ''
   };
 
-  constructor(private readonly clienteApi: ClienteApiService) {}
+  constructor(
+    private readonly clienteApi: ClienteApiService,
+    private readonly changeDetector: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.listar();
@@ -48,12 +48,22 @@ export class ClientesComponent implements OnInit {
   listar(): void {
     this.consultando = true;
     this.erro = undefined;
+    this.atualizarTela();
 
     this.clienteApi.listar()
-      .pipe(finalize(() => this.consultando = false))
+      .pipe(finalize(() => {
+        this.consultando = false;
+        this.atualizarTela();
+      }))
       .subscribe({
-        next: clientes => this.clientes = clientes,
-        error: error => this.erro = error.message ?? 'Não foi possível consultar os clientes.'
+        next: clientes => {
+          this.clientes = [...clientes];
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message ?? 'Não foi possível consultar os clientes.';
+          this.atualizarTela();
+        }
       });
   }
 
@@ -66,12 +76,22 @@ export class ClientesComponent implements OnInit {
 
     this.consultando = true;
     this.erro = undefined;
+    this.atualizarTela();
 
     this.clienteApi.pesquisar(consulta)
-      .pipe(finalize(() => this.consultando = false))
+      .pipe(finalize(() => {
+        this.consultando = false;
+        this.atualizarTela();
+      }))
       .subscribe({
-        next: clientes => this.clientes = clientes,
-        error: error => this.erro = error.message ?? 'Não foi possível pesquisar clientes.'
+        next: clientes => {
+          this.clientes = [...clientes];
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message ?? 'Não foi possível pesquisar clientes.';
+          this.atualizarTela();
+        }
       });
   }
 
@@ -79,22 +99,30 @@ export class ClientesComponent implements OnInit {
     this.mensagem = undefined;
     this.erro = undefined;
     this.salvando = true;
+    this.sincronizandoTabela = true;
+    this.atualizarTela();
 
     const acao = this.tipoCliente === 'PESSOA_FISICA'
       ? this.clienteApi.criarPessoaFisica(this.montarPayloadPessoaFisica())
       : this.clienteApi.criarPessoaJuridica(this.montarPayloadPessoaJuridica());
 
-    acao.pipe(finalize(() => this.salvando = false)).subscribe({
-      next: clienteSalvo => {
-        this.mensagem = 'Cliente salvo com sucesso.';
-        this.inserirOuAtualizarNaTabela(clienteSalvo);
+    acao.pipe(
+      switchMap(() => this.clienteApi.listar()),
+      finalize(() => {
+        this.salvando = false;
+        this.sincronizandoTabela = false;
+        this.atualizarTela();
+      })
+    ).subscribe({
+      next: clientesAtualizados => {
+        this.clientes = [...clientesAtualizados];
+        this.mensagem = 'Cliente salvo com sucesso. A tabela foi atualizada automaticamente.';
         this.limpar();
-
-        // Atualização de conferência para manter a lista fiel ao banco, sem travar o botão Salvar.
-        this.listar();
+        this.atualizarTela();
       },
       error: (error: Error) => {
         this.erro = error.message ?? 'Não foi possível salvar o cliente.';
+        this.atualizarTela();
       }
     });
   }
@@ -104,6 +132,7 @@ export class ClientesComponent implements OnInit {
       nome: '', telefone: '', email: '', endereco: '', cpf: '', rg: '', dataNascimento: '',
       cnpj: '', razaoSocial: '', nomeFantasia: '', inscricaoEstadual: ''
     };
+    this.atualizarTela();
   }
 
   private montarPayloadPessoaFisica(): ClientePessoaFisica {
@@ -131,17 +160,7 @@ export class ClientesComponent implements OnInit {
     };
   }
 
-  private inserirOuAtualizarNaTabela(clienteSalvo: ClienteResumo | null | undefined): void {
-    if (!clienteSalvo?.id) {
-      return;
-    }
-
-    const indice = this.clientes.findIndex(cliente => cliente.id === clienteSalvo.id);
-    if (indice >= 0) {
-      this.clientes = this.clientes.map(cliente => cliente.id === clienteSalvo.id ? clienteSalvo : cliente);
-      return;
-    }
-
-    this.clientes = [clienteSalvo, ...this.clientes];
+  private atualizarTela(): void {
+    this.changeDetector.detectChanges();
   }
 }

@@ -1218,3 +1218,59 @@ docs/README_ETAPA22_ORGANIZACAO_SQL_CARREGAMENTO_TELAS.md
 docs/adr/ADR-025-organizacao-sql-carregamento-inicial-telas.md
 database/03_verificacoes/11_verificacao_carregamento_inicial_telas.sql
 ```
+
+---
+
+# Etapa 23 — Atualização Imediata das Tabelas após Cadastro
+
+Nesta etapa foi corrigido o comportamento observado no frontend Angular em que, após salvar um registro, a tabela só exibia os dados atualizados depois de o usuário clicar novamente em algum botão, como “Listar todos”.
+
+## Problema identificado
+
+Em telas como Clientes e Funções, o cadastro era concluído no backend, porém a interface permanecia temporariamente com a tabela antiga ou com mensagem de atualização. Isso prejudicava a usabilidade, pois o usuário precisava realizar uma segunda ação para enxergar o registro salvo.
+
+## Correção aplicada
+
+A comunicação com a API foi ajustada para que, após uma operação de gravação, o frontend execute a sequência correta:
+
+```text
+1. Enviar cadastro para o backend.
+2. Aguardar confirmação da API.
+3. Consultar novamente a lista diretamente no banco, sem cache.
+4. Atualizar a tabela local com uma nova referência de array.
+5. Encerrar os estados de carregamento e processamento.
+6. Exibir feedback de sucesso ao usuário.
+```
+
+## Arquivos alterados
+
+```text
+frontend/oficina-web/src/app/core/services/base-api.service.ts
+frontend/oficina-web/src/app/core/interceptors/api-error.interceptor.ts
+frontend/oficina-web/src/app/pages/clientes/clientes.component.ts
+frontend/oficina-web/src/app/pages/clientes/clientes.component.html
+frontend/oficina-web/src/app/pages/funcoes/funcoes.component.ts
+frontend/oficina-web/src/app/pages/funcoes/funcoes.component.html
+```
+
+## Melhorias técnicas
+
+```text
+- As consultas GET agora usam parâmetro _t com timestamp para evitar resposta em cache.
+- As consultas GET também enviam cabeçalhos Cache-Control e Pragma como no-cache.
+- O interceptor HTTP foi simplificado para tratar apenas erros da API.
+- A atualização visual passou a ser controlada diretamente pelos componentes críticos.
+- O salvamento de Clientes e Funções passou a usar fluxo encadeado: salvar → listar → atualizar tabela.
+```
+
+## Resultado esperado
+
+Ao abrir a tela, os dados já devem ser carregados automaticamente. Ao salvar um cliente ou uma função, a tabela deve ser atualizada automaticamente sem exigir clique manual em “Listar todos”.
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA23_ATUALIZACAO_IMEDIATA_TELAS.md
+docs/adr/ADR-026-atualizacao-imediata-tabelas-angular.md
+database/03_verificacoes/12_verificacao_atualizacao_imediata_telas.sql
+```
