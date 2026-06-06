@@ -1,0 +1,61 @@
+<h1 class="page-title">Estrutura de Dados I</h1>
+<p class="page-subtitle">
+  Demonstração acadêmica da fila de atendimento, busca linear, ordenação manual e cálculo recursivo aplicados às Ordens de Serviço.
+</p>
+
+<section class="card">
+  <div class="actions">
+    <button type="button" (click)="carregarFila()">Fila de atendimento</button>
+    <button type="button" class="secondary" (click)="ordenar('DATA_ABERTURA')">Ordenar por data</button>
+    <button type="button" class="secondary" (click)="ordenar('VALOR_TOTAL')">Ordenar por valor</button>
+    <button type="button" class="secondary" (click)="ordenar('PRIORIDADE')">Ordenar por prioridade</button>
+  </div>
+
+  <div class="form-row" style="margin-top: 14px;">
+    <div>
+      <label>Pesquisa linear</label>
+      <input [(ngModel)]="termo" placeholder="Número da OS, placa ou cliente">
+    </div>
+    <div class="actions" style="align-items: end;">
+      <button type="button" (click)="pesquisarLinear()">Pesquisar linearmente</button>
+    </div>
+  </div>
+
+  <div class="form-row" style="margin-top: 14px;">
+    <div>
+      <label>ID da OS para total recursivo</label>
+      <input type="number" [(ngModel)]="idTotal">
+    </div>
+    <div class="actions" style="align-items: end;">
+      <button type="button" (click)="calcularTotalRecursivo()">Calcular total recursivo</button>
+    </div>
+  </div>
+
+  <p class="alert" *ngIf="totalRecursivo">Resultado recursivo: {{ totalRecursivo }}</p>
+  <p class="alert error" *ngIf="erro">{{ erro }}</p>
+
+  <div class="table-wrap" style="margin-top: 14px;">
+    <table>
+      <thead>
+        <tr>
+          <th>Nº OS</th>
+          <th>Cliente</th>
+          <th>Placa</th>
+          <th>Status</th>
+          <th>Prioridade</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ordem of ordens">
+          <td>{{ ordem.numeroOs }}</td>
+          <td>{{ ordem.nomeCliente }}</td>
+          <td>{{ ordem.placaVeiculo }}</td>
+          <td>{{ ordem.statusAtual }}</td>
+          <td>{{ ordem.prioridade }}</td>
+          <td>{{ ordem.valorTotal | currency:'BRL' }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

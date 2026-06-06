@@ -1,0 +1,47 @@
+<h1 class="page-title">Veículos</h1>
+<p class="page-subtitle">
+  Consulta inicial de veículos cadastrados, mantendo rastreabilidade por marca, modelo, placa e proprietário atual.
+</p>
+
+<section class="card">
+  <div class="actions">
+    <input [(ngModel)]="termo" placeholder="Pesquisar por placa, cliente, marca ou modelo" (keyup.enter)="pesquisar()">
+    <button type="button" (click)="pesquisar()">Pesquisar</button>
+    <button type="button" class="secondary" (click)="listar()">Listar todos</button>
+  </div>
+
+  <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  <p *ngIf="carregando">Carregando veículos...</p>
+
+  <div class="table-wrap" style="margin-top: 14px;">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Placa</th>
+          <th>Marca</th>
+          <th>Modelo</th>
+          <th>Ano fab.</th>
+          <th>Ano modelo</th>
+          <th>KM</th>
+          <th>Proprietário atual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let veiculo of veiculos">
+          <td>{{ veiculo.id }}</td>
+          <td><strong>{{ veiculo.placa }}</strong></td>
+          <td>{{ veiculo.nomeMarca }}</td>
+          <td>{{ veiculo.nomeModelo }}</td>
+          <td>{{ veiculo.anoVeiculo }}</td>
+          <td>{{ veiculo.anoModelo }}</td>
+          <td>{{ veiculo.quilometragemAtual }}</td>
+          <td>{{ veiculo.nomeProprietarioAtual }}</td>
+        </tr>
+        <tr *ngIf="!veiculos.length && !carregando">
+          <td colspan="8">Nenhum veículo encontrado.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

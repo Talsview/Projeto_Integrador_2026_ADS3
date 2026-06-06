@@ -1,0 +1,120 @@
+<h1 class="page-title">Clientes</h1>
+<p class="page-subtitle">
+  Cadastro e consulta de clientes pessoa física e pessoa jurídica, respeitando a especialização exclusiva e total do modelo.
+</p>
+
+<div class="grid two">
+  <section class="card">
+    <h2>Novo cliente</h2>
+    <div class="form-row">
+      <div>
+        <label>Tipo de cliente</label>
+        <select [(ngModel)]="tipoCliente">
+          <option value="PESSOA_FISICA">Pessoa Física</option>
+          <option value="PESSOA_JURIDICA">Pessoa Jurídica</option>
+        </select>
+      </div>
+      <div>
+        <label>Nome</label>
+        <input [(ngModel)]="form.nome" placeholder="Nome do cliente">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div>
+        <label>Telefone</label>
+        <input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999">
+      </div>
+      <div>
+        <label>E-mail</label>
+        <input [(ngModel)]="form.email" placeholder="cliente@email.com">
+      </div>
+    </div>
+
+    <div>
+      <label>Endereço</label>
+      <input [(ngModel)]="form.endereco" placeholder="Endereço completo">
+    </div>
+
+    <div class="form-row" *ngIf="tipoCliente === 'PESSOA_FISICA'">
+      <div>
+        <label>CPF</label>
+        <input [(ngModel)]="form.cpf" placeholder="000.000.000-00">
+      </div>
+      <div>
+        <label>RG</label>
+        <input [(ngModel)]="form.rg">
+      </div>
+      <div>
+        <label>Data de nascimento</label>
+        <input type="date" [(ngModel)]="form.dataNascimento">
+      </div>
+    </div>
+
+    <div class="form-row" *ngIf="tipoCliente === 'PESSOA_JURIDICA'">
+      <div>
+        <label>CNPJ</label>
+        <input [(ngModel)]="form.cnpj" placeholder="00.000.000/0000-00">
+      </div>
+      <div>
+        <label>Razão social</label>
+        <input [(ngModel)]="form.razaoSocial">
+      </div>
+      <div>
+        <label>Nome fantasia</label>
+        <input [(ngModel)]="form.nomeFantasia">
+      </div>
+      <div>
+        <label>Inscrição estadual</label>
+        <input [(ngModel)]="form.inscricaoEstadual">
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top: 14px;">
+      <button type="button" (click)="salvar()">Salvar</button>
+      <button type="button" class="secondary" (click)="limpar()">Limpar</button>
+    </div>
+
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+
+  <section class="card">
+    <h2>Consulta</h2>
+    <div class="actions">
+      <input [(ngModel)]="termo" placeholder="Pesquisar por nome, documento, telefone ou e-mail" (keyup.enter)="pesquisar()">
+      <button type="button" (click)="pesquisar()">Pesquisar</button>
+      <button type="button" class="secondary" (click)="listar()">Listar todos</button>
+    </div>
+
+    <p *ngIf="carregando">Carregando clientes...</p>
+
+    <div class="table-wrap" style="margin-top: 14px;">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Nome</th>
+            <th>Documento</th>
+            <th>Telefone</th>
+            <th>E-mail</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientes">
+            <td>{{ cliente.id }}</td>
+            <td><span class="badge">{{ cliente.tipoCliente }}</span></td>
+            <td>{{ cliente.nome }}</td>
+            <td>{{ cliente.documento }}</td>
+            <td>{{ cliente.telefone }}</td>
+            <td>{{ cliente.email }}</td>
+          </tr>
+          <tr *ngIf="!clientes.length && !carregando">
+            <td colspan="6">Nenhum cliente encontrado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

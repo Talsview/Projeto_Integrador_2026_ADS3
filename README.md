@@ -2,7 +2,7 @@
 
 ## Situação desta versão
 
-Esta versão corresponde à **Etapa 7 — Módulo Ordem de Serviço, Status, Histórico de Status e ItemServico**.
+Esta versão corresponde à **Etapa 12 — Frontend Angular e integração inicial com a API REST**.
 
 O projeto está sendo refatorado para funcionar como uma API REST em Spring Boot, com frontend Angular como camada View e PostgreSQL local como banco de dados.
 
@@ -742,3 +742,53 @@ Etapa 12 — Preparação do Angular e integração inicial com Swagger/API REST
 ```
 
 A próxima etapa deve iniciar a camada View em Angular, configurando o projeto frontend, rotas principais, serviços HTTP e primeira tela de integração com o backend.
+
+---
+
+# Etapa 12 — Frontend Angular e integração inicial com API REST
+
+Foi criada a primeira versão da camada **View** em Angular no diretório:
+
+```text
+frontend/oficina-web
+```
+
+A aplicação Angular foi preparada para consumir a API REST local do backend:
+
+```text
+http://localhost:9081/api
+```
+
+Foram criados:
+
+```text
+Estrutura base Angular
+Rotas principais
+Layout com menu lateral
+Serviços HTTP
+Interceptador de erro da API
+Models TypeScript compatíveis com DTOs Java
+Tela de painel operacional
+Tela inicial de clientes
+Tela inicial de veículos
+Tela inicial de ordens de serviço
+Tela de estrutura de dados
+Tela de padrões de projeto
+Link direto para Swagger
+```
+
+Comandos de execução do frontend:
+
+```bash
+cd frontend/oficina-web
+npm install
+npm start
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA12_ANGULAR.md
+docs/adr/ADR-015-angular-integracao-api-rest.md
+docs/COMO_EXECUTAR_BACKEND_FRONTEND.md
+```

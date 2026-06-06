@@ -1,0 +1,72 @@
+<h1 class="page-title">Ordens de Serviço</h1>
+<p class="page-subtitle">
+  Tela inicial de consulta e mudança controlada de status da OS: Orçamento, Execução, Pagamento e Finalizado.
+</p>
+
+<div class="grid two">
+  <section class="card">
+    <h2>Consulta de OS</h2>
+    <div class="actions">
+      <input [(ngModel)]="termo" placeholder="Pesquisar por número, placa ou cliente" (keyup.enter)="pesquisar()">
+      <button type="button" (click)="pesquisar()">Pesquisar</button>
+      <button type="button" class="secondary" (click)="listar()">Listar todos</button>
+    </div>
+
+    <p *ngIf="carregando">Carregando ordens de serviço...</p>
+
+    <div class="table-wrap" style="margin-top: 14px;">
+      <table>
+        <thead>
+          <tr>
+            <th>Nº OS</th>
+            <th>Cliente</th>
+            <th>Placa</th>
+            <th>Status</th>
+            <th>Prioridade</th>
+            <th>Total</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let ordem of ordens">
+            <td>{{ ordem.numeroOs }}</td>
+            <td>{{ ordem.nomeCliente }}</td>
+            <td>{{ ordem.placaVeiculo }}</td>
+            <td><span class="badge">{{ ordem.statusAtual }}</span></td>
+            <td>{{ ordem.prioridade }}</td>
+            <td>{{ ordem.valorTotal | currency:'BRL' }}</td>
+            <td><button type="button" class="secondary" (click)="selecionar(ordem)">Selecionar</button></td>
+          </tr>
+          <tr *ngIf="!ordens.length && !carregando">
+            <td colspan="7">Nenhuma ordem de serviço encontrada.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Alterar status</h2>
+    <p *ngIf="!ordemSelecionada" class="page-subtitle">Selecione uma OS na listagem.</p>
+    <div *ngIf="ordemSelecionada">
+      <p><strong>OS selecionada:</strong> {{ ordemSelecionada.numeroOs }} — {{ ordemSelecionada.nomeCliente }}</p>
+      <div>
+        <label>Novo status</label>
+        <select [(ngModel)]="novoStatus">
+          <option value="ORCAMENTO">ORCAMENTO</option>
+          <option value="EXECUCAO">EXECUCAO</option>
+          <option value="PAGAMENTO">PAGAMENTO</option>
+          <option value="FINALIZADO">FINALIZADO</option>
+        </select>
+      </div>
+      <div>
+        <label>Observação</label>
+        <textarea rows="4" [(ngModel)]="observacaoStatus"></textarea>
+      </div>
+      <button type="button" style="margin-top: 12px;" (click)="alterarStatus()">Confirmar alteração</button>
+    </div>
+
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+</div>

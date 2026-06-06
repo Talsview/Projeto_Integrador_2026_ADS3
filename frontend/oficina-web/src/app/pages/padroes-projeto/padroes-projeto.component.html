@@ -1,0 +1,15 @@
+<h1 class="page-title">Padrões de Projeto</h1>
+<p class="page-subtitle">
+  Consulta dos padrões aplicados no backend para apoiar a apresentação acadêmica e a avaliação da disciplina.
+</p>
+
+<p class="alert error" *ngIf="erro">{{ erro }}</p>
+
+<div class="grid two">
+  <article class="card" *ngFor="let padrao of padroes">
+    <h2>{{ padrao.padrao }}</h2>
+    <p><strong>Classe principal:</strong> {{ padrao.classePrincipal }}</p>
+    <p><strong>Aplicação:</strong> {{ padrao.localAplicacao }}</p>
+    <p><strong>Justificativa:</strong> {{ padrao.justificativa }}</p>
+  </article>
+</div>

@@ -1,0 +1,24 @@
+<header class="topbar">
+  <div>
+    <strong>AV CAR AUTO CENTER</strong>
+    <span>Sistema de Gestão para Oficina Mecânica</span>
+  </div>
+  <a class="swagger" [href]="swaggerUrl" target="_blank" rel="noopener">Swagger / API</a>
+</header>
+
+<div class="shell">
+  <aside class="sidebar">
+    <nav>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Painel</a>
+      <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
+      <a routerLink="/veiculos" routerLinkActive="active">Veículos</a>
+      <a routerLink="/ordens-servico" routerLinkActive="active">Ordens de Serviço</a>
+      <a routerLink="/estrutura-dados" routerLinkActive="active">Estrutura de Dados</a>
+      <a routerLink="/padroes-projeto" routerLinkActive="active">Padrões de Projeto</a>
+    </nav>
+  </aside>
+
+  <main class="content">
+    <router-outlet />
+  </main>
+</div>

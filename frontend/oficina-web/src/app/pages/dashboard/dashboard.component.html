@@ -1,0 +1,45 @@
+<h1 class="page-title">Painel operacional</h1>
+<p class="page-subtitle">
+  Camada View em Angular para consumir a API REST do sistema monolítico em camadas da oficina mecânica.
+</p>
+
+<section class="grid three cards">
+  <a class="module-card" routerLink="/clientes">
+    <strong>Clientes</strong>
+    <span>Pessoa física e pessoa jurídica.</span>
+  </a>
+  <a class="module-card" routerLink="/veiculos">
+    <strong>Veículos</strong>
+    <span>Marca, modelo e histórico de proprietários.</span>
+  </a>
+  <a class="module-card" routerLink="/ordens-servico">
+    <strong>Ordens de Serviço</strong>
+    <span>Fluxo: orçamento, execução, pagamento e finalizado.</span>
+  </a>
+</section>
+
+<section class="grid two section-gap">
+  <div class="card">
+    <h2>Verificação da API</h2>
+    <p>Confirma se o backend em Spring Boot está respondendo e se a conexão local com PostgreSQL está disponível.</p>
+    <div class="actions">
+      <button type="button" (click)="verificarBanco()" [disabled]="carregandoBanco">
+        {{ carregandoBanco ? 'Verificando...' : 'Verificar banco' }}
+      </button>
+      <span class="badge">{{ statusBanco }}</span>
+    </div>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </div>
+
+  <div class="card">
+    <h2>Padrões de projeto</h2>
+    <p>Endpoint de apoio acadêmico para demonstrar onde os seis padrões foram aplicados.</p>
+    <ul class="pattern-list">
+      <li *ngFor="let padrao of padroes">
+        <strong>{{ padrao.padrao }}</strong>
+        <span>{{ padrao.classePrincipal }}</span>
+      </li>
+    </ul>
+    <a routerLink="/padroes-projeto" class="text-link">Ver detalhes</a>
+  </div>
+</section>

@@ -1,0 +1,71 @@
+.topbar {
+  height: 66px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  background: var(--primary-dark);
+  color: #ffffff;
+  padding: 0 24px;
+}
+
+.topbar strong {
+  display: block;
+  font-size: 18px;
+}
+
+.topbar span {
+  display: block;
+  font-size: 13px;
+  opacity: .85;
+  margin-top: 2px;
+}
+
+.swagger {
+  text-decoration: none;
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.3);
+  padding: 9px 12px;
+  border-radius: 8px;
+  font-weight: 700;
+}
+
+.shell {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr);
+  min-height: calc(100vh - 66px);
+}
+
+.sidebar {
+  background: #0f2438;
+  color: #dbeafe;
+  padding: 18px 12px;
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 8px;
+}
+
+.sidebar a {
+  text-decoration: none;
+  padding: 11px 12px;
+  border-radius: 9px;
+  color: #dbeafe;
+  font-weight: 700;
+}
+
+.sidebar a.active,
+.sidebar a:hover {
+  background: rgba(255,255,255,.12);
+  color: #ffffff;
+}
+
+.content {
+  padding: 24px;
+}
+
+@media (max-width: 900px) {
+  .shell { grid-template-columns: 1fr; }
+  .sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
