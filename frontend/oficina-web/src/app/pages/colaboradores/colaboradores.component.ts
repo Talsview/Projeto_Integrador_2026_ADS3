@@ -145,8 +145,7 @@ export class ColaboradoresComponent implements OnInit {
     this.erro = undefined;
     this.atualizarTela();
 
-    this.colaboradorApi.excluir(colaborador.id).pipe(
-      switchMap(() => this.colaboradorApi.listar()),
+    this.colaboradorApi.excluirEListar(colaborador.id).pipe(
       finalize(() => { this.processando = false; this.atualizarTela(); })
     ).subscribe({
       next: colaboradores => {

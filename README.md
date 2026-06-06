@@ -1372,3 +1372,131 @@ Validação TypeScript executada:
 ```
 
 Resultado: sem erros de TypeScript.
+
+
+# Etapa 26 — Otimização técnica e auditoria de redundâncias
+
+Esta etapa reorganizou pontos internos do projeto para reduzir duplicação e preparar a próxima fase visual do Angular.
+
+Principais ajustes realizados:
+
+```text
+1. Inclusão do script scripts/auditoria_otimizacao_codigo.py.
+2. Criação do relatório docs/relatorios/RELATORIO_AUDITORIA_OTIMIZACAO_CODIGO.md.
+3. Remoção da tela operacional de Padrões de Projeto do frontend, mantendo os padrões documentados no backend e nas ADRs.
+4. Menu principal do Angular passou a ser orientado por dados em AppComponent, evitando repetição de links no HTML.
+5. BaseApiService recebeu métodos reutilizáveis para salvar/excluir e recarregar a lista automaticamente.
+6. Componentes simples passaram a usar operações centralizadas do BaseApiService quando aplicável.
+7. Organização SQL mantida em schema, seed, verificações e script completo opcional.
+```
+
+Comando de auditoria local:
+
+```bash
+python scripts/auditoria_otimizacao_codigo.py
+```
+
+No frontend:
+
+```bash
+cd frontend/oficina-web
+npm.cmd install
+npm.cmd start
+```
+
+
+---
+
+## Etapa 27 — Reformulação Visual Profissional do Angular
+
+Nesta etapa, o frontend Angular foi reformulado para se aproximar de um sistema administrativo real de oficina mecânica, com foco em usabilidade, rastreabilidade e operação diária.
+
+Principais ajustes realizados:
+
+```text
+1. Reformulação completa do layout global do Angular.
+2. Criação de sidebar profissional com grupos: Atendimento e OS, Cadastros e Gestão.
+3. Criação de topbar com busca visual, usuário logado, atalho para nova OS e status do backend local.
+4. Remoção da tela operacional de Padrões de Projeto do menu do sistema.
+5. Renomeação operacional da antiga Estrutura de Dados para Fila de Atendimento.
+6. Substituição do dashboard genérico por Visão Geral da Oficina.
+7. Criação de indicadores reais calculados a partir dos services existentes.
+8. Criação de atalhos operacionais para OS, clientes, veículos, pagamentos, garantias e fila.
+9. Padronização visual de cards, tabelas, botões, badges, formulários, alertas e responsividade.
+10. Inclusão de telas reservadas para Relatórios e Configurações no grupo Gestão.
+```
+
+A comunicação com o backend Spring Boot REST foi preservada. Nenhum endpoint foi alterado.
+
+
+## Etapa 28 — Ajuste visual conforme modelo de referência
+
+- Layout Angular reformulado para seguir o modelo visual de referência enviado.
+- Sidebar escura, topbar clara, cards operacionais, fluxo de OS, ações rápidas e tabelas profissionais.
+- Mantida a comunicação validada com backend e banco de dados.
+- Validação TypeScript executada sem erros.
+
+
+
+## Etapa 29 — Limpeza da barra superior e remoção de ícones decorativos
+
+Nesta etapa, o frontend Angular foi ajustado para uma apresentação mais sóbria e profissional. A busca global da barra superior foi removida, o botão de notificação foi retirado e os símbolos decorativos foram substituídos por siglas funcionais nos menus e cards.
+
+Principais ajustes:
+
+```text
+- Remoção da busca superior "Buscar no sistema...".
+- Remoção do ícone de notificações.
+- Remoção do botão visual de modo escuro.
+- Remoção de emojis e símbolos decorativos da tela inicial.
+- Substituição dos ícones do menu por siglas operacionais, como OS, CL, VE, PG e GT.
+- Manutenção da comunicação Angular com o backend Spring Boot.
+```
+
+
+---
+
+# Etapa 30 — Refatoração visual com abas superiores e layout quadrado
+
+Nesta etapa, o frontend Angular foi refatorado para abandonar o menu lateral e utilizar uma navegação superior em abas, com aparência mais direta, quadrada e semelhante a um sistema administrativo de cadastro utilizado em ambiente local de oficina mecânica.
+
+## Alterações principais
+
+```text
+1. Remoção da sidebar lateral escura.
+2. Criação de cabeçalho superior fixo com identificação da AV CAR AUTO CENTER.
+3. Criação de abas superiores agrupadas por Operação, Cadastros e Gestão.
+4. Ajuste visual para componentes mais quadrados, com bordas menores e sombras discretas.
+5. Remoção de elementos decorativos excessivos no painel inicial.
+6. Correção do texto dos cards que aparecia sobreposto.
+7. Manutenção da comunicação Angular → Spring Boot → PostgreSQL.
+8. Preservação das rotas e services Angular existentes.
+```
+
+## Resultado esperado
+
+O sistema passa a ter aparência mais próxima de um sistema de cadastro operacional, com navegação superior, menos elementos decorativos e telas mais objetivas para uso na oficina.
+
+## Etapa 31 — Menu superior com categorias
+
+Nesta etapa, a navegação superior do Angular foi reorganizada para exibir categorias em vez de mostrar todas as telas diretamente na barra principal.
+
+Nova organização:
+
+```text
+Início
+Operação
+Cadastros
+Gestão
+```
+
+As opções de cada grupo aparecem em menus suspensos. A alteração melhora a usabilidade, reduz a poluição visual e deixa o sistema com aparência mais adequada a um software administrativo de oficina mecânica.
+
+Arquivos principais alterados:
+
+```text
+frontend/oficina-web/src/app/app.component.html
+frontend/oficina-web/src/app/app.component.css
+docs/README_ETAPA31_MENU_SUPERIOR_CATEGORIAS.md
+docs/adr/ADR-034-menu-superior-categorias-angular.md
+```

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize, forkJoin, switchMap } from 'rxjs';
+import { finalize, forkJoin } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { MarcaApiService } from '../../core/services/marca-api.service';
 import { ModeloApiService } from '../../core/services/modelo-api.service';
@@ -129,10 +129,7 @@ export class VeiculosComponent implements OnInit {
     this.erro = undefined;
     this.processando = true;
     this.atualizarTela();
-
-    const acao = this.form.id ? this.veiculoApi.atualizar(this.form.id, this.form) : this.veiculoApi.criar(this.form);
-    acao.pipe(
-      switchMap(() => this.veiculoApi.listar()),
+    this.veiculoApi.salvarEListar(this.form.id, this.form).pipe(
       finalize(() => {
         this.processando = false;
         this.atualizarTela();
@@ -162,8 +159,7 @@ export class VeiculosComponent implements OnInit {
     this.erro = undefined;
     this.atualizarTela();
 
-    this.veiculoApi.excluir(v.id).pipe(
-      switchMap(() => this.veiculoApi.listar()),
+    this.veiculoApi.excluirEListar(v.id).pipe(
       finalize(() => {
         this.processando = false;
         this.atualizarTela();

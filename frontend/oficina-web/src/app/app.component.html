@@ -1,52 +1,45 @@
-<header class="topbar">
-  <div class="brand-area">
-    <div class="brand-mark">AV</div>
-    <div>
-      <strong>AV CAR AUTO CENTER</strong>
-      <span>Sistema local de gestão para oficina mecânica</span>
-    </div>
-  </div>
-
-  <div class="topbar-actions">
-    <span class="system-status">PostgreSQL local • API REST</span>
-    <a class="swagger" [href]="swaggerUrl" target="_blank" rel="noopener">Swagger</a>
-  </div>
-</header>
-
-<div class="shell">
-  <aside class="sidebar">
-    <div class="sidebar-title">
-      <strong>Menu do sistema</strong>
-      <span>Cadastros e ordens de serviço</span>
+<div class="app-shell top-layout">
+  <header class="system-header">
+    <div class="system-brand" routerLink="/" aria-label="Página inicial">
+      <div class="brand-mark">AV</div>
+      <div class="brand-text">
+        <strong>AV CAR AUTO CENTER</strong>
+        <span>Sistema de gestão para oficina mecânica</span>
+      </div>
     </div>
 
-    <nav aria-label="Navegação principal">
-      <a class="nav-home" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-        Início
-      </a>
-
-      <div class="nav-group">
-        <span class="nav-group-title">Cadastros</span>
-        <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
-        <a routerLink="/veiculos" routerLinkActive="active">Veículos</a>
-        <a routerLink="/colaboradores" routerLinkActive="active">Colaboradores</a>
-        <a routerLink="/funcoes" routerLinkActive="active">Funções</a>
-        <a routerLink="/marcas-modelos" routerLinkActive="active">Marcas e modelos</a>
-        <a routerLink="/servicos" routerLinkActive="active">Serviços</a>
-        <a routerLink="/empresas-terceirizadas" routerLinkActive="active">Empresas terceirizadas</a>
-        <a routerLink="/pecas-fornecedores" routerLinkActive="active">Peças e fornecedores</a>
+    <div class="system-actions">
+      <a class="primary-shortcut" routerLink="/ordens-servico">Nova OS</a>
+      <a class="api-link" [href]="swaggerUrl" target="_blank" rel="noopener">Swagger</a>
+      <div class="user-chip" aria-label="Usuário logado">
+        <span class="avatar">A</span>
+        <span><strong>Administrador</strong><small>Gerente</small></span>
       </div>
+    </div>
+  </header>
 
-      <div class="nav-group">
-        <span class="nav-group-title">Ordens de Serviço</span>
-        <a routerLink="/ordens-servico" routerLinkActive="active">Abertura e consulta de OS</a>
-        <a routerLink="/itens-os" routerLinkActive="active">Serviços e peças da OS</a>
-        <a routerLink="/fila-atendimento" routerLinkActive="active">Fila de atendimento</a>
-        <a routerLink="/pagamentos" routerLinkActive="active">Pagamentos</a>
-        <a routerLink="/garantias" routerLinkActive="active">Garantias</a>
+  <nav class="category-navigation" aria-label="Navegação principal do sistema">
+    <a class="category-home" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      Início
+    </a>
+
+    <div class="category-menu" *ngFor="let group of menuGroups">
+      <button class="category-button" type="button" [attr.aria-label]="'Abrir categoria ' + group.title">
+        <span>{{ group.title }}</span>
+        <span class="category-caret">▾</span>
+      </button>
+
+      <div class="category-dropdown" role="menu">
+        <a class="dropdown-item" *ngFor="let item of group.items" [routerLink]="item.route" routerLinkActive="active" role="menuitem">
+          <span class="item-code">{{ item.icon }}</span>
+          <span class="item-text">
+            <strong>{{ item.label }}</strong>
+            <small>{{ item.description }}</small>
+          </span>
+        </a>
       </div>
-    </nav>
-  </aside>
+    </div>
+  </nav>
 
   <main class="content">
     <router-outlet />

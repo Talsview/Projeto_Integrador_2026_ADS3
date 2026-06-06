@@ -1,5 +1,5 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { Observable, map, timeout } from 'rxjs';
+import { Observable, map, switchMap, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse, PageResponse } from '../models/api-response.model';
 
@@ -78,6 +78,19 @@ export abstract class BaseApiService<T> {
         timeout(this.tempoLimiteMs),
         map(() => undefined)
       );
+  }
+
+  salvarEListar(id: number | null | undefined, payload: Partial<T>): Observable<T[]> {
+    const acao = id ? this.atualizar(id, payload) : this.criar(payload);
+    return acao.pipe(switchMap(() => this.listar()));
+  }
+
+  excluirEListar(id: number): Observable<T[]> {
+    return this.excluir(id).pipe(switchMap(() => this.listar()));
+  }
+
+  atualizarEListar(id: number, payload: Partial<T>): Observable<T[]> {
+    return this.atualizar(id, payload).pipe(switchMap(() => this.listar()));
   }
 
   protected extrairDados<R>(response: ApiResponse<R> | R | null | undefined): R | null | undefined {

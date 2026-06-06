@@ -1,3 +1,17 @@
+# Banco de Dados — AV CAR AUTO CENTER
+
+A organização do banco permanece separada por finalidade:
+
+```text
+database/01_schema       → estrutura física do banco
+database/02_seed         → dados iniciais
+database/03_verificacoes → conferências e testes
+database/04_completo     → script completo opcional
+```
+
+## Etapa 31
+
+A Etapa 31 alterou apenas o frontend Angular, reorganizando o menu superior em categorias. Não houve alteração no modelo físico, nos scripts SQL, nas constraints ou nas seeds.
 # Banco de Dados Local — AV CAR AUTO CENTER
 
 ## Organização oficial dos scripts
@@ -154,3 +168,41 @@ database/03_verificacoes/14_verificacao_comunicacao_global_frontend.sql
 ```
 
 Esse script confere a quantidade de registros ativos nas principais tabelas utilizadas pelas telas de cadastro e de ordens de serviço.
+
+
+## Observação da Etapa 26
+
+A organização dos scripts SQL permanece separada por finalidade:
+
+```text
+01_schema       -> criação da estrutura física do banco
+02_seed         -> dados iniciais obrigatórios
+03_verificacoes -> consultas de conferência e testes
+04_completo     -> script completo opcional para montagem rápida
+```
+
+Essa separação evita confusão entre criação do banco, carga inicial e testes de validação.
+
+
+## Etapa 27 — Ajustes visuais sem alteração do banco
+
+A reformulação visual do Angular não alterou o modelo físico, os scripts de schema, os seeds ou os endpoints consumidos pelo frontend.
+
+A organização atual permanece:
+
+```text
+database/01_schema       → estrutura do banco
+database/02_seed         → dados iniciais
+database/03_verificacoes → scripts de conferência
+database/04_completo     → script completo opcional
+```
+
+
+## Observação da Etapa 28
+
+A etapa 28 foi uma alteração visual do frontend Angular. Não houve mudança estrutural no banco de dados. Os scripts permanecem organizados por finalidade: schema, seed, verificações e script completo opcional.
+
+
+## Etapa 30
+
+A etapa 30 alterou apenas a camada visual do Angular, substituindo o menu lateral por abas superiores e ajustando o estilo para uma aparência mais quadrada. Nenhuma tabela, chave estrangeira, constraint ou seed do banco de dados foi alterada nesta etapa.

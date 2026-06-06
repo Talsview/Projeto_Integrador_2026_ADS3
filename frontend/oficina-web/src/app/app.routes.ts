@@ -13,9 +13,11 @@ import { ItensOsComponent } from './pages/itens-os/itens-os.component';
 import { PagamentosComponent } from './pages/pagamentos/pagamentos.component';
 import { GarantiasComponent } from './pages/garantias/garantias.component';
 import { EstruturaDadosComponent } from './pages/estrutura-dados/estrutura-dados.component';
+import { RelatoriosComponent } from './pages/relatorios/relatorios.component';
+import { ConfiguracoesComponent } from './pages/configuracoes/configuracoes.component';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent, title: 'Início - Oficina' },
+  { path: '', component: DashboardComponent, title: 'Visão Geral da Oficina' },
   { path: 'clientes', component: ClientesComponent, title: 'Clientes' },
   { path: 'funcoes', component: FuncoesComponent, title: 'Funções' },
   { path: 'colaboradores', component: ColaboradoresComponent, title: 'Colaboradores' },
@@ -30,6 +32,8 @@ export const routes: Routes = [
   { path: 'estrutura-dados', redirectTo: 'fila-atendimento' },
   { path: 'pagamentos', component: PagamentosComponent, title: 'Pagamentos' },
   { path: 'garantias', component: GarantiasComponent, title: 'Garantias' },
+  { path: 'relatorios', component: RelatoriosComponent, title: 'Relatórios' },
+  { path: 'configuracoes', component: ConfiguracoesComponent, title: 'Configurações' },
   { path: 'padroes-projeto', redirectTo: '' },
   { path: '**', redirectTo: '' }
 ];

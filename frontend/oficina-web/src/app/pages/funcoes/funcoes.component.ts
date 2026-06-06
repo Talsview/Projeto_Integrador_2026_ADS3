@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize, switchMap } from 'rxjs';
+import { finalize } from 'rxjs';
 import { FuncaoApiService } from '../../core/services/funcao-api.service';
 import { Funcao } from '../../models/pessoa.model';
 
@@ -81,10 +81,7 @@ export class FuncoesComponent implements OnInit {
     this.processando = true;
     this.sincronizandoTabela = true;
     this.atualizarTela();
-
-    const acao = this.form.id ? this.funcaoApi.atualizar(this.form.id, this.form) : this.funcaoApi.criar(this.form);
-    acao.pipe(
-      switchMap(() => this.funcaoApi.listar()),
+    this.funcaoApi.salvarEListar(this.form.id, this.form).pipe(
       finalize(() => {
         this.processando = false;
         this.sincronizandoTabela = false;
@@ -117,9 +114,7 @@ export class FuncoesComponent implements OnInit {
     this.sincronizandoTabela = true;
     this.atualizarTela();
 
-    this.funcaoApi.excluir(funcao.id)
-      .pipe(
-        switchMap(() => this.funcaoApi.listar()),
+    this.funcaoApi.excluirEListar(funcao.id).pipe(
         finalize(() => {
           this.processando = false;
           this.sincronizandoTabela = false;

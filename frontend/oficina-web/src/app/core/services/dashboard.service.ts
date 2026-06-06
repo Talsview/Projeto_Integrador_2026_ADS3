@@ -4,7 +4,6 @@ import { Observable, catchError, map, of, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { DatabaseStatus } from '../models/database-status.model';
-import { PadraoProjeto } from '../../models/padrao-projeto.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -32,14 +31,6 @@ export class DashboardService {
         mensagem: this.tratarErroDeComunicacao(error),
         tempoRespostaMs: 0
       }))
-    );
-  }
-
-  listarPadroesProjeto(): Observable<PadraoProjeto[]> {
-    return this.http.get<ApiResponse<PadraoProjeto[]>>(`${this.apiBaseUrl}/padroes-projeto`).pipe(
-      timeout(this.tempoLimiteMs),
-      map(response => response.data ?? response.dados ?? []),
-      catchError(() => of([]))
     );
   }
 
