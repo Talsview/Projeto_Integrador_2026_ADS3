@@ -1,0 +1,27 @@
+<h1 class="page-title">Peças e Fornecedores</h1>
+<p class="page-subtitle">Cadastro de peças e fornecedores para garantir que toda peça usada em OS tenha rastreabilidade e fornecedor identificado.</p>
+<p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>
+
+<div class="grid two">
+  <section class="card"><h2>{{ fornecedorForm.id ? 'Editar fornecedor' : 'Novo fornecedor' }}</h2>
+    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="fornecedorForm.nomeFornecedor"></div><div><label>CNPJ</label><input [(ngModel)]="fornecedorForm.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="fornecedorForm.telefone"></div><div><label>E-mail</label><input [(ngModel)]="fornecedorForm.email"></div></div>
+    <label>Endereço</label><input [(ngModel)]="fornecedorForm.endereco">
+    <div class="actions" style="margin-top: 14px;"><button (click)="salvarFornecedor()">Salvar fornecedor</button></div>
+    <h3>Fornecedores</h3><div class="actions"><input [(ngModel)]="termoFornecedor" placeholder="Pesquisar fornecedor"><button (click)="pesquisarFornecedores()">Pesquisar</button><button class="secondary" (click)="listarFornecedores()">Listar</button></div>
+    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Fornecedor</th><th>CNPJ</th><th>Ações</th></tr></thead><tbody>
+      <tr *ngFor="let f of fornecedores"><td>{{ f.id }}</td><td>{{ f.nomeFornecedor }}</td><td>{{ f.cnpj }}</td><td class="actions"><button class="secondary" (click)="editarFornecedor(f)">Editar</button><button class="danger" (click)="excluirFornecedor(f)">Inativar</button></td></tr>
+      <tr *ngIf="!fornecedores.length"><td colspan="4">Nenhum fornecedor encontrado.</td></tr>
+    </tbody></table></div>
+  </section>
+
+  <section class="card"><h2>{{ pecaForm.id ? 'Editar peça' : 'Nova peça' }}</h2>
+    <div class="form-row"><div><label>Nome da peça</label><input [(ngModel)]="pecaForm.nomePeca"></div><div><label>Código nacional</label><input [(ngModel)]="pecaForm.codigoNacional"></div><div><label>Marca da peça</label><input [(ngModel)]="pecaForm.marcaPeca"></div><div><label>Modelo aplicável</label><input [(ngModel)]="pecaForm.modeloAplicavel"></div><div><label>Ano veículo</label><input type="number" [(ngModel)]="pecaForm.anoVeiculo"></div><div><label>Ano modelo</label><input type="number" [(ngModel)]="pecaForm.anoModelo"></div><div><label>Garantia em dias</label><input type="number" [(ngModel)]="pecaForm.prazoGarantiaDias"></div></div>
+    <label>Descrição</label><textarea rows="2" [(ngModel)]="pecaForm.descricao"></textarea>
+    <div class="actions" style="margin-top: 14px;"><button (click)="salvarPeca()">Salvar peça</button></div>
+    <h3>Peças</h3><div class="actions"><input [(ngModel)]="termoPeca" placeholder="Pesquisar peça"><button (click)="pesquisarPecas()">Pesquisar</button><button class="secondary" (click)="listarPecas()">Listar</button></div>
+    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Peça</th><th>Código</th><th>Garantia</th><th>Ações</th></tr></thead><tbody>
+      <tr *ngFor="let p of pecas"><td>{{ p.id }}</td><td>{{ p.nomePeca }}</td><td>{{ p.codigoNacional }}</td><td>{{ p.prazoGarantiaDias }} dias</td><td class="actions"><button class="secondary" (click)="editarPeca(p)">Editar</button><button class="danger" (click)="excluirPeca(p)">Inativar</button></td></tr>
+      <tr *ngIf="!pecas.length"><td colspan="5">Nenhuma peça encontrada.</td></tr>
+    </tbody></table></div>
+  </section>
+</div>

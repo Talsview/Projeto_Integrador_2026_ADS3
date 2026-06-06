@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, timeout } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
 import { BaseApiService } from './base-api.service';
 import { ClientePessoaFisica, ClientePessoaJuridica, ClienteResumo } from '../../models/cliente.model';
@@ -13,11 +13,11 @@ export class ClienteApiService extends BaseApiService<ClienteResumo> {
 
   criarPessoaFisica(payload: ClientePessoaFisica): Observable<ClienteResumo> {
     return this.http.post<ApiResponse<ClienteResumo>>(`${this.apiBaseUrl}/clientes/pessoa-fisica`, payload)
-      .pipe(map(response => this.extrairDados(response) as ClienteResumo));
+      .pipe(timeout(10000), map(response => this.extrairDados(response) as ClienteResumo));
   }
 
   criarPessoaJuridica(payload: ClientePessoaJuridica): Observable<ClienteResumo> {
     return this.http.post<ApiResponse<ClienteResumo>>(`${this.apiBaseUrl}/clientes/pessoa-juridica`, payload)
-      .pipe(map(response => this.extrairDados(response) as ClienteResumo));
+      .pipe(timeout(10000), map(response => this.extrairDados(response) as ClienteResumo));
   }
 }

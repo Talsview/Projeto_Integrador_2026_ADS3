@@ -1,0 +1,60 @@
+<h1 class="page-title">Colaboradores</h1>
+<p class="page-subtitle">
+  Cadastro de colaboradores com uma ou mais funções, mantendo histórico e rastreabilidade da equipe responsável pelos serviços.
+</p>
+
+<div class="grid two">
+  <section class="card">
+    <h2>{{ form.id ? 'Editar colaborador' : 'Novo colaborador' }}</h2>
+    <div class="form-row">
+      <div><label>Nome</label><input [(ngModel)]="form.nome" placeholder="Nome completo"></div>
+      <div><label>Status</label><select [(ngModel)]="form.statusColaborador"><option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option></select></div>
+      <div><label>Telefone</label><input [(ngModel)]="form.telefone"></div>
+      <div><label>E-mail</label><input [(ngModel)]="form.email"></div>
+      <div><label>Data de admissão</label><input type="date" [(ngModel)]="form.dataAdmissao"></div>
+      <div><label>Endereço</label><input [(ngModel)]="form.endereco"></div>
+    </div>
+
+    <h3>Funções</h3>
+    <p class="page-subtitle">Selecione uma ou mais funções. Mecânico é uma função, não uma entidade separada.</p>
+    <div class="grid two">
+      <label *ngFor="let funcao of funcoes" style="display:flex; gap:8px; align-items:center; font-weight:600;">
+        <input type="checkbox" style="width:auto;" [ngModel]="isFuncaoSelecionada(funcao.id)" (ngModelChange)="setFuncaoSelecionada(funcao.id, $event)">
+        {{ funcao.nomeFuncao }}
+      </label>
+    </div>
+
+    <div class="actions" style="margin-top: 14px;">
+      <button type="button" (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar' }}</button>
+      <button type="button" class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button>
+    </div>
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+
+  <section class="card">
+    <h2>Consulta</h2>
+    <div class="actions">
+      <input [(ngModel)]="termo" placeholder="Pesquisar por nome, e-mail ou função" (keyup.enter)="pesquisar()">
+      <button type="button" (click)="pesquisar()">Pesquisar</button>
+      <button type="button" class="secondary" (click)="listar()">Listar todos</button>
+    </div>
+    <p *ngIf="carregando">Carregando colaboradores...</p>
+    <div class="table-wrap" style="margin-top: 14px;">
+      <table>
+        <thead><tr><th>ID</th><th>Nome</th><th>Status</th><th>Funções</th><th>Telefone</th><th>Ações</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let colaborador of colaboradores">
+            <td>{{ colaborador.id }}</td>
+            <td>{{ colaborador.nome }}</td>
+            <td><span class="badge">{{ colaborador.statusColaborador }}</span></td>
+            <td>{{ colaborador.funcoes }}</td>
+            <td>{{ colaborador.telefone }}</td>
+            <td class="actions"><button type="button" class="secondary" (click)="editar(colaborador)">Editar</button><button type="button" class="danger" (click)="excluir(colaborador)" [disabled]="processando">Inativar</button></td>
+          </tr>
+          <tr *ngIf="!colaboradores.length && !carregando"><td colspan="6">Nenhum colaborador encontrado.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -9,17 +9,8 @@
   padding: 0 24px;
 }
 
-.topbar strong {
-  display: block;
-  font-size: 18px;
-}
-
-.topbar span {
-  display: block;
-  font-size: 13px;
-  opacity: .85;
-  margin-top: 2px;
-}
+.topbar strong { display: block; font-size: 18px; }
+.topbar span { display: block; font-size: 13px; opacity: .85; margin-top: 2px; }
 
 .swagger {
   text-decoration: none;
@@ -32,7 +23,7 @@
 
 .shell {
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
+  grid-template-columns: 270px minmax(0, 1fr);
   min-height: calc(100vh - 66px);
 }
 
@@ -40,32 +31,28 @@
   background: #0f2438;
   color: #dbeafe;
   padding: 18px 12px;
+  max-height: calc(100vh - 66px);
+  overflow-y: auto;
 }
 
-.sidebar nav {
-  display: grid;
-  gap: 8px;
-}
+.sidebar nav { display: grid; gap: 7px; }
 
 .sidebar a {
   text-decoration: none;
-  padding: 11px 12px;
+  padding: 10px 12px;
   border-radius: 9px;
   color: #dbeafe;
   font-weight: 700;
+  font-size: 14px;
 }
 
 .sidebar a.active,
-.sidebar a:hover {
-  background: rgba(255,255,255,.12);
-  color: #ffffff;
-}
+.sidebar a:hover { background: rgba(255,255,255,.12); color: #ffffff; }
 
-.content {
-  padding: 24px;
-}
+.content { padding: 24px; min-width: 0; }
 
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }
+  .sidebar { max-height: none; }
   .sidebar nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

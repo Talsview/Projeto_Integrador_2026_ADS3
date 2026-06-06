@@ -1,0 +1,50 @@
+<h1 class="page-title">Funções</h1>
+<p class="page-subtitle">
+  Cadastro das funções exercidas pelos colaboradores. Mecânico, atendente, secretária, faxineiro e gerente são registros de Função, não entidades separadas.
+</p>
+
+<div class="grid two">
+  <section class="card">
+    <h2>{{ form.id ? 'Editar função' : 'Nova função' }}</h2>
+    <div class="form-row">
+      <div>
+        <label>Nome da função</label>
+        <input [(ngModel)]="form.nomeFuncao" placeholder="Ex.: Mecânico, Atendente, Gerente">
+      </div>
+      <div>
+        <label>Descrição</label>
+        <input [(ngModel)]="form.descricao" placeholder="Descrição resumida">
+      </div>
+    </div>
+    <div class="actions" style="margin-top: 14px;">
+      <button type="button" (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar' }}</button>
+      <button type="button" class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button>
+    </div>
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+
+  <section class="card">
+    <h2>Consulta</h2>
+    <div class="actions">
+      <input [(ngModel)]="termo" placeholder="Pesquisar função" (keyup.enter)="pesquisar()">
+      <button type="button" (click)="pesquisar()">Pesquisar</button>
+      <button type="button" class="secondary" (click)="listar()">Listar todas</button>
+    </div>
+    <p *ngIf="carregando">Carregando funções...</p>
+    <div class="table-wrap" style="margin-top: 14px;">
+      <table>
+        <thead><tr><th>ID</th><th>Função</th><th>Descrição</th><th>Ações</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let funcao of funcoes">
+            <td>{{ funcao.id }}</td>
+            <td>{{ funcao.nomeFuncao }}</td>
+            <td>{{ funcao.descricao }}</td>
+            <td class="actions"><button type="button" class="secondary" (click)="editar(funcao)">Editar</button><button type="button" class="danger" (click)="excluir(funcao)" [disabled]="processando">Inativar</button></td>
+          </tr>
+          <tr *ngIf="!funcoes.length && !carregando"><td colspan="4">Nenhuma função encontrada.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

@@ -72,3 +72,6 @@
   color: #486180;
   font-size: 0.95rem;
 }
+
+.quick-links { display: flex; flex-wrap: wrap; gap: 10px; }
+.quick-links a { text-decoration: none; background: #e8eef5; color: var(--primary-dark); padding: 10px 12px; border-radius: 8px; font-weight: 700; }

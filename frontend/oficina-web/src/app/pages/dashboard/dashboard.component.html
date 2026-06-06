@@ -3,19 +3,15 @@
   Camada View em Angular para consumir a API REST do sistema monolítico em camadas da oficina mecânica.
 </p>
 
-<section class="grid three cards">
-  <a class="module-card" routerLink="/clientes">
-    <strong>Clientes</strong>
-    <span>Pessoa física e pessoa jurídica.</span>
-  </a>
-  <a class="module-card" routerLink="/veiculos">
-    <strong>Veículos</strong>
-    <span>Marca, modelo e histórico de proprietários.</span>
-  </a>
-  <a class="module-card" routerLink="/ordens-servico">
-    <strong>Ordens de Serviço</strong>
-    <span>Fluxo: orçamento, execução, pagamento e finalizado.</span>
-  </a>
+<section class="grid four cards">
+  <a class="module-card" routerLink="/clientes"><strong>Clientes</strong><span>Pessoa física e pessoa jurídica.</span></a>
+  <a class="module-card" routerLink="/colaboradores"><strong>Colaboradores</strong><span>Equipe, funções e responsáveis técnicos.</span></a>
+  <a class="module-card" routerLink="/veiculos"><strong>Veículos</strong><span>Marca, modelo e histórico de proprietários.</span></a>
+  <a class="module-card" routerLink="/ordens-servico"><strong>Ordens de Serviço</strong><span>Fluxo: orçamento, execução, pagamento e finalizado.</span></a>
+  <a class="module-card" routerLink="/itens-os"><strong>Itens da OS</strong><span>Serviços, peças, fornecedor e colaborador responsável.</span></a>
+  <a class="module-card" routerLink="/pagamentos"><strong>Pagamentos</strong><span>Controle financeiro e quitação da OS.</span></a>
+  <a class="module-card" routerLink="/garantias"><strong>Garantias</strong><span>Garantias de peças e serviços após finalização.</span></a>
+  <a class="module-card" routerLink="/pecas-fornecedores"><strong>Peças</strong><span>Peças aplicáveis e fornecedores identificados.</span></a>
 </section>
 
 <section class="grid two section-gap">
@@ -43,17 +39,27 @@
   </div>
 
   <div class="card">
-    <h2>Padrões de projeto</h2>
-    <p>Endpoint de apoio acadêmico para demonstrar onde os seis padrões foram aplicados.</p>
-    <ul class="pattern-list" *ngIf="padroes.length > 0; else semPadroes">
-      <li *ngFor="let padrao of padroes">
-        <strong>{{ padrao.padrao }}</strong>
-        <span>{{ padrao.classePrincipal }}</span>
-      </li>
-    </ul>
-    <ng-template #semPadroes>
-      <p class="api-hint">Os padrões serão carregados quando o backend estiver disponível.</p>
-    </ng-template>
-    <a routerLink="/padroes-projeto" class="text-link">Ver detalhes</a>
+    <h2>Atalhos de cadastros básicos</h2>
+    <div class="quick-links">
+      <a routerLink="/funcoes">Funções</a>
+      <a routerLink="/marcas-modelos">Marcas e Modelos</a>
+      <a routerLink="/servicos">Serviços</a>
+      <a routerLink="/empresas-terceirizadas">Empresas Terceirizadas</a>
+    </div>
   </div>
+</section>
+
+<section class="card section-gap">
+  <h2>Padrões de projeto</h2>
+  <p>Endpoint de apoio acadêmico para demonstrar onde os seis padrões foram aplicados.</p>
+  <ul class="pattern-list" *ngIf="padroes.length > 0; else semPadroes">
+    <li *ngFor="let padrao of padroes">
+      <strong>{{ padrao.padrao }}</strong>
+      <span>{{ padrao.classePrincipal }}</span>
+    </li>
+  </ul>
+  <ng-template #semPadroes>
+    <p class="api-hint">Os padrões serão carregados quando o backend estiver disponível.</p>
+  </ng-template>
+  <a routerLink="/padroes-projeto" class="text-link">Ver detalhes</a>
 </section>

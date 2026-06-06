@@ -1,0 +1,249 @@
+import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { finalize, forkJoin } from 'rxjs';
+import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
+import { PagamentoApiService } from '../../core/services/pagamento-api.service';
+import { OrdemServicoResumo } from '../../models/ordem-servico.model';
+import { FormaPagamento, Pagamento, ResumoPagamentoOrdemServico, StatusPagamento } from '../../models/pagamento.model';
+
+@Component({
+  selector: 'app-pagamentos',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  templateUrl: './pagamentos.component.html'
+})
+export class PagamentosComponent implements OnInit {
+  ordens: OrdemServicoResumo[] = [];
+  pagamentos: Pagamento[] = [];
+  resumo?: ResumoPagamentoOrdemServico;
+  mensagem?: string;
+  erro?: string;
+  carregando = false;
+  processando = false;
+  idOrdemSelecionada = 0;
+
+  formas: FormaPagamento[] = ['DINHEIRO', 'PIX', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'TRANSFERENCIA', 'BOLETO', 'OUTRO'];
+  status: StatusPagamento[] = ['PENDENTE', 'PAGO', 'CANCELADO', 'ESTORNADO'];
+
+  form: Pagamento = this.criarFormularioInicial();
+
+  constructor(
+    private readonly ordemApi: OrdemServicoApiService,
+    private readonly pagamentoApi: PagamentoApiService,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
+
+  ngOnInit(): void {
+    this.carregarOrdens();
+  }
+
+  get ordemSelecionada(): OrdemServicoResumo | undefined {
+    return this.ordens.find(ordem => ordem.id === Number(this.idOrdemSelecionada));
+  }
+
+  get statusAtualOs(): string {
+    return this.ordemSelecionada?.statusAtual ?? 'NÃO INFORMADO';
+  }
+
+  get statusPermiteNovoPagamento(): boolean {
+    return this.statusAtualOs !== 'FINALIZADO';
+  }
+
+  carregarOrdens(): void {
+    this.carregando = true;
+    this.erro = undefined;
+
+    this.ordemApi.listar()
+      .pipe(finalize(() => {
+        this.carregando = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: ordens => {
+          this.ordens = [...ordens];
+          if (this.idOrdemSelecionada && !this.ordemSelecionada) {
+            this.idOrdemSelecionada = 0;
+            this.pagamentos = [];
+            this.resumo = undefined;
+          }
+          this.cdr.detectChanges();
+        },
+        error: error => this.erro = error.message
+      });
+  }
+
+  aoSelecionarOrdem(): void {
+    this.mensagem = undefined;
+    this.erro = undefined;
+    this.limparForm();
+    this.carregarPagamentos();
+  }
+
+  carregarPagamentos(): void {
+    this.mensagem = undefined;
+    this.erro = undefined;
+
+    if (!this.idOrdemSelecionada) {
+      this.pagamentos = [];
+      this.resumo = undefined;
+      this.limparForm();
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.carregando = true;
+    this.form.idOrdemServico = this.idOrdemSelecionada;
+
+    forkJoin({
+      ordens: this.ordemApi.listar(),
+      pagamentos: this.pagamentoApi.listarPorOrdemServico(this.idOrdemSelecionada),
+      resumo: this.pagamentoApi.resumoPorOrdemServico(this.idOrdemSelecionada)
+    })
+      .pipe(finalize(() => {
+        this.carregando = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: resultado => {
+          this.ordens = [...resultado.ordens];
+          this.pagamentos = [...resultado.pagamentos];
+          this.resumo = { ...resultado.resumo };
+          this.atualizarValorAutomaticoDoFormulario();
+          this.cdr.detectChanges();
+        },
+        error: error => this.erro = error.message
+      });
+  }
+
+  salvar(): void {
+    this.mensagem = undefined;
+    this.erro = undefined;
+
+    if (!this.idOrdemSelecionada) {
+      this.erro = 'Selecione uma Ordem de Serviço antes de registrar pagamento.';
+      return;
+    }
+
+    if (!this.statusPermiteNovoPagamento && !this.form.id) {
+      this.erro = 'Ordem de Serviço finalizada não permite novo pagamento.';
+      return;
+    }
+
+    const valorPendente = Number(this.resumo?.valorPendente ?? 0);
+    const valorInformado = Number(this.form.valorPago ?? 0);
+
+    const payload: Pagamento = {
+      ...this.form,
+      idOrdemServico: this.idOrdemSelecionada,
+      valorPago: valorInformado > 0 ? valorInformado : valorPendente,
+      statusPagamento: this.form.statusPagamento ?? 'PAGO'
+    };
+
+    const acao = payload.id
+      ? this.pagamentoApi.atualizar(payload.id, payload)
+      : this.pagamentoApi.criar(payload);
+
+    this.processando = true;
+    acao.pipe(finalize(() => {
+      this.processando = false;
+      this.cdr.detectChanges();
+    })).subscribe({
+      next: () => {
+        this.mensagem = 'Pagamento salvo com sucesso. Valores e status da OS foram atualizados automaticamente.';
+        this.limparForm();
+        this.carregarPagamentos();
+      },
+      error: error => this.erro = error.message
+    });
+  }
+
+  editar(pagamento: Pagamento): void {
+    this.form = { ...pagamento };
+    this.idOrdemSelecionada = pagamento.idOrdemServico ?? this.idOrdemSelecionada;
+    this.cdr.detectChanges();
+  }
+
+  alterarStatus(pagamento: Pagamento, statusPagamento: StatusPagamento): void {
+    this.mensagem = undefined;
+    this.erro = undefined;
+
+    if (!pagamento.id) return;
+
+    this.processando = true;
+    this.pagamentoApi.alterarStatus(pagamento.id, statusPagamento)
+      .pipe(finalize(() => {
+        this.processando = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.mensagem = 'Status do pagamento alterado. Resumo financeiro atualizado.';
+          this.carregarPagamentos();
+        },
+        error: error => this.erro = error.message
+      });
+  }
+
+  excluir(pagamento: Pagamento): void {
+    this.mensagem = undefined;
+    this.erro = undefined;
+
+    if (!pagamento.id) return;
+
+    this.processando = true;
+    this.pagamentoApi.excluir(pagamento.id)
+      .pipe(finalize(() => {
+        this.processando = false;
+        this.cdr.detectChanges();
+      }))
+      .subscribe({
+        next: () => {
+          this.mensagem = 'Pagamento inativado. Resumo financeiro atualizado.';
+          this.carregarPagamentos();
+        },
+        error: error => this.erro = error.message
+      });
+  }
+
+  limparForm(): void {
+    this.form = this.criarFormularioInicial();
+    this.form.idOrdemServico = this.idOrdemSelecionada;
+    this.atualizarValorAutomaticoDoFormulario();
+  }
+
+  classeStatusOs(status?: string): string {
+    if (status === 'PAGAMENTO') return 'warning';
+    if (status === 'FINALIZADO') return 'success';
+    if (status === 'EXECUCAO') return 'warning';
+    return '';
+  }
+
+  private criarFormularioInicial(): Pagamento {
+    return {
+      idOrdemServico: this.idOrdemSelecionada,
+      formaPagamento: 'PIX',
+      valorPago: 0,
+      dataPagamento: this.agoraParaInputDateTimeLocal(),
+      statusPagamento: 'PAGO',
+      observacao: ''
+    };
+  }
+
+  private atualizarValorAutomaticoDoFormulario(): void {
+    if (this.form.id) {
+      return;
+    }
+    const valorPendente = Number(this.resumo?.valorPendente ?? 0);
+    this.form.valorPago = valorPendente > 0 ? valorPendente : 0;
+    if (!this.form.dataPagamento) {
+      this.form.dataPagamento = this.agoraParaInputDateTimeLocal();
+    }
+  }
+
+  private agoraParaInputDateTimeLocal(): string {
+    const agora = new Date();
+    agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+    return agora.toISOString().slice(0, 16);
+  }
+}

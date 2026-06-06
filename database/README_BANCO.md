@@ -170,3 +170,57 @@ tempoRespostaMs
 ```
 
 Esse ajuste facilita identificar se a lentidão está no frontend, no backend ou na conexão local com o PostgreSQL.
+
+---
+
+# Etapa 15 — Verificação de dados para telas Angular
+
+Foi adicionado o script:
+
+```text
+database/05_verificacao_frontend_telas.sql
+```
+
+Esse script não altera dados. Ele apenas consulta a quantidade de registros nas principais tabelas usadas pelas telas Angular, ajudando a verificar se existem dados suficientes para testar cadastros, consultas, OS, itens, pagamentos e garantias.
+
+## Etapa 16 — Verificação da atualização automática do frontend
+
+Foi adicionado o script:
+
+```text
+database/06_verificacao_frontend_estados_atualizacao.sql
+```
+
+Esse script auxilia a conferência dos registros criados pelo Angular após operações de cadastro, alteração ou exclusão lógica. Ele pode ser executado no pgAdmin para validar se a tabela do frontend está refletindo os dados persistidos no PostgreSQL.
+
+---
+
+# Verificação da Etapa 17 — Atualização visual do Angular
+
+Arquivo adicionado:
+
+```text
+07_verificacao_correcao_atualizacao_visual.sql
+```
+
+Este script permite verificar no PostgreSQL se os registros cadastrados pelo frontend estão sendo persistidos corretamente. A correção visual foi aplicada no Angular, por meio do interceptor global da API e da configuração explícita de detecção de mudanças.
+
+
+---
+
+# Verificação da Etapa 18 — Pagamentos e status atual da OS
+
+Arquivo adicionado:
+
+```text
+08_verificacao_pagamentos_status_os.sql
+```
+
+Este script consulta o status atual das Ordens de Serviço. Ele ajuda a confirmar se a OS selecionada está em `PAGAMENTO`, que é a condição necessária para registrar pagamento no sistema.
+
+A tela Angular de Pagamentos agora também exibe esse status e impede o envio de pagamento quando a OS ainda está em `ORCAMENTO` ou `EXECUCAO`.
+
+
+## Script 09 — Verificação do fluxo automático de pagamentos
+
+O arquivo `09_verificacao_fluxo_automatico_pagamentos.sql` permite conferir no banco o status atual das Ordens de Serviço e os pagamentos registrados após a correção da Etapa 19.

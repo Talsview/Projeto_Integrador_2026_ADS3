@@ -907,3 +907,207 @@ http://localhost:4200
 ```
 
 Ao clicar em **Verificar banco**, o sistema deve responder rapidamente, informando se o backend e o PostgreSQL local estão disponíveis.
+
+---
+
+# Etapa 15 — Ampliação do Frontend Angular com Telas Operacionais
+
+Esta etapa amplia o frontend Angular para contemplar as principais telas operacionais do sistema da oficina mecânica.
+
+Foram criadas ou atualizadas as telas:
+
+```text
+Painel operacional
+Clientes
+Funções
+Colaboradores
+Marcas e Modelos
+Veículos
+Serviços
+Empresas Terceirizadas
+Peças e Fornecedores
+Ordens de Serviço
+Itens da OS
+Pagamentos
+Garantias
+Estrutura de Dados I
+Padrões de Projeto
+```
+
+Também foram criados novos serviços Angular para integração com a API REST:
+
+```text
+FuncaoApiService
+ColaboradorApiService
+MarcaApiService
+ModeloApiService
+ServicoApiService
+EmpresaTerceirizadaApiService
+FornecedorApiService
+PecaApiService
+ItemServicoApiService
+ItemPecaApiService
+PagamentoApiService
+GarantiaApiService
+```
+
+Models TypeScript adicionados ou atualizados:
+
+```text
+pessoa.model.ts
+servico.model.ts
+peca.model.ts
+pagamento.model.ts
+garantia.model.ts
+ordem-servico.model.ts
+```
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA15_FRONTEND_TELAS.md
+docs/adr/ADR-018-ampliacao-front-end-angular.md
+database/05_verificacao_frontend_telas.sql
+```
+
+Comandos para testar:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair
+mvn.cmd spring-boot:run
+```
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd run start:proxy
+```
+
+Acessar:
+
+```text
+http://localhost:4200
+```
+
+---
+
+# Etapa 16 — Correção dos botões e atualização automática das tabelas no Angular
+
+Nesta etapa foi corrigido o comportamento em que alguns botões ficavam visualmente presos em estado de processamento após comunicação com o backend.
+
+Foram aplicados os seguintes ajustes:
+
+```text
+1. Separação entre estado de consulta e estado de processamento.
+2. Uso de finalize do RxJS para encerrar carregamento em sucesso ou erro.
+3. Atualização automática das tabelas após salvar, alterar, excluir ou acionar registros.
+4. Atualização imediata em memória quando a API retorna o objeto salvo.
+5. Reconsulta ao backend para manter fidelidade com o PostgreSQL.
+6. Timeout de 10 segundos nas chamadas genéricas da API.
+7. Mensagem clara quando o backend demora para responder.
+```
+
+Componentes ajustados:
+
+```text
+Clientes
+Funções
+Colaboradores
+Marcas e Modelos
+Veículos
+Serviços
+Empresas Terceirizadas
+Peças e Fornecedores
+Ordens de Serviço
+Itens da OS
+Pagamentos
+Garantias
+```
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA16_FRONTEND_ESTADOS_ATUALIZACAO.md
+docs/adr/ADR-019-estados-atualizacao-automatica-front-end.md
+database/06_verificacao_frontend_estados_atualizacao.sql
+```
+
+---
+
+# Etapa 17 — Correção definitiva da atualização visual do Angular após retorno da API
+
+Nesta etapa foi corrigido o problema em que as telas do Angular só atualizavam visualmente após o usuário clicar em outro botão ou executar outra ação na página.
+
+O comportamento observado era:
+
+```text
+1. O registro era salvo no backend.
+2. A API retornava corretamente.
+3. A tabela era atualizada internamente no TypeScript.
+4. Porém, a tela só redesenhava depois de outro clique.
+```
+
+A causa provável estava na execução das respostas HTTP fora do ciclo de detecção de mudanças do Angular em algumas chamadas assíncronas. Por isso, o interceptor global da API foi ajustado para garantir que todas as respostas, erros e finalizações de requisições HTTP retornem para dentro do `NgZone`.
+
+Arquivos ajustados:
+
+```text
+frontend/oficina-web/src/app/core/interceptors/api-error.interceptor.ts
+frontend/oficina-web/src/app/app.config.ts
+docs/README_ETAPA17_CORRECAO_CHANGE_DETECTION_ANGULAR.md
+docs/adr/ADR-020-correcao-atualizacao-visual-angular.md
+database/07_verificacao_correcao_atualizacao_visual.sql
+```
+
+Resultado esperado:
+
+```text
+1. Ao clicar em Salvar, o botão volta ao estado normal sem depender de outro clique.
+2. A tabela é redesenhada automaticamente após o retorno da API.
+3. Mensagens de sucesso ou erro aparecem imediatamente.
+4. As telas deixam de depender de ações manuais para atualizar a visualização.
+```
+
+Comandos recomendados após atualizar esta etapa:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd run start:proxy
+```
+
+Caso o navegador ainda apresente comportamento antigo, interrompa o Angular com `CTRL + C`, rode novamente `npm.cmd run start:proxy` e atualize o navegador com `CTRL + F5`.
+
+
+---
+
+# Etapa 18 — Correção da tela de Pagamentos e status da OS
+
+Foi corrigida a tela Angular de Pagamentos para respeitar visualmente o fluxo da Ordem de Serviço:
+
+```text
+ORCAMENTO → EXECUCAO → PAGAMENTO → FINALIZADO
+```
+
+A partir desta etapa:
+
+```text
+1. A tela mostra o status atual da OS selecionada.
+2. O botão Salvar pagamento fica bloqueado se a OS não estiver em PAGAMENTO.
+3. A tela possui botão para avançar a OS para a próxima etapa do fluxo.
+4. O interceptor do Angular exibe a mensagem detalhada enviada pelo backend.
+5. A regra de negócio continua protegida no backend.
+```
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA18_CORRECAO_PAGAMENTOS_STATUS_OS.md
+docs/adr/ADR-021-correcao-pagamentos-status-os.md
+database/08_verificacao_pagamentos_status_os.sql
+```
+
+
+## Etapa 19 — Fluxo automático de pagamentos
+
+A tela de Pagamentos e o backend foram ajustados para que, ao salvar um pagamento, o sistema atualize automaticamente a tabela, o resumo financeiro e o status da Ordem de Serviço. O backend conduz a OS até PAGAMENTO respeitando o histórico e finaliza automaticamente a OS quando o valor pago quita o total.

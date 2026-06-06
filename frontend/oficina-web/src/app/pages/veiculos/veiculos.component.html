@@ -1,47 +1,34 @@
 <h1 class="page-title">Veículos</h1>
-<p class="page-subtitle">
-  Consulta inicial de veículos cadastrados, mantendo rastreabilidade por marca, modelo, placa e proprietário atual.
-</p>
+<p class="page-subtitle">Cadastro e consulta de veículos com marca, modelo, placa, ano, quilometragem e proprietário atual.</p>
 
-<section class="card">
-  <div class="actions">
-    <input [(ngModel)]="termo" placeholder="Pesquisar por placa, cliente, marca ou modelo" (keyup.enter)="pesquisar()">
-    <button type="button" (click)="pesquisar()">Pesquisar</button>
-    <button type="button" class="secondary" (click)="listar()">Listar todos</button>
-  </div>
+<div class="grid two">
+  <section class="card">
+    <h2>{{ form.id ? 'Editar veículo' : 'Novo veículo' }}</h2>
+    <div class="form-row">
+      <div><label>Marca</label><select [(ngModel)]="form.marcaId"><option [ngValue]="0">Selecione</option><option *ngFor="let marca of marcas" [ngValue]="marca.id">{{ marca.nomeMarca }}</option></select></div>
+      <div><label>Modelo</label><select [(ngModel)]="form.modeloId"><option [ngValue]="0">Selecione</option><option *ngFor="let modelo of modelos" [ngValue]="modelo.id">{{ modelo.nomeModelo }} — {{ modelo.nomeMarca }}</option></select></div>
+      <div><label>Placa</label><input [(ngModel)]="form.placa" placeholder="ABC1D23"></div>
+      <div><label>Chassi</label><input [(ngModel)]="form.chassi"></div>
+      <div><label>Cor</label><input [(ngModel)]="form.cor"></div>
+      <div><label>Ano fabricação</label><input type="number" [(ngModel)]="form.anoVeiculo"></div>
+      <div><label>Ano modelo</label><input type="number" [(ngModel)]="form.anoModelo"></div>
+      <div><label>Quilometragem</label><input type="number" [(ngModel)]="form.quilometragemAtual"></div>
+      <div><label>Proprietário atual</label><select [(ngModel)]="form.proprietarioAtualId"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select></div>
+      <div><label>Início da posse</label><input type="date" [(ngModel)]="form.dataInicioPosse"></div>
+    </div>
+    <label>Observação</label><textarea rows="2" [(ngModel)]="form.observacao"></textarea>
+    <label>Observação da posse</label><textarea rows="2" [(ngModel)]="form.observacaoPosse"></textarea>
+    <div class="actions" style="margin-top: 14px;"><button (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar' }}</button><button class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button></div>
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
 
-  <p class="alert error" *ngIf="erro">{{ erro }}</p>
-  <p *ngIf="carregando">Carregando veículos...</p>
-
-  <div class="table-wrap" style="margin-top: 14px;">
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Placa</th>
-          <th>Marca</th>
-          <th>Modelo</th>
-          <th>Ano fab.</th>
-          <th>Ano modelo</th>
-          <th>KM</th>
-          <th>Proprietário atual</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let veiculo of veiculos">
-          <td>{{ veiculo.id }}</td>
-          <td><strong>{{ veiculo.placa }}</strong></td>
-          <td>{{ veiculo.nomeMarca }}</td>
-          <td>{{ veiculo.nomeModelo }}</td>
-          <td>{{ veiculo.anoVeiculo }}</td>
-          <td>{{ veiculo.anoModelo }}</td>
-          <td>{{ veiculo.quilometragemAtual }}</td>
-          <td>{{ veiculo.nomeProprietarioAtual }}</td>
-        </tr>
-        <tr *ngIf="!veiculos.length && !carregando">
-          <td colspan="8">Nenhum veículo encontrado.</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</section>
+  <section class="card">
+    <h2>Consulta</h2>
+    <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar por placa, cliente, marca ou modelo" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar todos</button></div>
+    <p *ngIf="carregando">Carregando veículos...</p>
+    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Placa</th><th>Marca</th><th>Modelo</th><th>Ano fab.</th><th>KM</th><th>Proprietário</th><th>Ações</th></tr></thead><tbody>
+      <tr *ngFor="let veiculo of veiculos"><td>{{ veiculo.id }}</td><td><strong>{{ veiculo.placa }}</strong></td><td>{{ veiculo.nomeMarca }}</td><td>{{ veiculo.nomeModelo }}</td><td>{{ veiculo.anoVeiculo }}/{{ veiculo.anoModelo }}</td><td>{{ veiculo.quilometragemAtual }}</td><td>{{ veiculo.nomeProprietarioAtual }}</td><td class="actions"><button class="secondary" (click)="editar(veiculo)">Editar</button><button class="danger" (click)="excluir(veiculo)" [disabled]="processando">Inativar</button></td></tr>
+      <tr *ngIf="!veiculos.length && !carregando"><td colspan="8">Nenhum veículo encontrado.</td></tr>
+    </tbody></table></div>
+  </section>
+</div>

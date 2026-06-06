@@ -9,70 +9,72 @@
     <div class="form-row">
       <div>
         <label>Tipo de cliente</label>
-        <select [(ngModel)]="tipoCliente">
+        <select [(ngModel)]="tipoCliente" [disabled]="salvando">
           <option value="PESSOA_FISICA">Pessoa Física</option>
           <option value="PESSOA_JURIDICA">Pessoa Jurídica</option>
         </select>
       </div>
       <div>
         <label>Nome</label>
-        <input [(ngModel)]="form.nome" placeholder="Nome do cliente">
+        <input [(ngModel)]="form.nome" placeholder="Nome do cliente" [disabled]="salvando">
       </div>
     </div>
 
     <div class="form-row">
       <div>
         <label>Telefone</label>
-        <input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999">
+        <input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" [disabled]="salvando">
       </div>
       <div>
         <label>E-mail</label>
-        <input [(ngModel)]="form.email" placeholder="cliente@email.com">
+        <input [(ngModel)]="form.email" placeholder="cliente@email.com" [disabled]="salvando">
       </div>
     </div>
 
     <div>
       <label>Endereço</label>
-      <input [(ngModel)]="form.endereco" placeholder="Endereço completo">
+      <input [(ngModel)]="form.endereco" placeholder="Endereço completo" [disabled]="salvando">
     </div>
 
     <div class="form-row" *ngIf="tipoCliente === 'PESSOA_FISICA'">
       <div>
         <label>CPF</label>
-        <input [(ngModel)]="form.cpf" placeholder="000.000.000-00">
+        <input [(ngModel)]="form.cpf" placeholder="000.000.000-00" [disabled]="salvando">
       </div>
       <div>
         <label>RG</label>
-        <input [(ngModel)]="form.rg">
+        <input [(ngModel)]="form.rg" [disabled]="salvando">
       </div>
       <div>
         <label>Data de nascimento</label>
-        <input type="date" [(ngModel)]="form.dataNascimento">
+        <input type="date" [(ngModel)]="form.dataNascimento" [disabled]="salvando">
       </div>
     </div>
 
     <div class="form-row" *ngIf="tipoCliente === 'PESSOA_JURIDICA'">
       <div>
         <label>CNPJ</label>
-        <input [(ngModel)]="form.cnpj" placeholder="00.000.000/0000-00">
+        <input [(ngModel)]="form.cnpj" placeholder="00.000.000/0000-00" [disabled]="salvando">
       </div>
       <div>
         <label>Razão social</label>
-        <input [(ngModel)]="form.razaoSocial">
+        <input [(ngModel)]="form.razaoSocial" [disabled]="salvando">
       </div>
       <div>
         <label>Nome fantasia</label>
-        <input [(ngModel)]="form.nomeFantasia">
+        <input [(ngModel)]="form.nomeFantasia" [disabled]="salvando">
       </div>
       <div>
         <label>Inscrição estadual</label>
-        <input [(ngModel)]="form.inscricaoEstadual">
+        <input [(ngModel)]="form.inscricaoEstadual" [disabled]="salvando">
       </div>
     </div>
 
     <div class="actions" style="margin-top: 14px;">
-      <button type="button" (click)="salvar()" [disabled]="carregando">{{ carregando ? 'Processando...' : 'Salvar' }}</button>
-      <button type="button" class="secondary" (click)="limpar()">Limpar</button>
+      <button type="button" (click)="salvar()" [disabled]="salvando">
+        {{ salvando ? 'Salvando...' : 'Salvar' }}
+      </button>
+      <button type="button" class="secondary" (click)="limpar()" [disabled]="salvando">Limpar</button>
     </div>
 
     <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
@@ -83,11 +85,15 @@
     <h2>Consulta</h2>
     <div class="actions">
       <input [(ngModel)]="termo" placeholder="Pesquisar por nome, documento, telefone ou e-mail" (keyup.enter)="pesquisar()">
-      <button type="button" (click)="pesquisar()">Pesquisar</button>
-      <button type="button" class="secondary" (click)="listar()">Listar todos</button>
+      <button type="button" (click)="pesquisar()" [disabled]="consultando">
+        {{ consultando ? 'Pesquisando...' : 'Pesquisar' }}
+      </button>
+      <button type="button" class="secondary" (click)="listar()" [disabled]="consultando">
+        {{ consultando ? 'Atualizando...' : 'Listar todos' }}
+      </button>
     </div>
 
-    <p *ngIf="carregando">Processando comunicação com o backend...</p>
+    <p *ngIf="consultando">Atualizando tabela de clientes...</p>
 
     <div class="table-wrap" style="margin-top: 14px;">
       <table>
@@ -110,7 +116,7 @@
             <td>{{ cliente.telefone }}</td>
             <td>{{ cliente.email }}</td>
           </tr>
-          <tr *ngIf="!clientes.length && !carregando">
+          <tr *ngIf="!clientes.length && !consultando">
             <td colspan="6">Nenhum cliente encontrado.</td>
           </tr>
         </tbody>

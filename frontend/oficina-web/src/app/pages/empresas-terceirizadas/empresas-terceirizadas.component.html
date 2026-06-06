@@ -1,0 +1,16 @@
+<h1 class="page-title">Empresas Terceirizadas</h1>
+<p class="page-subtitle">Cadastro das empresas externas que podem executar serviços terceirizados, mantendo a responsabilidade da oficina perante o cliente.</p>
+<div class="grid two">
+  <section class="card"><h2>{{ form.id ? 'Editar empresa' : 'Nova empresa' }}</h2>
+    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="form.nomeEmpresa"></div><div><label>CNPJ</label><input [(ngModel)]="form.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="form.telefone"></div><div><label>E-mail</label><input [(ngModel)]="form.email"></div></div>
+    <label>Endereço</label><input [(ngModel)]="form.endereco">
+    <div class="actions" style="margin-top: 14px;"><button (click)="salvar()">Salvar</button><button class="secondary" (click)="limpar()">Limpar</button></div>
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+  <section class="card"><h2>Consulta</h2><div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar empresa"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar</button></div>
+    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Empresa</th><th>CNPJ</th><th>Telefone</th><th>Ações</th></tr></thead><tbody>
+      <tr *ngFor="let empresa of empresas"><td>{{ empresa.id }}</td><td>{{ empresa.nomeEmpresa }}</td><td>{{ empresa.cnpj }}</td><td>{{ empresa.telefone }}</td><td class="actions"><button class="secondary" (click)="editar(empresa)">Editar</button><button class="danger" (click)="excluir(empresa)">Inativar</button></td></tr>
+      <tr *ngIf="!empresas.length"><td colspan="5">Nenhuma empresa encontrada.</td></tr>
+    </tbody></table></div>
+  </section>
+</div>

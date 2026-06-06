@@ -1,72 +1,25 @@
 <h1 class="page-title">Ordens de Serviço</h1>
-<p class="page-subtitle">
-  Tela inicial de consulta e mudança controlada de status da OS: Orçamento, Execução, Pagamento e Finalizado.
-</p>
+<p class="page-subtitle">Registro principal do atendimento, com cliente, veículo, prioridade e fluxo: Orçamento, Execução, Pagamento e Finalizado.</p>
 
 <div class="grid two">
-  <section class="card">
-    <h2>Consulta de OS</h2>
-    <div class="actions">
-      <input [(ngModel)]="termo" placeholder="Pesquisar por número, placa ou cliente" (keyup.enter)="pesquisar()">
-      <button type="button" (click)="pesquisar()">Pesquisar</button>
-      <button type="button" class="secondary" (click)="listar()">Listar todos</button>
-    </div>
-
-    <p *ngIf="carregando">Carregando ordens de serviço...</p>
-
-    <div class="table-wrap" style="margin-top: 14px;">
-      <table>
-        <thead>
-          <tr>
-            <th>Nº OS</th>
-            <th>Cliente</th>
-            <th>Placa</th>
-            <th>Status</th>
-            <th>Prioridade</th>
-            <th>Total</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let ordem of ordens">
-            <td>{{ ordem.numeroOs }}</td>
-            <td>{{ ordem.nomeCliente }}</td>
-            <td>{{ ordem.placaVeiculo }}</td>
-            <td><span class="badge">{{ ordem.statusAtual }}</span></td>
-            <td>{{ ordem.prioridade }}</td>
-            <td>{{ ordem.valorTotal | currency:'BRL' }}</td>
-            <td><button type="button" class="secondary" (click)="selecionar(ordem)">Selecionar</button></td>
-          </tr>
-          <tr *ngIf="!ordens.length && !carregando">
-            <td colspan="7">Nenhuma ordem de serviço encontrada.</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <section class="card"><h2>{{ form.id ? 'Editar OS' : 'Nova OS' }}</h2>
+    <div class="form-row"><div><label>Cliente</label><select [(ngModel)]="form.idCliente"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select></div><div><label>Veículo</label><select [(ngModel)]="form.idVeiculo"><option [ngValue]="0">Selecione</option><option *ngFor="let veiculo of veiculos" [ngValue]="veiculo.id">{{ veiculo.placa }} — {{ veiculo.nomeMarca }} {{ veiculo.nomeModelo }}</option></select></div><div><label>Número da OS</label><input [(ngModel)]="form.numeroOs" placeholder="Ex.: 5500"></div><div><label>Prioridade</label><select [(ngModel)]="form.prioridade"><option *ngFor="let prioridade of prioridades" [value]="prioridade">{{ prioridade }}</option></select></div></div>
+    <label>Observação</label><textarea rows="3" [(ngModel)]="form.observacao"></textarea>
+    <div class="actions" style="margin-top: 14px;"><button (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar OS' }}</button><button class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button></div>
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>
   </section>
 
-  <section class="card">
-    <h2>Alterar status</h2>
-    <p *ngIf="!ordemSelecionada" class="page-subtitle">Selecione uma OS na listagem.</p>
-    <div *ngIf="ordemSelecionada">
-      <p><strong>OS selecionada:</strong> {{ ordemSelecionada.numeroOs }} — {{ ordemSelecionada.nomeCliente }}</p>
-      <div>
-        <label>Novo status</label>
-        <select [(ngModel)]="novoStatus">
-          <option value="ORCAMENTO">ORCAMENTO</option>
-          <option value="EXECUCAO">EXECUCAO</option>
-          <option value="PAGAMENTO">PAGAMENTO</option>
-          <option value="FINALIZADO">FINALIZADO</option>
-        </select>
-      </div>
-      <div>
-        <label>Observação</label>
-        <textarea rows="4" [(ngModel)]="observacaoStatus"></textarea>
-      </div>
-      <button type="button" style="margin-top: 12px;" (click)="alterarStatus()">Confirmar alteração</button>
-    </div>
-
-    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
-    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  <section class="card"><h2>Alterar status</h2>
+    <p *ngIf="!ordemSelecionada" class="page-subtitle">Selecione uma OS na listagem para alterar o status.</p>
+    <div *ngIf="ordemSelecionada"><p><strong>OS selecionada:</strong> {{ ordemSelecionada.numeroOs }} — {{ ordemSelecionada.nomeCliente }}</p><div><label>Novo status</label><select [(ngModel)]="novoStatus"><option *ngFor="let status of statusFluxo" [value]="status">{{ status }}</option></select></div><div><label>Observação</label><textarea rows="4" [(ngModel)]="observacaoStatus"></textarea></div><button type="button" style="margin-top: 12px;" (click)="alterarStatus()" [disabled]="processando">{{ processando ? 'Processando...' : 'Confirmar alteração' }}</button></div>
   </section>
 </div>
+
+<section class="card" style="margin-top: 16px;"><h2>Consulta de OS</h2>
+  <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar por número, placa ou cliente" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar todos</button></div>
+  <p *ngIf="carregando">Carregando ordens de serviço...</p>
+  <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>Nº OS</th><th>Cliente</th><th>Placa</th><th>Status</th><th>Prioridade</th><th>Total</th><th>Ações</th></tr></thead><tbody>
+    <tr *ngFor="let ordem of ordens"><td>{{ ordem.numeroOs }}</td><td>{{ ordem.nomeCliente }}</td><td>{{ ordem.placaVeiculo }}</td><td><span class="badge">{{ ordem.statusAtual }}</span></td><td>{{ ordem.prioridade }}</td><td>{{ ordem.valorTotal | currency:'BRL' }}</td><td class="actions"><button class="secondary" (click)="selecionar(ordem)">Status</button><button class="secondary" (click)="editar(ordem)">Editar</button><button class="danger" (click)="excluir(ordem)" [disabled]="processando">Inativar</button></td></tr>
+    <tr *ngIf="!ordens.length && !carregando"><td colspan="7">Nenhuma ordem de serviço encontrada.</td></tr>
+  </tbody></table></div>
+</section>
