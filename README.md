@@ -665,3 +665,80 @@ Etapa 11 — Decorator para notificação/auditoria e revisão dos 6 padrões de
 ```
 
 A próxima etapa deve implementar o padrão Decorator restante, consolidar a documentação dos seis padrões de projeto e preparar a integração com Angular.
+
+---
+
+# Etapa 11 — Decorator, Notificação Interna e Consolidação dos Padrões de Projeto
+
+Nesta etapa foi implementado o sexto padrão de projeto exigido pela disciplina:
+
+```text
+Decorator
+```
+
+O padrão foi aplicado no mecanismo de notificação interna e auditoria operacional do sistema.
+
+Foram implementados:
+
+```text
+Notificador
+NotificadorOperacional
+NotificadorDecorator
+NotificadorAuditoriaDecorator
+NotificacaoDTO
+NotificacaoResultadoDTO
+NotificacaoService
+NotificacaoController
+PadraoProjetoDTO
+PadraoProjetoController
+```
+
+Aplicação prática:
+
+```text
+Alteração de status da Ordem de Serviço
+    ↓
+Registro no HistoricoStatusOrdem
+    ↓
+NotificacaoService
+    ↓
+NotificadorAuditoriaDecorator
+    ↓
+NotificadorOperacional
+```
+
+Endpoints criados:
+
+```text
+POST /api/notificacoes/simular
+GET  /api/padroes-projeto
+```
+
+Padrões de projeto consolidados:
+
+```text
+Singleton        → DatabaseConnectionSingleton
+Factory Method   → ClienteCadastroFactory / ClienteFactoryMethod
+Adapter          → VeiculoResponseAdapter
+Iterator         → OficinaIterator / FilaAtendimentoIterator / ListaLinearIterator
+Template Method  → OrdenadorTemplate
+Decorator        → NotificadorAuditoriaDecorator
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA11_PADROES_PROJETO.md
+docs/README_PADROES_PROJETO.md
+docs/adr/ADR-014-decorator-notificacao-auditoria.md
+```
+
+---
+
+## Próxima etapa recomendada
+
+```text
+Etapa 12 — Preparação do Angular e integração inicial com Swagger/API REST
+```
+
+A próxima etapa deve iniciar a camada View em Angular, configurando o projeto frontend, rotas principais, serviços HTTP e primeira tela de integração com o backend.

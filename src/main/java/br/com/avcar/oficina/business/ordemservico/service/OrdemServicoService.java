@@ -30,6 +30,7 @@ import br.com.avcar.oficina.business.veiculo.model.VeiculoModel;
 import br.com.avcar.oficina.business.veiculo.repository.IVeiculoRepository;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.notification.service.NotificacaoService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -65,6 +66,7 @@ public class OrdemServicoService {
     private final OrdemServicoMapper ordemServicoMapper;
     private final HistoricoStatusOrdemMapper historicoStatusMapper;
     private final ItemServicoMapper itemServicoMapper;
+    private final NotificacaoService notificacaoService;
 
     public OrdemServicoService(IOrdemServicoRepository ordemServicoRepository,
                                IClienteRepository clienteRepository,
@@ -79,7 +81,8 @@ public class OrdemServicoService {
                                OrdemServicoValidation validation,
                                OrdemServicoMapper ordemServicoMapper,
                                HistoricoStatusOrdemMapper historicoStatusMapper,
-                               ItemServicoMapper itemServicoMapper) {
+                               ItemServicoMapper itemServicoMapper,
+                               NotificacaoService notificacaoService) {
         this.ordemServicoRepository = ordemServicoRepository;
         this.clienteRepository = clienteRepository;
         this.veiculoRepository = veiculoRepository;
@@ -94,6 +97,7 @@ public class OrdemServicoService {
         this.ordemServicoMapper = ordemServicoMapper;
         this.historicoStatusMapper = historicoStatusMapper;
         this.itemServicoMapper = itemServicoMapper;
+        this.notificacaoService = notificacaoService;
     }
 
     @Transactional
@@ -166,6 +170,17 @@ public class OrdemServicoService {
 
         OrdemServicoModel atualizada = buscarModelAtivo(id);
         historicoStatusRepository.save(historicoStatusMapper.criarHistorico(atualizada, novoStatus, dto.getObservacao()));
+
+        /*
+         * PADRÃO DE PROJETO: DECORATOR
+         * Aplicação: toda alteração de status da OS gera uma notificação interna.
+         * A notificação base é envolvida por NotificadorAuditoriaDecorator,
+         * adicionando auditoria sem alterar o componente operacional.
+         */
+        notificacaoService.notificarMudancaStatusOrdemServico(
+                atualizada.getNumeroOs(),
+                novoStatus.getNomeStatus(),
+                dto.getObservacao());
 
         return montarDetalhe(id);
     }
