@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin, switchMap } from 'rxjs';
 import { GarantiaApiService } from '../../core/services/garantia-api.service';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
 import { GarantiaPeca, GarantiaServico } from '../../models/garantia.model';
@@ -19,23 +19,54 @@ export class GarantiasComponent implements OnInit {
   carregando = false;
   processando = false;
 
-  constructor(private readonly garantiaApi: GarantiaApiService, private readonly ordemApi: OrdemServicoApiService) {}
-  ngOnInit(): void { this.ordemApi.listar().subscribe({ next: o => this.ordens = o }); this.listarTodas(); }
-  listarTodas(): void {
-    this.carregando = true;
-    this.garantiaApi.listarGarantiasPecas().pipe(finalize(() => this.carregando = false)).subscribe({ next: g => this.garantiasPecas = g, error: e => this.erro = e.message });
-    this.garantiaApi.listarGarantiasServicos().subscribe({ next: g => this.garantiasServicos = g, error: e => this.erro = e.message });
+  constructor(private readonly garantiaApi: GarantiaApiService, private readonly ordemApi: OrdemServicoApiService, private readonly cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void { this.carregarTelaInicial(); }
+
+  carregarTelaInicial(): void {
+    this.carregando = true; this.erro = undefined; this.atualizarTela();
+    forkJoin({ ordens: this.ordemApi.listar(), pecas: this.garantiaApi.listarGarantiasPecas(), servicos: this.garantiaApi.listarGarantiasServicos() })
+      .pipe(finalize(() => { this.carregando = false; this.atualizarTela(); }))
+      .subscribe({
+        next: r => { this.ordens = [...r.ordens]; this.garantiasPecas = [...r.pecas]; this.garantiasServicos = [...r.servicos]; this.atualizarTela(); },
+        error: e => { this.erro = e.message; this.atualizarTela(); }
+      });
   }
+
+  listarTodas(): void { this.carregarTelaInicial(); }
+
   listarPorOrdem(): void {
     if (!this.idOrdemSelecionada) { this.listarTodas(); return; }
-    this.carregando = true;
-    this.garantiaApi.listarPecasPorOrdemServico(this.idOrdemSelecionada).pipe(finalize(() => this.carregando = false)).subscribe({ next: g => this.garantiasPecas = g, error: e => this.erro = e.message });
-    this.garantiaApi.listarServicosPorOrdemServico(this.idOrdemSelecionada).subscribe({ next: g => this.garantiasServicos = g, error: e => this.erro = e.message });
+    this.carregando = true; this.erro = undefined; this.atualizarTela();
+    forkJoin({ pecas: this.garantiaApi.listarPecasPorOrdemServico(this.idOrdemSelecionada), servicos: this.garantiaApi.listarServicosPorOrdemServico(this.idOrdemSelecionada) })
+      .pipe(finalize(() => { this.carregando = false; this.atualizarTela(); }))
+      .subscribe({ next: r => { this.garantiasPecas = [...r.pecas]; this.garantiasServicos = [...r.servicos]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } });
   }
-  acionarPeca(g: GarantiaPeca): void { if (!g.id) return; this.processando = true; this.garantiaApi.acionarGarantiaPeca(g.id, { observacao: this.observacao }).pipe(finalize(() => this.processando = false)).subscribe({ next: garantia => { this.mensagem = 'Garantia de peça acionada.'; this.atualizarGarantiaPeca(garantia); this.listarPorOrdem(); }, error: e => this.erro = e.message }); }
-  encerrarPeca(g: GarantiaPeca): void { if (!g.id) return; this.processando = true; this.garantiaApi.encerrarGarantiaPeca(g.id, { observacao: this.observacao }).pipe(finalize(() => this.processando = false)).subscribe({ next: garantia => { this.mensagem = 'Garantia de peça encerrada.'; this.atualizarGarantiaPeca(garantia); this.listarPorOrdem(); }, error: e => this.erro = e.message }); }
-  acionarServico(g: GarantiaServico): void { if (!g.id) return; this.processando = true; this.garantiaApi.acionarGarantiaServico(g.id, { observacao: this.observacao }).pipe(finalize(() => this.processando = false)).subscribe({ next: garantia => { this.mensagem = 'Garantia de serviço acionada.'; this.atualizarGarantiaServico(garantia); this.listarPorOrdem(); }, error: e => this.erro = e.message }); }
-  encerrarServico(g: GarantiaServico): void { if (!g.id) return; this.processando = true; this.garantiaApi.encerrarGarantiaServico(g.id, { observacao: this.observacao }).pipe(finalize(() => this.processando = false)).subscribe({ next: garantia => { this.mensagem = 'Garantia de serviço encerrada.'; this.atualizarGarantiaServico(garantia); this.listarPorOrdem(); }, error: e => this.erro = e.message }); }
-  private atualizarGarantiaPeca(garantia: GarantiaPeca | null | undefined): void { if (!garantia?.id) return; this.garantiasPecas = this.garantiasPecas.map(g => g.id === garantia.id ? garantia : g); }
-  private atualizarGarantiaServico(garantia: GarantiaServico | null | undefined): void { if (!garantia?.id) return; this.garantiasServicos = this.garantiasServicos.map(g => g.id === garantia.id ? garantia : g); }
+
+  acionarPeca(g: GarantiaPeca): void { this.executarAcaoPeca(g, 'ACIONAR'); }
+  encerrarPeca(g: GarantiaPeca): void { this.executarAcaoPeca(g, 'ENCERRAR'); }
+  acionarServico(g: GarantiaServico): void { this.executarAcaoServico(g, 'ACIONAR'); }
+  encerrarServico(g: GarantiaServico): void { this.executarAcaoServico(g, 'ENCERRAR'); }
+
+  private executarAcaoPeca(g: GarantiaPeca, tipo: 'ACIONAR' | 'ENCERRAR'): void {
+    if (!g.id) return;
+    this.processando = true; this.erro = undefined; this.atualizarTela();
+    const acao = tipo === 'ACIONAR' ? this.garantiaApi.acionarGarantiaPeca(g.id, { observacao: this.observacao }) : this.garantiaApi.encerrarGarantiaPeca(g.id, { observacao: this.observacao });
+    acao.pipe(switchMap(() => this.idOrdemSelecionada ? this.garantiaApi.listarPecasPorOrdemServico(this.idOrdemSelecionada) : this.garantiaApi.listarGarantiasPecas()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
+      next: garantias => { this.mensagem = tipo === 'ACIONAR' ? 'Garantia de peça acionada.' : 'Garantia de peça encerrada.'; this.garantiasPecas = [...garantias]; this.atualizarTela(); },
+      error: e => { this.erro = e.message; this.atualizarTela(); }
+    });
+  }
+
+  private executarAcaoServico(g: GarantiaServico, tipo: 'ACIONAR' | 'ENCERRAR'): void {
+    if (!g.id) return;
+    this.processando = true; this.erro = undefined; this.atualizarTela();
+    const acao = tipo === 'ACIONAR' ? this.garantiaApi.acionarGarantiaServico(g.id, { observacao: this.observacao }) : this.garantiaApi.encerrarGarantiaServico(g.id, { observacao: this.observacao });
+    acao.pipe(switchMap(() => this.idOrdemSelecionada ? this.garantiaApi.listarServicosPorOrdemServico(this.idOrdemSelecionada) : this.garantiaApi.listarGarantiasServicos()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
+      next: garantias => { this.mensagem = tipo === 'ACIONAR' ? 'Garantia de serviço acionada.' : 'Garantia de serviço encerrada.'; this.garantiasServicos = [...garantias]; this.atualizarTela(); },
+      error: e => { this.erro = e.message; this.atualizarTela(); }
+    });
+  }
+
+  private atualizarTela(): void { this.cdr.detectChanges(); }
 }

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, map } from 'rxjs';
+import { Observable, map, timeout } from 'rxjs';
 import { BaseApiService } from './base-api.service';
 import { ItemServico } from '../../models/ordem-servico.model';
 import { ApiResponse, PageResponse } from '../models/api-response.model';
@@ -12,12 +12,12 @@ export class ItemServicoApiService extends BaseApiService<ItemServico> {
   }
 
   listarPorOrdemServico(idOrdemServico: number): Observable<ItemServico[]> {
-    return this.http.get<ApiResponse<PageResponse<ItemServico> | ItemServico[]>>(`${this.apiBaseUrl}/itens-servico/ordem-servico/${idOrdemServico}`)
-      .pipe(map(response => {
-        const dados = this.extrairDados(response);
-        if (!dados) return [];
-        if (Array.isArray(dados)) return dados;
-        return dados.content ?? [];
-      }));
+    return this.http.get<ApiResponse<PageResponse<ItemServico> | ItemServico[]> | PageResponse<ItemServico> | ItemServico[]>(
+      `${this.apiBaseUrl}/itens-servico/ordem-servico/${idOrdemServico}`,
+      this.opcoesSemCache()
+    ).pipe(
+      timeout(this.tempoLimiteMs),
+      map(response => this.extrairListaDeResposta<ItemServico>(response))
+    );
   }
 }

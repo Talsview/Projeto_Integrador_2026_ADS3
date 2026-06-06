@@ -4,10 +4,9 @@ import { TimeoutError, catchError, throwError } from 'rxjs';
 /**
  * Interceptor global de comunicação com a API.
  *
- * Responsabilidade: padronizar mensagens de erro vindas do backend.
- * A atualização visual das telas fica sob responsabilidade natural do Angular
- * e dos componentes, evitando travamentos de estado como "Salvando..." ou
- * "Atualizando..." após uma requisição concluída.
+ * A atualização das tabelas foi concentrada nos componentes e services, pois cada tela
+ * possui dependências específicas. O interceptor fica responsável por normalizar erros
+ * retornados pelo backend Spring Boot.
  */
 export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
   return next(req).pipe(
@@ -24,12 +23,7 @@ function normalizarErroApi(error: HttpErrorResponse | TimeoutError): Error {
 
   const body: any = error.error ?? {};
   const data: any = body.data ?? body.dados ?? {};
-
-  const detalhes = data.details
-    ?? data.detalhes
-    ?? body.details
-    ?? body.detalhes
-    ?? [];
+  const detalhes = data.details ?? data.detalhes ?? body.details ?? body.detalhes ?? [];
 
   if (Array.isArray(detalhes) && detalhes.length > 0) {
     const detalhe = detalhes.find(item => typeof item === 'string' && item.trim().length > 0);

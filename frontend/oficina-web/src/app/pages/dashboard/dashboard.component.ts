@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { DashboardService } from '../../core/services/dashboard.service';
-import { PadraoProjeto } from '../../models/padrao-projeto.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,19 +11,14 @@ import { PadraoProjeto } from '../../models/padrao-projeto.model';
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   statusBanco = 'Aguardando verificação.';
   statusBancoTipo: 'aguardando' | 'ok' | 'erro' = 'aguardando';
   tempoRespostaBancoMs?: number;
   carregandoBanco = false;
-  padroes: PadraoProjeto[] = [];
   erro?: string;
 
   constructor(private readonly dashboardService: DashboardService) {}
-
-  ngOnInit(): void {
-    this.carregarPadroes();
-  }
 
   verificarBanco(): void {
     this.carregandoBanco = true;
@@ -47,12 +41,5 @@ export class DashboardComponent implements OnInit {
           this.statusBanco = 'Falha na comunicação com a API.';
         }
       });
-  }
-
-  private carregarPadroes(): void {
-    this.dashboardService.listarPadroesProjeto().subscribe({
-      next: (padroes) => this.padroes = padroes,
-      error: () => this.padroes = []
-    });
   }
 }

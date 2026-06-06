@@ -12,23 +12,25 @@ export class PagamentoApiService extends BaseApiService<Pagamento> {
   }
 
   listarPorOrdemServico(idOrdemServico: number): Observable<Pagamento[]> {
-    return this.http.get<ApiResponse<PageResponse<Pagamento> | Pagamento[]>>(`${this.apiBaseUrl}/pagamentos/ordem-servico/${idOrdemServico}`)
-      .pipe(timeout(this.tempoLimiteMs), map(response => {
-        const dados = this.extrairDados(response);
-        if (!dados) return [];
-        if (Array.isArray(dados)) return dados;
-        return dados.content ?? [];
-      }));
+    return this.http.get<ApiResponse<PageResponse<Pagamento> | Pagamento[]> | PageResponse<Pagamento> | Pagamento[]>(
+      `${this.apiBaseUrl}/pagamentos/ordem-servico/${idOrdemServico}`,
+      this.opcoesSemCache()
+    ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairListaDeResposta<Pagamento>(response)));
   }
 
   resumoPorOrdemServico(idOrdemServico: number): Observable<ResumoPagamentoOrdemServico> {
-    return this.http.get<ApiResponse<ResumoPagamentoOrdemServico>>(`${this.apiBaseUrl}/pagamentos/ordem-servico/${idOrdemServico}/resumo`)
-      .pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as ResumoPagamentoOrdemServico));
+    return this.http.get<ApiResponse<ResumoPagamentoOrdemServico> | ResumoPagamentoOrdemServico>(
+      `${this.apiBaseUrl}/pagamentos/ordem-servico/${idOrdemServico}/resumo`,
+      this.opcoesSemCache()
+    ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as ResumoPagamentoOrdemServico));
   }
 
   alterarStatus(id: number, statusPagamento: StatusPagamento): Observable<Pagamento> {
     const params = new HttpParams().set('statusPagamento', statusPagamento);
-    return this.http.patch<ApiResponse<Pagamento>>(`${this.apiBaseUrl}/pagamentos/${id}/status`, null, { params })
-      .pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as Pagamento));
+    return this.http.patch<ApiResponse<Pagamento> | Pagamento>(
+      `${this.apiBaseUrl}/pagamentos/${id}/status`,
+      null,
+      this.opcoesSemCache(params)
+    ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as Pagamento));
   }
 }

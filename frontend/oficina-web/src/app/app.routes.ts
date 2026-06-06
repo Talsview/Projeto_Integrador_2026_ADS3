@@ -13,10 +13,9 @@ import { ItensOsComponent } from './pages/itens-os/itens-os.component';
 import { PagamentosComponent } from './pages/pagamentos/pagamentos.component';
 import { GarantiasComponent } from './pages/garantias/garantias.component';
 import { EstruturaDadosComponent } from './pages/estrutura-dados/estrutura-dados.component';
-import { PadroesProjetoComponent } from './pages/padroes-projeto/padroes-projeto.component';
 
 export const routes: Routes = [
-  { path: '', component: DashboardComponent, title: 'Painel - Oficina' },
+  { path: '', component: DashboardComponent, title: 'Início - Oficina' },
   { path: 'clientes', component: ClientesComponent, title: 'Clientes' },
   { path: 'funcoes', component: FuncoesComponent, title: 'Funções' },
   { path: 'colaboradores', component: ColaboradoresComponent, title: 'Colaboradores' },
@@ -26,10 +25,11 @@ export const routes: Routes = [
   { path: 'empresas-terceirizadas', component: EmpresasTerceirizadasComponent, title: 'Empresas Terceirizadas' },
   { path: 'pecas-fornecedores', component: PecasFornecedoresComponent, title: 'Peças e Fornecedores' },
   { path: 'ordens-servico', component: OrdensServicoComponent, title: 'Ordens de Serviço' },
-  { path: 'itens-os', component: ItensOsComponent, title: 'Itens da OS' },
+  { path: 'itens-os', component: ItensOsComponent, title: 'Serviços e Peças da OS' },
+  { path: 'fila-atendimento', component: EstruturaDadosComponent, title: 'Fila de Atendimento' },
+  { path: 'estrutura-dados', redirectTo: 'fila-atendimento' },
   { path: 'pagamentos', component: PagamentosComponent, title: 'Pagamentos' },
   { path: 'garantias', component: GarantiasComponent, title: 'Garantias' },
-  { path: 'estrutura-dados', component: EstruturaDadosComponent, title: 'Estrutura de Dados' },
-  { path: 'padroes-projeto', component: PadroesProjetoComponent, title: 'Padrões de Projeto' },
+  { path: 'padroes-projeto', redirectTo: '' },
   { path: '**', redirectTo: '' }
 ];

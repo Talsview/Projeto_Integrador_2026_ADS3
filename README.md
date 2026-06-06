@@ -1274,3 +1274,101 @@ docs/README_ETAPA23_ATUALIZACAO_IMEDIATA_TELAS.md
 docs/adr/ADR-026-atualizacao-imediata-tabelas-angular.md
 database/03_verificacoes/12_verificacao_atualizacao_imediata_telas.sql
 ```
+
+---
+
+# Etapa 24 — Atualização Global das Telas Angular e Organização Operacional
+
+Nesta etapa foi ampliada a correção de atualização imediata das tabelas para todas as abas do frontend Angular.
+
+## Problema corrigido
+
+Algumas telas salvavam os dados corretamente no backend, porém a interface somente mostrava a listagem atualizada após o usuário clicar novamente em outro botão. Esse comportamento foi corrigido globalmente.
+
+## Correção aplicada
+
+```text
+1. O interceptor global da API passou a sincronizar a atualização visual após respostas HTTP.
+2. O BaseApiService passou a retornar novas referências de array nas listagens.
+3. Serviços com consultas específicas também foram ajustados para retornar novas listas.
+4. As telas passam a refletir os dados do backend sem exigir novo clique manual.
+```
+
+## Abas cobertas
+
+```text
+Clientes
+Funções
+Colaboradores
+Marcas e Modelos
+Veículos
+Serviços
+Empresas Terceirizadas
+Peças e Fornecedores
+Ordens de Serviço
+Itens da OS
+Pagamentos
+Garantias
+Fila de Atendimento
+```
+
+## Organização visual
+
+O frontend foi mantido como um sistema de gestão de oficina mecânica, com menu agrupado em:
+
+```text
+Cadastros
+Ordens de Serviço
+```
+
+A aba de Padrões de Projeto não aparece mais no menu operacional. A funcionalidade de Estrutura de Dados passou a aparecer como Fila de Atendimento, nome mais adequado para o uso real da oficina.
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA24_ATUALIZACAO_GLOBAL_FRONTEND.md
+docs/adr/ADR-027-atualizacao-global-telas-angular.md
+database/03_verificacoes/13_verificacao_atualizacao_global_telas.sql
+```
+
+---
+
+## Etapa 25 — Correção global da comunicação Angular/Backend
+
+Esta etapa corrigiu o problema em que algumas telas do Angular só exibiam os dados do banco após clique, digitação ou nova ação manual.
+
+Foram ajustadas globalmente as telas de cadastros e de ordens de serviço para que:
+
+```text
+1. Ao abrir a tela, os dados sejam carregados automaticamente.
+2. Após salvar, editar, inativar, acionar ou encerrar registros, a tabela seja recarregada automaticamente.
+3. As listas recebam nova referência, garantindo atualização visual imediata.
+4. As consultas GET usem anti-cache para evitar dados antigos.
+5. O BaseApiService aceite respostas ApiResponse, PageResponse, array direto ou objeto direto.
+```
+
+Telas revisadas:
+
+```text
+Veículos
+Colaboradores
+Marcas e Modelos
+Serviços
+Empresas Terceirizadas
+Peças e Fornecedores
+Ordens de Serviço
+Serviços e Peças da OS
+Pagamentos
+Garantias
+Fila de Atendimento
+```
+
+A tela antiga de Estrutura de Dados foi mantida tecnicamente, mas no menu operacional é apresentada como **Fila de Atendimento**, com linguagem mais compatível com uma oficina mecânica.
+
+Validação TypeScript executada:
+
+```bash
+./node_modules/.bin/tsc --noEmit -p tsconfig.app.json
+```
+
+Resultado: sem erros de TypeScript.

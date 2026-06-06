@@ -121,3 +121,36 @@ database/03_verificacoes/12_verificacao_atualizacao_imediata_telas.sql
 ```
 
 Esse script permite conferir os registros usados nas telas de Clientes e Funções, especialmente após testar cadastros pelo frontend Angular. Ele não cria tabelas nem insere dados; serve apenas para conferência no pgAdmin.
+
+---
+
+# Verificação da Etapa 24 — Atualização Global das Telas
+
+Foi adicionado o script:
+
+```text
+database/03_verificacoes/13_verificacao_atualizacao_global_telas.sql
+```
+
+Esse script ajuda a conferir, no banco PostgreSQL, se os cadastros feitos pelo frontend foram efetivamente gravados nas tabelas principais.
+
+A organização dos scripts permanece:
+
+```text
+database/01_schema       → criação da estrutura do banco
+database/02_seed         → dados iniciais
+database/03_verificacoes → conferências e validações
+database/04_completo     → script completo opcional
+```
+
+---
+
+## Verificação da Etapa 25 — Comunicação global com o frontend
+
+Para confirmar se há dados para exibição nas telas do Angular, execute:
+
+```text
+database/03_verificacoes/14_verificacao_comunicacao_global_frontend.sql
+```
+
+Esse script confere a quantidade de registros ativos nas principais tabelas utilizadas pelas telas de cadastro e de ordens de serviço.

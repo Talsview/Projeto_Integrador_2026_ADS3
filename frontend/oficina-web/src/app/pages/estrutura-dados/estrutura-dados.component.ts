@@ -1,53 +1,54 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { finalize } from 'rxjs';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
 import { OrdemServicoResumo } from '../../models/ordem-servico.model';
 
-@Component({
-  selector: 'app-estrutura-dados',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './estrutura-dados.component.html'
-})
-export class EstruturaDadosComponent {
+@Component({ selector: 'app-estrutura-dados', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './estrutura-dados.component.html' })
+export class EstruturaDadosComponent implements OnInit {
   ordens: OrdemServicoResumo[] = [];
   termo = '';
   idTotal?: number;
   totalRecursivo?: string;
   erro?: string;
+  carregando = false;
 
-  constructor(private readonly ordemApi: OrdemServicoApiService) {}
+  constructor(private readonly ordemApi: OrdemServicoApiService, private readonly cdr: ChangeDetectorRef) {}
+
+  ngOnInit(): void { this.carregarFila(); }
 
   carregarFila(): void {
-    this.ordemApi.filaAtendimento().subscribe({
-      next: ordens => this.ordens = ordens,
-      error: error => this.erro = error.message
+    this.carregando = true; this.erro = undefined; this.atualizarTela();
+    this.ordemApi.filaAtendimento().pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
+      next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); },
+      error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
 
   ordenar(criterio: 'DATA_ABERTURA' | 'VALOR_TOTAL' | 'PRIORIDADE'): void {
-    this.ordemApi.ordenar(criterio).subscribe({
-      next: ordens => this.ordens = ordens,
-      error: error => this.erro = error.message
+    this.carregando = true; this.erro = undefined; this.atualizarTela();
+    this.ordemApi.ordenar(criterio).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
+      next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); },
+      error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
 
   pesquisarLinear(): void {
-    this.ordemApi.pesquisarLinear(this.termo).subscribe({
-      next: ordens => this.ordens = ordens,
-      error: error => this.erro = error.message
+    this.carregando = true; this.erro = undefined; this.atualizarTela();
+    this.ordemApi.pesquisarLinear(this.termo).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
+      next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); },
+      error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
 
   calcularTotalRecursivo(): void {
-    if (!this.idTotal) {
-      this.erro = 'Informe o ID da Ordem de Serviço.';
-      return;
-    }
+    if (!this.idTotal) { this.erro = 'Informe o ID da Ordem de Serviço.'; this.atualizarTela(); return; }
     this.ordemApi.totalRecursivo(this.idTotal).subscribe({
-      next: total => this.totalRecursivo = JSON.stringify(total),
-      error: error => this.erro = error.message
+      next: total => { this.totalRecursivo = JSON.stringify(total); this.atualizarTela(); },
+      error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
+
+  private atualizarTela(): void { this.cdr.detectChanges(); }
 }

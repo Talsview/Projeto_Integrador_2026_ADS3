@@ -1,26 +1,80 @@
-<h1 class="page-title">Painel operacional</h1>
-<p class="page-subtitle">
-  Camada View em Angular para consumir a API REST do sistema monolítico em camadas da oficina mecânica.
-</p>
+<section class="home-hero">
+  <div>
+    <p class="eyebrow">Sistema operacional da oficina</p>
+    <h1>Controle de cadastros e ordens de serviço</h1>
+    <p>
+      Ambiente local para registrar clientes, veículos, colaboradores, serviços, peças, pagamentos e garantias da oficina mecânica.
+    </p>
+  </div>
 
-<section class="grid four cards">
-  <a class="module-card" routerLink="/clientes"><strong>Clientes</strong><span>Pessoa física e pessoa jurídica.</span></a>
-  <a class="module-card" routerLink="/colaboradores"><strong>Colaboradores</strong><span>Equipe, funções e responsáveis técnicos.</span></a>
-  <a class="module-card" routerLink="/veiculos"><strong>Veículos</strong><span>Marca, modelo e histórico de proprietários.</span></a>
-  <a class="module-card" routerLink="/ordens-servico"><strong>Ordens de Serviço</strong><span>Fluxo: orçamento, execução, pagamento e finalizado.</span></a>
-  <a class="module-card" routerLink="/itens-os"><strong>Itens da OS</strong><span>Serviços, peças, fornecedor e colaborador responsável.</span></a>
-  <a class="module-card" routerLink="/pagamentos"><strong>Pagamentos</strong><span>Controle financeiro e quitação da OS.</span></a>
-  <a class="module-card" routerLink="/garantias"><strong>Garantias</strong><span>Garantias de peças e serviços após finalização.</span></a>
-  <a class="module-card" routerLink="/pecas-fornecedores"><strong>Peças</strong><span>Peças aplicáveis e fornecedores identificados.</span></a>
+  <div class="hero-panel">
+    <span>Fluxo principal</span>
+    <strong>Orçamento → Execução → Pagamento → Finalizado</strong>
+  </div>
+</section>
+
+<section class="grid two section-gap">
+  <div class="card service-card">
+    <div class="section-heading">
+      <span>Rotina da oficina</span>
+      <h2>Ordens de Serviço</h2>
+    </div>
+
+    <div class="action-list">
+      <a routerLink="/ordens-servico">
+        <strong>Abrir ou consultar OS</strong>
+        <span>Registre o atendimento do cliente e acompanhe o status da ordem.</span>
+      </a>
+      <a routerLink="/itens-os">
+        <strong>Serviços e peças da OS</strong>
+        <span>Inclua serviços, colaboradores responsáveis, peças e fornecedores.</span>
+      </a>
+      <a routerLink="/fila-atendimento">
+        <strong>Fila de atendimento</strong>
+        <span>Organize OS por chegada, prioridade, valor ou pesquisa operacional.</span>
+      </a>
+      <a routerLink="/pagamentos">
+        <strong>Pagamentos</strong>
+        <span>Registre a quitação e avance automaticamente o fluxo da OS.</span>
+      </a>
+      <a routerLink="/garantias">
+        <strong>Garantias</strong>
+        <span>Acompanhe garantias de peças e serviços após a finalização da OS.</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="card service-card">
+    <div class="section-heading">
+      <span>Base cadastral</span>
+      <h2>Cadastros da oficina</h2>
+    </div>
+
+    <div class="action-list two-columns">
+      <a routerLink="/clientes"><strong>Clientes</strong><span>Pessoa física e jurídica.</span></a>
+      <a routerLink="/veiculos"><strong>Veículos</strong><span>Marca, modelo e histórico de proprietários.</span></a>
+      <a routerLink="/colaboradores"><strong>Colaboradores</strong><span>Equipe responsável pelos serviços.</span></a>
+      <a routerLink="/funcoes"><strong>Funções</strong><span>Mecânico, atendente, gerente e demais funções.</span></a>
+      <a routerLink="/marcas-modelos"><strong>Marcas e modelos</strong><span>Classificação dos veículos atendidos.</span></a>
+      <a routerLink="/servicos"><strong>Serviços</strong><span>Internos e terceirizados.</span></a>
+      <a routerLink="/empresas-terceirizadas"><strong>Terceirizadas</strong><span>Empresas externas parceiras.</span></a>
+      <a routerLink="/pecas-fornecedores"><strong>Peças e fornecedores</strong><span>Peças aplicadas e origem identificada.</span></a>
+    </div>
+  </div>
 </section>
 
 <section class="grid two section-gap">
   <div class="card">
-    <h2>Verificação da API</h2>
-    <p>Confirma se o backend em Spring Boot está respondendo e se a conexão local com PostgreSQL está disponível.</p>
+    <div class="section-heading compact">
+      <span>Infraestrutura local</span>
+      <h2>Verificação do sistema</h2>
+    </div>
+    <p class="muted">
+      Confirme se a API Spring Boot está ativa e se o banco PostgreSQL local está respondendo antes de iniciar os cadastros.
+    </p>
     <div class="actions">
       <button type="button" (click)="verificarBanco()" [disabled]="carregandoBanco">
-        {{ carregandoBanco ? 'Verificando...' : 'Verificar banco' }}
+        {{ carregandoBanco ? 'Verificando...' : 'Verificar conexão' }}
       </button>
       <span class="badge" [class.success]="statusBancoTipo === 'ok'" [class.error]="statusBancoTipo === 'erro'">
         {{ statusBanco }}
@@ -31,35 +85,21 @@
       Tempo de resposta medido pelo backend: {{ tempoRespostaBancoMs }} ms.
     </p>
 
-    <p class="api-hint" *ngIf="statusBancoTipo === 'erro'">
-      Verifique se o backend está ativo em <strong>http://localhost:9081</strong> e se o banco PostgreSQL está iniciado.
-    </p>
-
     <p class="alert error" *ngIf="erro">{{ erro }}</p>
   </div>
 
-  <div class="card">
-    <h2>Atalhos de cadastros básicos</h2>
-    <div class="quick-links">
-      <a routerLink="/funcoes">Funções</a>
-      <a routerLink="/marcas-modelos">Marcas e Modelos</a>
-      <a routerLink="/servicos">Serviços</a>
-      <a routerLink="/empresas-terceirizadas">Empresas Terceirizadas</a>
+  <div class="card info-card">
+    <div class="section-heading compact">
+      <span>Rastreabilidade</span>
+      <h2>Controle operacional</h2>
     </div>
+    <p>
+      O sistema foi organizado para preservar o vínculo entre cliente, veículo, ordem de serviço, colaborador, serviço, peça, fornecedor, pagamento e garantia.
+    </p>
+    <ul>
+      <li>Histórico de proprietários dos veículos.</li>
+      <li>Fornecedor identificado para cada peça aplicada.</li>
+      <li>Garantias iniciadas após a finalização da OS.</li>
+    </ul>
   </div>
-</section>
-
-<section class="card section-gap">
-  <h2>Padrões de projeto</h2>
-  <p>Endpoint de apoio acadêmico para demonstrar onde os seis padrões foram aplicados.</p>
-  <ul class="pattern-list" *ngIf="padroes.length > 0; else semPadroes">
-    <li *ngFor="let padrao of padroes">
-      <strong>{{ padrao.padrao }}</strong>
-      <span>{{ padrao.classePrincipal }}</span>
-    </li>
-  </ul>
-  <ng-template #semPadroes>
-    <p class="api-hint">Os padrões serão carregados quando o backend estiver disponível.</p>
-  </ng-template>
-  <a routerLink="/padroes-projeto" class="text-link">Ver detalhes</a>
 </section>

@@ -1,29 +1,50 @@
 <header class="topbar">
-  <div>
-    <strong>AV CAR AUTO CENTER</strong>
-    <span>Sistema de Gestão para Oficina Mecânica</span>
+  <div class="brand-area">
+    <div class="brand-mark">AV</div>
+    <div>
+      <strong>AV CAR AUTO CENTER</strong>
+      <span>Sistema local de gestão para oficina mecânica</span>
+    </div>
   </div>
-  <a class="swagger" [href]="swaggerUrl" target="_blank" rel="noopener">Swagger / API</a>
+
+  <div class="topbar-actions">
+    <span class="system-status">PostgreSQL local • API REST</span>
+    <a class="swagger" [href]="swaggerUrl" target="_blank" rel="noopener">Swagger</a>
+  </div>
 </header>
 
 <div class="shell">
   <aside class="sidebar">
-    <nav>
-      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Painel</a>
-      <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
-      <a routerLink="/funcoes" routerLinkActive="active">Funções</a>
-      <a routerLink="/colaboradores" routerLinkActive="active">Colaboradores</a>
-      <a routerLink="/marcas-modelos" routerLinkActive="active">Marcas e Modelos</a>
-      <a routerLink="/veiculos" routerLinkActive="active">Veículos</a>
-      <a routerLink="/servicos" routerLinkActive="active">Serviços</a>
-      <a routerLink="/empresas-terceirizadas" routerLinkActive="active">Terceirizadas</a>
-      <a routerLink="/pecas-fornecedores" routerLinkActive="active">Peças e Fornecedores</a>
-      <a routerLink="/ordens-servico" routerLinkActive="active">Ordens de Serviço</a>
-      <a routerLink="/itens-os" routerLinkActive="active">Itens da OS</a>
-      <a routerLink="/pagamentos" routerLinkActive="active">Pagamentos</a>
-      <a routerLink="/garantias" routerLinkActive="active">Garantias</a>
-      <a routerLink="/estrutura-dados" routerLinkActive="active">Estrutura de Dados</a>
-      <a routerLink="/padroes-projeto" routerLinkActive="active">Padrões de Projeto</a>
+    <div class="sidebar-title">
+      <strong>Menu do sistema</strong>
+      <span>Cadastros e ordens de serviço</span>
+    </div>
+
+    <nav aria-label="Navegação principal">
+      <a class="nav-home" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Início
+      </a>
+
+      <div class="nav-group">
+        <span class="nav-group-title">Cadastros</span>
+        <a routerLink="/clientes" routerLinkActive="active">Clientes</a>
+        <a routerLink="/veiculos" routerLinkActive="active">Veículos</a>
+        <a routerLink="/colaboradores" routerLinkActive="active">Colaboradores</a>
+        <a routerLink="/funcoes" routerLinkActive="active">Funções</a>
+        <a routerLink="/marcas-modelos" routerLinkActive="active">Marcas e modelos</a>
+        <a routerLink="/servicos" routerLinkActive="active">Serviços</a>
+        <a routerLink="/empresas-terceirizadas" routerLinkActive="active">Empresas terceirizadas</a>
+        <a routerLink="/pecas-fornecedores" routerLinkActive="active">Peças e fornecedores</a>
+      </div>
+
+      <div class="nav-group">
+        <span class="nav-group-title">Ordens de Serviço</span>
+        <a routerLink="/ordens-servico" routerLinkActive="active">Abertura e consulta de OS</a>
+        <a routerLink="/itens-os" routerLinkActive="active">Serviços e peças da OS</a>
+        <a routerLink="/fila-atendimento" routerLinkActive="active">Fila de atendimento</a>
+        <a routerLink="/pagamentos" routerLinkActive="active">Pagamentos</a>
+        <a routerLink="/garantias" routerLinkActive="active">Garantias</a>
+      </div>
     </nav>
   </aside>
 

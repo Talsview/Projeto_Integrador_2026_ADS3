@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize } from 'rxjs';
+import { finalize, forkJoin, switchMap } from 'rxjs';
 import { ColaboradorApiService } from '../../core/services/colaborador-api.service';
 import { EmpresaTerceirizadaApiService } from '../../core/services/empresa-terceirizada-api.service';
 import { FornecedorApiService } from '../../core/services/fornecedor-api.service';
@@ -12,8 +12,8 @@ import { PecaApiService } from '../../core/services/peca-api.service';
 import { ServicoApiService } from '../../core/services/servico-api.service';
 import { ColaboradorResumo } from '../../models/pessoa.model';
 import { Fornecedor, ItemPeca, Peca } from '../../models/peca.model';
-import { ItemServico, OrdemServicoResumo } from '../../models/ordem-servico.model';
 import { EmpresaTerceirizada, Servico } from '../../models/servico.model';
+import { ItemServico, OrdemServicoResumo } from '../../models/ordem-servico.model';
 
 @Component({ selector: 'app-itens-os', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './itens-os.component.html' })
 export class ItensOsComponent implements OnInit {
@@ -26,13 +26,13 @@ export class ItensOsComponent implements OnInit {
   itensServico: ItemServico[] = [];
   itensPeca: ItemPeca[] = [];
   idOrdemSelecionada = 0;
-  mensagem?: string;
-  erro?: string;
   carregando = false;
   processando = false;
+  mensagem?: string;
+  erro?: string;
 
-  itemServicoForm: ItemServico = { idOrdemServico: 0, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '', idEmpresaTerceirizada: undefined };
-  itemPecaForm: ItemPeca = { idOrdemServico: 0, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, observacao: '' };
+  itemServicoForm: ItemServico = this.itemServicoInicial();
+  itemPecaForm: ItemPeca = this.itemPecaInicial();
 
   constructor(
     private readonly ordemApi: OrdemServicoApiService,
@@ -42,29 +42,64 @@ export class ItensOsComponent implements OnInit {
     private readonly pecaApi: PecaApiService,
     private readonly fornecedorApi: FornecedorApiService,
     private readonly itemServicoApi: ItemServicoApiService,
-    private readonly itemPecaApi: ItemPecaApiService
+    private readonly itemPecaApi: ItemPecaApiService,
+    private readonly cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void { this.carregarApoio(); }
-  carregarApoio(): void { this.ordemApi.listar().subscribe({ next: o => this.ordens = o }); this.servicoApi.listar().subscribe({ next: s => this.servicos = s }); this.colaboradorApi.listar().subscribe({ next: c => this.colaboradores = c }); this.empresaApi.listar().subscribe({ next: e => this.empresas = e }); this.pecaApi.listar().subscribe({ next: p => this.pecas = p }); this.fornecedorApi.listar().subscribe({ next: f => this.fornecedores = f }); }
+
+  carregarApoio(): void {
+    this.carregando = true; this.erro = undefined; this.atualizarTela();
+    forkJoin({
+      ordens: this.ordemApi.listar(),
+      servicos: this.servicoApi.listar(),
+      colaboradores: this.colaboradorApi.listar(),
+      empresas: this.empresaApi.listar(),
+      pecas: this.pecaApi.listar(),
+      fornecedores: this.fornecedorApi.listar()
+    }).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
+      next: r => { this.ordens = [...r.ordens]; this.servicos = [...r.servicos]; this.colaboradores = [...r.colaboradores]; this.empresas = [...r.empresas]; this.pecas = [...r.pecas]; this.fornecedores = [...r.fornecedores]; this.atualizarTela(); },
+      error: e => { this.erro = e.message; this.atualizarTela(); }
+    });
+  }
+
   carregarItens(): void {
-    if (!this.idOrdemSelecionada) return;
-    this.carregando = true;
-    this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada).pipe(finalize(() => this.carregando = false)).subscribe({ next: i => this.itensServico = i, error: e => this.erro = e.message });
-    this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada).subscribe({ next: i => this.itensPeca = i, error: e => this.erro = e.message });
-    this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada;
-    this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada;
+    this.mensagem = undefined; this.erro = undefined;
+    if (!this.idOrdemSelecionada) { this.itensServico = []; this.itensPeca = []; this.atualizarTela(); return; }
+    this.carregando = true; this.atualizarTela();
+    forkJoin({
+      servicos: this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada),
+      pecas: this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)
+    }).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
+      next: r => { this.itensServico = [...r.servicos]; this.itensPeca = [...r.pecas]; this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada; this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada; this.atualizarTela(); },
+      error: e => { this.erro = e.message; this.atualizarTela(); }
+    });
   }
+
   salvarItemServico(): void {
+    if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir serviço.'; this.atualizarTela(); return; }
+    this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemServicoForm, idOrdemServico: this.idOrdemSelecionada };
-    this.processando = true;
-    this.itemServicoApi.criar(payload).pipe(finalize(() => this.processando = false)).subscribe({ next: item => { this.mensagem = 'Serviço incluído na OS.'; this.itensServico = item?.id ? [item, ...this.itensServico] : this.itensServico; this.itemServicoForm = { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '' }; this.carregarItens(); }, error: e => this.erro = e.message });
+    this.itemServicoApi.criar(payload).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
+      next: itens => { this.mensagem = 'Serviço incluído na OS. A lista foi atualizada automaticamente.'; this.itensServico = [...itens]; this.itemServicoForm = this.itemServicoInicial(); this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada; this.atualizarTela(); },
+      error: e => { this.erro = e.message; this.atualizarTela(); }
+    });
   }
+
   salvarItemPeca(): void {
+    if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir peça.'; this.atualizarTela(); return; }
+    this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemPecaForm, idOrdemServico: this.idOrdemSelecionada };
-    this.processando = true;
-    this.itemPecaApi.criar(payload).pipe(finalize(() => this.processando = false)).subscribe({ next: item => { this.mensagem = 'Peça incluída na OS.'; this.itensPeca = item?.id ? [item, ...this.itensPeca] : this.itensPeca; this.itemPecaForm = { idOrdemServico: this.idOrdemSelecionada, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, observacao: '' }; this.carregarItens(); }, error: e => this.erro = e.message });
+    this.itemPecaApi.criar(payload).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
+      next: itens => { this.mensagem = 'Peça incluída na OS. A lista foi atualizada automaticamente.'; this.itensPeca = [...itens]; this.itemPecaForm = this.itemPecaInicial(); this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada; this.atualizarTela(); },
+      error: e => { this.erro = e.message; this.atualizarTela(); }
+    });
   }
-  excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.itemServicoApi.excluir(item.id).pipe(finalize(() => this.processando = false)).subscribe({ next: () => { this.itensServico = this.itensServico.filter(i => i.id !== item.id); this.carregarItens(); }, error: e => this.erro = e.message }); }
-  excluirItemPeca(item: ItemPeca): void { if (!item.id) return; this.processando = true; this.itemPecaApi.excluir(item.id).pipe(finalize(() => this.processando = false)).subscribe({ next: () => { this.itensPeca = this.itensPeca.filter(i => i.id !== item.id); this.carregarItens(); }, error: e => this.erro = e.message }); }
+
+  excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
+  excluirItemPeca(item: ItemPeca): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemPecaApi.excluir(item.id).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensPeca = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
+
+  private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '' }; }
+  private itemPecaInicial(): ItemPeca { return { idOrdemServico: this.idOrdemSelecionada, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, observacao: '' }; }
+  private atualizarTela(): void { this.cdr.detectChanges(); }
 }
