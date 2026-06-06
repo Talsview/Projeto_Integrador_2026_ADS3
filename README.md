@@ -542,3 +542,61 @@ Etapa 9 — Pagamento
 ```
 
 A próxima etapa deve implementar os pagamentos da Ordem de Serviço, permitindo registrar valores pagos, formas de pagamento, status do pagamento e validação do fluxo financeiro da OS.
+
+---
+
+# Etapa 9 — Pagamento
+
+Nesta etapa foi implementado o módulo financeiro da Ordem de Serviço, permitindo registrar nenhum, um ou vários pagamentos para a mesma OS.
+
+Foram implementados:
+
+```text
+Pagamento
+FormaPagamento
+StatusPagamento
+ResumoPagamentoOrdemServicoDTO
+```
+
+Regras atendidas:
+
+```text
+OrdemServico gera Pagamento.
+Uma OS pode gerar nenhum, um ou vários pagamentos.
+Pagamento só pode ser registrado quando a OS está no status PAGAMENTO.
+Apenas pagamentos com status PAGO abatem o saldo financeiro da OS.
+Pagamentos PENDENTE, CANCELADO ou ESTORNADO não quitam a OS.
+A OS só pode avançar para FINALIZADO quando o valor pago for igual ou superior ao valor total da OS.
+Após a finalização da OS, pagamentos não podem ser incluídos, alterados ou inativados.
+```
+
+Endpoints de Pagamento:
+
+```text
+POST   /api/pagamentos
+PUT    /api/pagamentos/{id}
+PATCH  /api/pagamentos/{id}/status?statusPagamento=PAGO
+GET    /api/pagamentos/{id}
+GET    /api/pagamentos
+GET    /api/pagamentos/ordem-servico/{idOrdemServico}
+GET    /api/pagamentos/ordem-servico/{idOrdemServico}/pesquisar?termo=valor
+GET    /api/pagamentos/ordem-servico/{idOrdemServico}/resumo
+DELETE /api/pagamentos/{id}
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA9_PAGAMENTOS.md
+docs/adr/ADR-012-pagamento-condicao-finalizacao-os.md
+```
+
+---
+
+## Próxima etapa recomendada
+
+```text
+Etapa 10 — Estrutura de Dados I
+```
+
+A próxima etapa deve implementar a Fila de Atendimento de Ordens de Serviço, a pesquisa por dados principais da OS, a ordenação manual por data, valor ou prioridade e a função recursiva para cálculo de totais.

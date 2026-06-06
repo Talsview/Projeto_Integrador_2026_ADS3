@@ -97,3 +97,25 @@ prazo_garantia_dias INTEGER NOT NULL DEFAULT 90
 Esse campo permite que a garantia da peça aplicada na OS tenha prazo próprio. A garantia de serviço continua utilizando o campo `prazo_garantia_dias` da tabela `servico`.
 
 As garantias são criadas quando os itens são lançados na OS e iniciadas automaticamente quando a Ordem de Serviço passa para o status `FINALIZADO`.
+
+## Atualização da Etapa 9
+
+O script `01_create_schema.sql` contempla a tabela financeira da Ordem de Serviço:
+
+```text
+pagamento
+```
+
+Nesta etapa a tabela `pagamento` foi integrada ao código Java por meio de Model, DTO, Repository, Validation, Mapper, Service e Controller REST.
+
+Regras financeiras aplicadas:
+
+```text
+Uma Ordem de Serviço pode gerar nenhum, um ou vários pagamentos.
+Pagamentos só podem ser registrados quando a OS está no status PAGAMENTO.
+Apenas pagamentos com status PAGO abatem o saldo financeiro da OS.
+A OS só pode avançar para FINALIZADO quando o total pago for igual ou superior ao valor total da OS.
+Pagamentos não podem ser alterados após a finalização da OS.
+```
+
+Também foi corrigida a duplicidade da coluna `id_empresa_terceirizada` na tabela `execucao_servico_terceirizado` e incluída a restrição `ck_pagamento_forma` para padronizar as formas de pagamento aceitas.

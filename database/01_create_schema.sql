@@ -374,5 +374,10 @@ CREATE TABLE IF NOT EXISTS pagamento (
     data_hora_atualizacao TIMESTAMP,
     CONSTRAINT fk_pagamento_ordem_servico FOREIGN KEY (id_ordem_servico) REFERENCES ordem_servico(id_ordem_servico),
     CONSTRAINT ck_pagamento_valor CHECK (valor_pago > 0),
+    CONSTRAINT ck_pagamento_forma CHECK (forma_pagamento IN ('DINHEIRO', 'PIX', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'TRANSFERENCIA', 'BOLETO', 'OUTRO')),
     CONSTRAINT ck_pagamento_status CHECK (status_pagamento IN ('PENDENTE', 'PAGO', 'CANCELADO', 'ESTORNADO'))
 );
+
+CREATE INDEX IF NOT EXISTS idx_pagamento_ordem_servico
+    ON pagamento(id_ordem_servico)
+    WHERE ativo = TRUE;

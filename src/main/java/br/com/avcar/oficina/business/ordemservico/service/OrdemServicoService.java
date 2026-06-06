@@ -22,6 +22,8 @@ import br.com.avcar.oficina.business.ordemservico.repository.IOrdemServicoReposi
 import br.com.avcar.oficina.business.ordemservico.validation.OrdemServicoValidation;
 import br.com.avcar.oficina.business.peca.model.ItemPecaModel;
 import br.com.avcar.oficina.business.peca.repository.IItemPecaRepository;
+import br.com.avcar.oficina.business.pagamento.enums.StatusPagamento;
+import br.com.avcar.oficina.business.pagamento.repository.IPagamentoRepository;
 import br.com.avcar.oficina.business.pessoa.model.ClienteModel;
 import br.com.avcar.oficina.business.pessoa.repository.IClienteRepository;
 import br.com.avcar.oficina.business.veiculo.model.VeiculoModel;
@@ -56,6 +58,7 @@ public class OrdemServicoService {
     private final IItemServicoRepository itemServicoRepository;
     private final IItemPecaRepository itemPecaRepository;
     private final IExecucaoServicoTerceirizadoRepository execucaoTerceirizadaRepository;
+    private final IPagamentoRepository pagamentoRepository;
     private final StatusOrdemServicoService statusService;
     private final GarantiaService garantiaService;
     private final OrdemServicoValidation validation;
@@ -70,6 +73,7 @@ public class OrdemServicoService {
                                IItemServicoRepository itemServicoRepository,
                                IItemPecaRepository itemPecaRepository,
                                IExecucaoServicoTerceirizadoRepository execucaoTerceirizadaRepository,
+                               IPagamentoRepository pagamentoRepository,
                                StatusOrdemServicoService statusService,
                                GarantiaService garantiaService,
                                OrdemServicoValidation validation,
@@ -83,6 +87,7 @@ public class OrdemServicoService {
         this.itemServicoRepository = itemServicoRepository;
         this.itemPecaRepository = itemPecaRepository;
         this.execucaoTerceirizadaRepository = execucaoTerceirizadaRepository;
+        this.pagamentoRepository = pagamentoRepository;
         this.statusService = statusService;
         this.garantiaService = garantiaService;
         this.validation = validation;
@@ -154,10 +159,11 @@ public class OrdemServicoService {
         StatusOrdemServicoModel novoStatus = statusService.buscarPorFluxo(dto.getNovoStatus());
 
         validation.validateStatusChange(dto, statusAtual, novoStatus);
+        recalcularValorTotal(ordemServico.getId());
+        ordemServico = buscarModelAtivo(id);
         validarPreCondicoesDoFluxo(ordemServico, novoStatus);
         aplicarEfeitosDoStatus(ordemServico, novoStatus);
 
-        recalcularValorTotal(ordemServico.getId());
         OrdemServicoModel atualizada = buscarModelAtivo(id);
         historicoStatusRepository.save(historicoStatusMapper.criarHistorico(atualizada, novoStatus, dto.getObservacao()));
 
@@ -249,6 +255,15 @@ public class OrdemServicoService {
         if (StatusFluxoOrdemServico.EXECUCAO.name().equals(novoStatus.getNomeStatus())
                 && !itemServicoRepository.existsByOrdemServicoIdAndAtivoTrue(ordemServico.getId())) {
             throw new RuleValidationException("A Ordem de Serviço deve possuir pelo menos um Item de Serviço antes de entrar em execução.");
+        }
+
+        if (StatusFluxoOrdemServico.FINALIZADO.name().equals(novoStatus.getNomeStatus())) {
+            BigDecimal valorTotal = ordemServico.getValorTotal() == null ? BigDecimal.ZERO : ordemServico.getValorTotal();
+            BigDecimal valorPago = pagamentoRepository.somarValorPorStatus(ordemServico.getId(), StatusPagamento.PAGO);
+            valorPago = valorPago == null ? BigDecimal.ZERO : valorPago;
+            if (valorPago.compareTo(valorTotal) < 0) {
+                throw new RuleValidationException("A Ordem de Serviço só pode ser finalizada quando o valor pago for igual ou superior ao valor total da OS.");
+            }
         }
     }
 
