@@ -67,3 +67,20 @@ VALUES
     ('Parceiro de Funilaria e Pintura', '(62) 0000-0000', 'parceiro.funilaria@email.com', 'Goiânia-GO'),
     ('Parceiro de Ar-condicionado Automotivo', '(62) 0000-0001', 'parceiro.ar@email.com', 'Goiânia-GO')
 ON CONFLICT DO NOTHING;
+
+-- Fornecedores e peças iniciais para testes do módulo Peça.
+INSERT INTO fornecedor (nome_fornecedor, cnpj, telefone, email, endereco)
+VALUES
+    ('Fornecedor Auto Peças Centro', NULL, '(62) 0000-1000', 'autopecas.centro@email.com', 'Goiânia-GO'),
+    ('Distribuidora de Peças Goiânia', NULL, '(62) 0000-1001', 'distribuidora.pecas@email.com', 'Goiânia-GO'),
+    ('Representante de Lubrificantes', NULL, '(62) 0000-1002', 'lubrificantes@email.com', 'Goiânia-GO')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO peca (nome_peca, codigo_nacional, marca_peca, modelo_aplicavel, ano_veiculo, ano_modelo, descricao)
+VALUES
+    ('Filtro de óleo', 'FOL0113', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 'Peça de manutenção preventiva.'),
+    ('Filtro de ar do motor', 'ART8826', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 'Peça de manutenção preventiva.'),
+    ('Óleo do motor 5W30', 'OLEO5W30', 'Selenia', 'Aplicação conforme especificação do veículo', NULL, NULL, 'Lubrificante automotivo.'),
+    ('Kit distribuição', 'KITDISTRIBUICAO', 'AMX', 'Aplicação conforme motorização', NULL, NULL, 'Kit de manutenção do sistema de distribuição.'),
+    ('Correia micro V', 'CORREIAMICROV', 'Gates', 'Aplicação conforme catálogo', NULL, NULL, 'Correia auxiliar do motor.')
+ON CONFLICT DO NOTHING;

@@ -2,7 +2,7 @@
 
 ## Situação desta versão
 
-Esta versão corresponde à **Etapa 4 — Módulo Marca, Modelo, Veículo e Histórico de Proprietário**.
+Esta versão corresponde à **Etapa 6 — Módulo Peça, Fornecedor e ItemPeca**.
 
 O projeto está sendo refatorado para funcionar como uma API REST em Spring Boot, com frontend Angular como camada View e PostgreSQL local como banco de dados.
 
@@ -332,10 +332,72 @@ docs/adr/ADR-008-especializacao-servico.md
 
 ---
 
+# Etapa 6 — Módulo Peça, Fornecedor e ItemPeca
+
+Foram implementados:
+
+```text
+Fornecedor
+Peca
+ItemPeca
+```
+
+Regras acadêmicas atendidas:
+
+```text
+Toda peça usada na OS deve ser registrada como ItemPeca.
+Todo ItemPeca deve estar vinculado a uma Peca cadastrada.
+Todo ItemPeca deve ter Fornecedor identificado.
+O ItemPeca fica preparado para gerar GarantiaPeca após a finalização da OS.
+```
+
+Endpoints de fornecedor:
+
+```text
+POST   /api/fornecedores
+PUT    /api/fornecedores/{id}
+GET    /api/fornecedores/{id}
+GET    /api/fornecedores
+GET    /api/fornecedores/pesquisar?termo=valor
+DELETE /api/fornecedores/{id}
+```
+
+Endpoints de peça:
+
+```text
+POST   /api/pecas
+PUT    /api/pecas/{id}
+GET    /api/pecas/{id}
+GET    /api/pecas
+GET    /api/pecas/pesquisar?termo=valor
+DELETE /api/pecas/{id}
+```
+
+Endpoints de item de peça:
+
+```text
+POST   /api/itens-peca
+PUT    /api/itens-peca/{id}
+GET    /api/itens-peca/{id}
+GET    /api/itens-peca
+GET    /api/itens-peca/ordem-servico/{idOrdemServico}
+GET    /api/itens-peca/ordem-servico/{idOrdemServico}/pesquisar?termo=valor
+DELETE /api/itens-peca/{id}
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA6_PECAS.md
+docs/adr/ADR-009-item-peca-como-entidade-associativa.md
+```
+
+---
+
 ## Próxima etapa recomendada
 
 ```text
-Etapa 6 — Peça, Fornecedor e ItemPeca
+Etapa 7 — OrdemServico, StatusOrdemServico, HistoricoStatusOrdem e ItemServico
 ```
 
-Essa próxima etapa permitirá registrar peças aplicáveis aos veículos, identificar fornecedores e preparar a rastreabilidade das peças utilizadas nas ordens de serviço.
+Essa próxima etapa será o centro operacional do sistema, integrando Cliente, Veículo, Serviço, Colaborador, Peças, Fornecedor, Garantias e Pagamento.

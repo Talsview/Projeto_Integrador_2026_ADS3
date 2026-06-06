@@ -282,6 +282,10 @@ CREATE TABLE IF NOT EXISTS fornecedor (
     data_hora_atualizacao TIMESTAMP
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS uk_fornecedor_cnpj_ativo
+    ON fornecedor(cnpj)
+    WHERE ativo = TRUE AND cnpj IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS peca (
     id_peca BIGSERIAL PRIMARY KEY,
     nome_peca VARCHAR(180) NOT NULL,
@@ -296,6 +300,10 @@ CREATE TABLE IF NOT EXISTS peca (
     data_hora_atualizacao TIMESTAMP,
     CONSTRAINT ck_peca_anos CHECK ((ano_veiculo IS NULL OR ano_veiculo >= 1900) AND (ano_modelo IS NULL OR ano_modelo >= 1900))
 );
+
+CREATE UNIQUE INDEX IF NOT EXISTS uk_peca_codigo_nacional_ativo
+    ON peca(codigo_nacional)
+    WHERE ativo = TRUE AND codigo_nacional IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS item_peca (
     id_item_peca BIGSERIAL PRIMARY KEY,
