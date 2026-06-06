@@ -17,3 +17,23 @@ VALUES
     ('Estoquista', 'Colaborador responsável pelo controle de peças e materiais.'),
     ('Gerente', 'Colaborador responsável pela gestão operacional da oficina.')
 ON CONFLICT (nome_funcao) DO NOTHING;
+
+-- Marcas e modelos iniciais úteis para testes do módulo Veículo.
+INSERT INTO marca (nome_marca)
+VALUES
+    ('GM'),
+    ('RENAULT'),
+    ('FIAT'),
+    ('VOLKSWAGEN'),
+    ('TOYOTA'),
+    ('HYUNDAI'),
+    ('FORD')
+ON CONFLICT (nome_marca) DO NOTHING;
+
+INSERT INTO modelo (id_marca, nome_modelo)
+SELECT id_marca, 'Cobalt' FROM marca WHERE nome_marca = 'GM'
+ON CONFLICT (id_marca, nome_modelo) DO NOTHING;
+
+INSERT INTO modelo (id_marca, nome_modelo)
+SELECT id_marca, 'Captiva' FROM marca WHERE nome_marca = 'GM'
+ON CONFLICT (id_marca, nome_modelo) DO NOTHING;

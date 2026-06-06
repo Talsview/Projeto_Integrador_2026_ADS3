@@ -2,7 +2,7 @@
 
 ## Situação desta versão
 
-Esta versão corresponde à **Etapa 3 — Módulo Colaborador, Função e ColaboradorFunção**.
+Esta versão corresponde à **Etapa 4 — Módulo Marca, Modelo, Veículo e Histórico de Proprietário**.
 
 O projeto está sendo refatorado para funcionar como uma API REST em Spring Boot, com frontend Angular como camada View e PostgreSQL local como banco de dados.
 
@@ -200,10 +200,79 @@ docs/adr/ADR-006-funcao-como-registro.md
 
 ---
 
+# Etapa 4 — Módulo Marca, Modelo, Veículo e Histórico de Proprietário
+
+Foram implementados:
+
+```text
+Marca
+Modelo
+Veiculo
+HistoricoProprietario
+```
+
+Regra acadêmica atendida:
+
+```text
+O veículo não possui cliente fixo como atributo direto.
+A relação Cliente-Veículo é controlada por HistoricoProprietario,
+preservando proprietário atual e proprietários anteriores.
+```
+
+Padrão de projeto aplicado:
+
+```text
+Adapter → VeiculoResponseAdapter
+```
+
+Endpoints de marca:
+
+```text
+POST   /api/marcas
+PUT    /api/marcas/{id}
+GET    /api/marcas/{id}
+GET    /api/marcas
+GET    /api/marcas/pesquisar?termo=valor
+DELETE /api/marcas/{id}
+```
+
+Endpoints de modelo:
+
+```text
+POST   /api/modelos
+PUT    /api/modelos/{id}
+GET    /api/modelos/{id}
+GET    /api/modelos
+GET    /api/modelos/marca/{marcaId}
+GET    /api/modelos/pesquisar?termo=valor
+DELETE /api/modelos/{id}
+```
+
+Endpoints de veículo:
+
+```text
+POST   /api/veiculos
+PUT    /api/veiculos/{id}
+PATCH  /api/veiculos/{id}/transferir-proprietario
+GET    /api/veiculos/{id}
+GET    /api/veiculos
+GET    /api/veiculos/pesquisar?termo=valor
+DELETE /api/veiculos/{id}
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA4_VEICULOS.md
+docs/adr/ADR-007-adapter-veiculo-response.md
+```
+
+---
+
 ## Próxima etapa recomendada
 
 ```text
-Etapa 4 — Marca, Modelo, Veiculo e HistoricoProprietario
+Etapa 5 — Serviço, Serviço Interno, Serviço Terceirizado e Empresa Terceirizada
 ```
 
-Essa próxima etapa permitirá ligar clientes a veículos, preservar o histórico de proprietários e preparar a base para a Ordem de Serviço.
+Essa próxima etapa permitirá cadastrar os serviços executados pela oficina e preparar a composição da Ordem de Serviço.
