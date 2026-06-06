@@ -600,3 +600,68 @@ Etapa 10 — Estrutura de Dados I
 ```
 
 A próxima etapa deve implementar a Fila de Atendimento de Ordens de Serviço, a pesquisa por dados principais da OS, a ordenação manual por data, valor ou prioridade e a função recursiva para cálculo de totais.
+
+---
+
+# Etapa 10 — Estrutura de Dados I
+
+Nesta etapa foram implementadas as exigências de Estrutura de Dados I aplicadas ao módulo de Ordem de Serviço.
+
+Foram implementados:
+
+```text
+FilaAtendimento
+ListaLinearBusca
+OficinaIterator
+FilaAtendimentoIterator
+ListaLinearIterator
+OrdenadorTemplate
+OrdenadorOrdemServicoPorDataAbertura
+OrdenadorOrdemServicoPorValorTotal
+OrdenadorOrdemServicoPorPrioridade
+CalculadoraRecursivaTotalOrdemServico
+```
+
+Padrões de projeto aplicados nesta etapa:
+
+```text
+Iterator
+Template Method
+```
+
+Recursos acadêmicos atendidos:
+
+```text
+Estrutura de Dados Linear: Fila de Atendimento de OS.
+Pesquisa: Busca linear em lista encadeada.
+Ordenação Manual: Insertion Sort.
+Função Recursiva: cálculo do total da OS por itens de serviço e peças.
+```
+
+Endpoints criados:
+
+```text
+GET /api/estrutura-dados/ordens-servico/fila-atendimento
+GET /api/estrutura-dados/ordens-servico/ordenar?criterio=DATA_ABERTURA
+GET /api/estrutura-dados/ordens-servico/ordenar?criterio=VALOR_TOTAL
+GET /api/estrutura-dados/ordens-servico/ordenar?criterio=PRIORIDADE
+GET /api/estrutura-dados/ordens-servico/pesquisar-linear?termo=valor
+GET /api/estrutura-dados/ordens-servico/{idOrdemServico}/total-recursivo
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA10_ESTRUTURA_DADOS.md
+docs/adr/ADR-013-estrutura-dados-ordem-servico.md
+```
+
+---
+
+## Próxima etapa recomendada
+
+```text
+Etapa 11 — Decorator para notificação/auditoria e revisão dos 6 padrões de projeto
+```
+
+A próxima etapa deve implementar o padrão Decorator restante, consolidar a documentação dos seis padrões de projeto e preparar a integração com Angular.
