@@ -119,3 +119,54 @@ Pagamentos não podem ser alterados após a finalização da OS.
 ```
 
 Também foi corrigida a duplicidade da coluna `id_empresa_terceirizada` na tabela `execucao_servico_terceirizado` e incluída a restrição `ck_pagamento_forma` para padronizar as formas de pagamento aceitas.
+
+## Atualização da Etapa 13
+
+Não houve criação de novas tabelas nesta etapa. A atualização foi voltada à integração do frontend Angular com o backend Spring Boot.
+
+Foi adicionado o script auxiliar:
+
+```text
+database/03_verificacao_integracao_frontend.sql
+```
+
+Esse script não altera dados e não altera a estrutura do banco. Ele apenas consulta registros importantes para conferir se o ambiente está pronto para o Angular consumir a API REST.
+
+Ordem recomendada para testes completos:
+
+```text
+1. Criar o banco car_repair.
+2. Executar database/01_create_schema.sql.
+3. Executar database/02_seed_inicial.sql.
+4. Executar database/03_verificacao_integracao_frontend.sql para conferência.
+5. Rodar o backend em http://localhost:9081.
+6. Rodar o Angular em http://localhost:4200 usando npm.cmd run start:proxy.
+```
+
+## Atualização da Etapa 14
+
+Não houve criação de novas tabelas nesta etapa. A atualização foi voltada à melhoria de desempenho percebido na comunicação entre Angular e backend.
+
+Foi adicionado o script auxiliar:
+
+```text
+database/04_verificacao_desempenho_integracao.sql
+```
+
+Esse script não altera dados e não altera estrutura. Ele apenas consulta o banco para confirmar se o PostgreSQL está respondendo rapidamente antes do teste no Angular.
+
+Também foi ajustado o endpoint:
+
+```text
+GET /api/database/status
+```
+
+Agora ele retorna:
+
+```text
+available
+mensagem
+tempoRespostaMs
+```
+
+Esse ajuste facilita identificar se a lentidão está no frontend, no backend ou na conexão local com o PostgreSQL.

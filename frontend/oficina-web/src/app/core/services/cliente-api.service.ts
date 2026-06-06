@@ -13,11 +13,11 @@ export class ClienteApiService extends BaseApiService<ClienteResumo> {
 
   criarPessoaFisica(payload: ClientePessoaFisica): Observable<ClienteResumo> {
     return this.http.post<ApiResponse<ClienteResumo>>(`${this.apiBaseUrl}/clientes/pessoa-fisica`, payload)
-      .pipe(map(response => response.data));
+      .pipe(map(response => this.extrairDados(response) as ClienteResumo));
   }
 
   criarPessoaJuridica(payload: ClientePessoaJuridica): Observable<ClienteResumo> {
     return this.http.post<ApiResponse<ClienteResumo>>(`${this.apiBaseUrl}/clientes/pessoa-juridica`, payload)
-      .pipe(map(response => response.data));
+      .pipe(map(response => this.extrairDados(response) as ClienteResumo));
   }
 }

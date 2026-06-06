@@ -1,41 +1,38 @@
-# Frontend Angular — Oficina AV CAR AUTO CENTER
+# Oficina Web — Frontend Angular
 
-Este diretório contém a primeira estrutura da camada **View** do sistema, implementada com Angular e preparada para consumir a API REST Spring Boot do backend.
+## 1. Objetivo
 
-## Objetivo desta etapa
+Este projeto representa a camada **View** do sistema da oficina mecânica AV CAR AUTO CENTER. Ele foi desenvolvido em Angular para consumir a API REST do backend Spring Boot.
 
-A Etapa 12 não substitui o backend. Ela cria a base do frontend, organiza os serviços HTTP, define os modelos TypeScript compatíveis com os DTOs Java e disponibiliza telas iniciais para validação da integração com Swagger/API REST.
+## 2. Execução no VS Code
 
-## Requisitos locais
+Abra o VS Code na pasta:
 
-```bash
-node --version
-npm --version
+```text
+C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
 ```
 
-Para Angular 22, utilizar Node.js compatível com a tabela oficial do Angular. Recomenda-se Node.js 22.22.3 ou superior dentro da série 22, ou versão compatível informada na documentação oficial.
+Instale as dependências:
 
-## Instalação
-
-```bash
-cd frontend/oficina-web
-npm install
-npm start
+```powershell
+npm.cmd install
 ```
 
-A aplicação será aberta em:
+Execute com proxy para o backend:
+
+```powershell
+npm.cmd run start:proxy
+```
+
+Acesse:
 
 ```text
 http://localhost:4200
 ```
 
-## Execução com proxy opcional
+## 3. Backend esperado
 
-```bash
-npm run start:proxy
-```
-
-## Backend esperado
+O backend Spring Boot deve estar rodando em:
 
 ```text
 http://localhost:9081
@@ -47,39 +44,60 @@ Swagger:
 http://localhost:9081/swagger-ui.html
 ```
 
-## Estrutura criada
+## 4. Integração com a API
+
+O Angular usa chamadas relativas:
 
 ```text
-src/app/core
-src/app/models
-src/app/pages/dashboard
-src/app/pages/clientes
-src/app/pages/veiculos
-src/app/pages/ordens-servico
-src/app/pages/padroes-projeto
-src/app/pages/estrutura-dados
+/api
 ```
 
-## Integrações iniciais
+O arquivo `proxy.conf.json` redireciona essas chamadas para:
 
 ```text
-GET /api/database/status
-GET /api/padroes-projeto
-GET /api/clientes
-GET /api/clientes/pesquisar
-POST /api/clientes/pessoa-fisica
-POST /api/clientes/pessoa-juridica
-GET /api/veiculos
-GET /api/veiculos/pesquisar
-GET /api/ordens-servico
-GET /api/ordens-servico/pesquisar
-PATCH /api/ordens-servico/{id}/status
-GET /api/estrutura-dados/ordens-servico/fila-atendimento
-GET /api/estrutura-dados/ordens-servico/ordenar
-GET /api/estrutura-dados/ordens-servico/pesquisar-linear
-GET /api/estrutura-dados/ordens-servico/{id}/total-recursivo
+http://localhost:9081/api
 ```
 
-## Observação acadêmica
+Exemplo:
 
-A camada View passa a ser representada pelo Angular. O backend mantém a arquitetura monolítica em camadas e expõe os recursos por Controller REST, Response e DTO.
+```text
+/api/clientes → http://localhost:9081/api/clientes
+```
+
+## 5. Scripts disponíveis
+
+```json
+{
+  "start": "ng serve --open",
+  "start:proxy": "ng serve --proxy-config proxy.conf.json --open",
+  "start:no-open": "ng serve --proxy-config proxy.conf.json",
+  "build": "ng build"
+}
+```
+
+## 6. Telas preparadas
+
+```text
+Painel operacional
+Clientes
+Veículos
+Ordens de Serviço
+Estrutura de Dados
+Padrões de Projeto
+```
+
+## 7. Observação importante
+
+O comando `npm.cmd install` deve ser executado nesta pasta, pois é aqui que está o `package.json`.
+
+Certo:
+
+```text
+frontend/oficina-web
+```
+
+Errado:
+
+```text
+frontend
+```

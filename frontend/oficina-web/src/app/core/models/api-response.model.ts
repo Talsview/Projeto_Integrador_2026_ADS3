@@ -1,9 +1,12 @@
 export interface ApiResponse<T> {
-  success: boolean;
-  status: number;
-  message: string;
-  data: T;
-  timestamp: string;
+  success?: boolean;
+  sucesso?: boolean;
+  status?: number;
+  message?: string;
+  mensagem?: string;
+  data?: T;
+  dados?: T;
+  timestamp?: string;
 }
 
 export interface ErrorResponse {
@@ -14,7 +17,6 @@ export interface ErrorResponse {
   path?: string;
   details?: string[];
 }
-
 
 export interface PageResponse<T> {
   content: T[];

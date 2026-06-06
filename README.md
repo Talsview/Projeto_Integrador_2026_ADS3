@@ -2,7 +2,7 @@
 
 ## Situação desta versão
 
-Esta versão corresponde à **Etapa 12 — Frontend Angular e integração inicial com a API REST**.
+Esta versão corresponde à **Etapa 13 — Integração do Angular no VS Code com o backend Spring Boot**.
 
 O projeto está sendo refatorado para funcionar como uma API REST em Spring Boot, com frontend Angular como camada View e PostgreSQL local como banco de dados.
 
@@ -11,7 +11,7 @@ O projeto está sendo refatorado para funcionar como uma API REST em Spring Boot
 ```text
 Estilo arquitetural: Monólito modular
 Backend: Java 21 + Spring Boot
-Frontend previsto: Angular
+Frontend: Angular executado no VS Code
 Banco de dados: PostgreSQL local
 Documentação da API: Swagger/OpenAPI
 Identificadores: Long
@@ -735,15 +735,6 @@ docs/adr/ADR-014-decorator-notificacao-auditoria.md
 
 ---
 
-## Próxima etapa recomendada
-
-```text
-Etapa 12 — Preparação do Angular e integração inicial com Swagger/API REST
-```
-
-A próxima etapa deve iniciar a camada View em Angular, configurando o projeto frontend, rotas principais, serviços HTTP e primeira tela de integração com o backend.
-
----
 
 # Etapa 12 — Frontend Angular e integração inicial com API REST
 
@@ -777,12 +768,12 @@ Tela de padrões de projeto
 Link direto para Swagger
 ```
 
-Comandos de execução do frontend:
+Comandos de execução do frontend no VS Code:
 
-```bash
+```powershell
 cd frontend/oficina-web
-npm install
-npm start
+npm.cmd install
+npm.cmd run start:proxy
 ```
 
 Documentação:
@@ -792,3 +783,127 @@ docs/README_ETAPA12_ANGULAR.md
 docs/adr/ADR-015-angular-integracao-api-rest.md
 docs/COMO_EXECUTAR_BACKEND_FRONTEND.md
 ```
+
+
+---
+
+# Etapa 13 — Integração do Angular no VS Code com o Backend
+
+Esta etapa estabiliza o uso do frontend Angular no VS Code e prepara a comunicação real com a API REST do backend Spring Boot.
+
+Foram realizados:
+
+```text
+Configuração do Angular para consumir /api via proxy.conf.json
+Ajuste dos environments para uso de /api no desenvolvimento
+Atualização do ApiResponse TypeScript para compatibilidade com respostas data/dados
+Ajuste do BaseApiService para respostas paginadas do backend
+Correção da tela de Clientes para integração com GET /api/clientes e POST de PF/PJ
+Documentação dos endpoints para implementação das telas Angular
+Criação de script auxiliar de verificação do banco para integração frontend/backend
+Atualização da ADR de decisão de integração Angular + VS Code + backend
+```
+
+Comandos principais no ambiente Windows:
+
+Backend:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair
+mvn.cmd spring-boot:run
+```
+
+Frontend:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd run start:proxy
+```
+
+Acessos principais:
+
+```text
+Frontend Angular: http://localhost:4200
+Backend Spring Boot: http://localhost:9081
+Swagger: http://localhost:9081/swagger-ui.html
+Verificação do banco: http://localhost:9081/api/database/status
+```
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA13_INTEGRACAO_ANGULAR_BACKEND.md
+docs/API_ENDPOINTS_FRONTEND.md
+docs/adr/ADR-016-integracao-angular-vscode-backend.md
+database/03_verificacao_integracao_frontend.sql
+```
+
+## Próxima etapa recomendada
+
+```text
+Etapa 14 — Refinar o frontend Angular com CRUD completo de Clientes, Veículos e Ordens de Serviço
+```
+
+A próxima etapa deve evoluir as telas Angular para uso em apresentação, com cadastro, consulta, edição, exclusão lógica e validações visuais.
+
+---
+
+# Etapa 14 — Ajuste de Desempenho da Integração Angular/Backend
+
+Esta etapa corrige a lentidão percebida na tela inicial do Angular, especialmente no bloco de **Verificação da API**.
+
+Foram realizados:
+
+```text
+Correção do botão que ficava preso em "Verificando..." quando havia erro de comunicação.
+Aplicação de timeout de 3 segundos nas chamadas de diagnóstico do dashboard.
+Tratamento amigável para backend fora do ar.
+Melhoria no endpoint GET /api/database/status.
+Retorno do tempo de resposta do backend para o Angular.
+Ajuste do Singleton de conexão para não manter conexão JDBC aberta apenas para diagnóstico.
+Criação de documentação da etapa e ADR específica.
+Criação de script SQL auxiliar para verificação rápida do banco.
+```
+
+Arquivos principais atualizados:
+
+```text
+frontend/oficina-web/src/app/core/models/database-status.model.ts
+frontend/oficina-web/src/app/core/services/dashboard.service.ts
+frontend/oficina-web/src/app/pages/dashboard/dashboard.component.ts
+frontend/oficina-web/src/app/pages/dashboard/dashboard.component.html
+frontend/oficina-web/src/app/pages/dashboard/dashboard.component.css
+src/main/java/br/com/avcar/oficina/core/database/DatabaseStatusResult.java
+src/main/java/br/com/avcar/oficina/core/database/DatabaseConnectionChecker.java
+src/main/java/br/com/avcar/oficina/core/designpattern/singleton/DatabaseConnectionSingleton.java
+src/main/java/br/com/avcar/oficina/view/api/DatabaseStatusController.java
+```
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA14_DESEMPENHO_INTEGRACAO_API.md
+docs/adr/ADR-017-ajuste-desempenho-integracao-api.md
+database/04_verificacao_desempenho_integracao.sql
+```
+
+Comandos para testar:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair
+mvn.cmd spring-boot:run
+```
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd run start:proxy
+```
+
+Acessar:
+
+```text
+http://localhost:4200
+```
+
+Ao clicar em **Verificar banco**, o sistema deve responder rapidamente, informando se o backend e o PostgreSQL local estão disponíveis.

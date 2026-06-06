@@ -41,10 +41,16 @@ export class ClientesComponent implements OnInit {
   listar(): void {
     this.carregando = true;
     this.erro = undefined;
+
     this.clienteApi.listar().subscribe({
-      next: clientes => this.clientes = clientes,
-      error: error => this.erro = error.message,
-      complete: () => this.carregando = false
+      next: clientes => {
+        this.clientes = clientes;
+        this.carregando = false;
+      },
+      error: error => {
+        this.erro = error.message ?? 'Não foi possível consultar os clientes.';
+        this.carregando = false;
+      }
     });
   }
 
@@ -54,17 +60,26 @@ export class ClientesComponent implements OnInit {
       this.listar();
       return;
     }
+
     this.carregando = true;
+    this.erro = undefined;
+
     this.clienteApi.pesquisar(consulta).subscribe({
-      next: clientes => this.clientes = clientes,
-      error: error => this.erro = error.message,
-      complete: () => this.carregando = false
+      next: clientes => {
+        this.clientes = clientes;
+        this.carregando = false;
+      },
+      error: error => {
+        this.erro = error.message ?? 'Não foi possível pesquisar clientes.';
+        this.carregando = false;
+      }
     });
   }
 
   salvar(): void {
     this.mensagem = undefined;
     this.erro = undefined;
+    this.carregando = true;
 
     if (this.tipoCliente === 'PESSOA_FISICA') {
       const payload: ClientePessoaFisica = {
@@ -107,7 +122,10 @@ export class ClientesComponent implements OnInit {
         this.limpar();
         this.listar();
       },
-      error: (error: Error) => this.erro = error.message
+      error: (error: Error) => {
+        this.erro = error.message ?? 'Não foi possível salvar o cliente.';
+        this.carregando = false;
+      }
     };
   }
 }

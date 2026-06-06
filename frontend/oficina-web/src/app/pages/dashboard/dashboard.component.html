@@ -26,20 +26,34 @@
       <button type="button" (click)="verificarBanco()" [disabled]="carregandoBanco">
         {{ carregandoBanco ? 'Verificando...' : 'Verificar banco' }}
       </button>
-      <span class="badge">{{ statusBanco }}</span>
+      <span class="badge" [class.success]="statusBancoTipo === 'ok'" [class.error]="statusBancoTipo === 'erro'">
+        {{ statusBanco }}
+      </span>
     </div>
+
+    <p class="api-hint" *ngIf="tempoRespostaBancoMs !== undefined && tempoRespostaBancoMs > 0">
+      Tempo de resposta medido pelo backend: {{ tempoRespostaBancoMs }} ms.
+    </p>
+
+    <p class="api-hint" *ngIf="statusBancoTipo === 'erro'">
+      Verifique se o backend está ativo em <strong>http://localhost:9081</strong> e se o banco PostgreSQL está iniciado.
+    </p>
+
     <p class="alert error" *ngIf="erro">{{ erro }}</p>
   </div>
 
   <div class="card">
     <h2>Padrões de projeto</h2>
     <p>Endpoint de apoio acadêmico para demonstrar onde os seis padrões foram aplicados.</p>
-    <ul class="pattern-list">
+    <ul class="pattern-list" *ngIf="padroes.length > 0; else semPadroes">
       <li *ngFor="let padrao of padroes">
         <strong>{{ padrao.padrao }}</strong>
         <span>{{ padrao.classePrincipal }}</span>
       </li>
     </ul>
+    <ng-template #semPadroes>
+      <p class="api-hint">Os padrões serão carregados quando o backend estiver disponível.</p>
+    </ng-template>
     <a routerLink="/padroes-projeto" class="text-link">Ver detalhes</a>
   </div>
 </section>

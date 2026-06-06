@@ -1,6 +1,6 @@
 {
   "name": "oficina-web",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "private": true,
   "scripts": {
     "ng": "ng",
@@ -8,7 +8,8 @@
     "start:proxy": "ng serve --proxy-config proxy.conf.json --open",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "start:no-open": "ng serve --proxy-config proxy.conf.json"
   },
   "dependencies": {
     "@angular/common": "^22.0.0",

@@ -1,8 +1,8 @@
 package br.com.avcar.oficina.view.api;
 
 import br.com.avcar.oficina.core.database.DatabaseConnectionChecker;
+import br.com.avcar.oficina.core.database.DatabaseStatusResult;
 import br.com.avcar.oficina.core.response.ApiResponse;
-import java.util.Map;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,11 +19,8 @@ public class DatabaseStatusController {
     }
 
     @GetMapping("/status")
-    public ResponseEntity<ApiResponse<Map<String, Boolean>>> status() {
-        boolean available = databaseConnectionChecker.isDatabaseAvailable();
-        return ResponseEntity.ok(ApiResponse.success(
-                "Status da conexão local com o banco de dados verificado com sucesso.",
-                Map.of("available", available)
-        ));
+    public ResponseEntity<ApiResponse<DatabaseStatusResult>> status() {
+        DatabaseStatusResult result = databaseConnectionChecker.checkStatus();
+        return ResponseEntity.ok(ApiResponse.success(result.getMensagem(), result));
     }
 }

@@ -71,7 +71,7 @@
     </div>
 
     <div class="actions" style="margin-top: 14px;">
-      <button type="button" (click)="salvar()">Salvar</button>
+      <button type="button" (click)="salvar()" [disabled]="carregando">{{ carregando ? 'Processando...' : 'Salvar' }}</button>
       <button type="button" class="secondary" (click)="limpar()">Limpar</button>
     </div>
 
@@ -87,7 +87,7 @@
       <button type="button" class="secondary" (click)="listar()">Listar todos</button>
     </div>
 
-    <p *ngIf="carregando">Carregando clientes...</p>
+    <p *ngIf="carregando">Processando comunicação com o backend...</p>
 
     <div class="table-wrap" style="margin-top: 14px;">
       <table>

@@ -19,7 +19,6 @@ public final class DatabaseConnectionSingleton {
 
     private static volatile DatabaseConnectionSingleton instance;
 
-    private Connection connection;
     private String jdbcUrl;
     private String username;
     private String password;
@@ -44,29 +43,22 @@ public final class DatabaseConnectionSingleton {
         this.password = password;
     }
 
-    public synchronized Connection getConnection() throws SQLException {
-        if (jdbcUrl == null || jdbcUrl.isBlank()) {
-            throw new SQLException("A URL JDBC não foi configurada.");
-        }
-
-        if (connection == null || connection.isClosed()) {
-            connection = DriverManager.getConnection(jdbcUrl, username, password);
-        }
-
-        return connection;
-    }
-
+    /**
+     * Verifica a conexão de forma rápida e sem manter uma conexão JDBC aberta.
+     * Isso evita lentidão na tela Angular quando o banco está indisponível ou
+     * quando uma conexão antiga fica inválida.
+     */
     public synchronized boolean isConnected() {
-        try {
-            return getConnection() != null && !getConnection().isClosed();
-        } catch (SQLException exception) {
+        if (jdbcUrl == null || jdbcUrl.isBlank()) {
             return false;
         }
-    }
 
-    public synchronized void close() throws SQLException {
-        if (connection != null && !connection.isClosed()) {
-            connection.close();
+        DriverManager.setLoginTimeout(2);
+
+        try (Connection connection = DriverManager.getConnection(jdbcUrl, username, password)) {
+            return connection.isValid(2);
+        } catch (SQLException exception) {
+            return false;
         }
     }
 }
