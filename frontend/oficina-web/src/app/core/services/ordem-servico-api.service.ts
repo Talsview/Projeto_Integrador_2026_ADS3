@@ -7,8 +7,6 @@ import { AlterarStatusOrdemServico, OrdemServicoResumo } from '../../models/orde
 
 @Injectable({ providedIn: 'root' })
 export class OrdemServicoApiService extends BaseApiService<OrdemServicoResumo> {
-  private readonly tempoLimiteMs = 10000;
-
   constructor(http: HttpClient) {
     super(http, 'ordens-servico');
   }

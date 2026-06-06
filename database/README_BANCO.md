@@ -224,3 +224,17 @@ A tela Angular de Pagamentos agora também exibe esse status e impede o envio de
 ## Script 09 — Verificação do fluxo automático de pagamentos
 
 O arquivo `09_verificacao_fluxo_automatico_pagamentos.sql` permite conferir no banco o status atual das Ordens de Serviço e os pagamentos registrados após a correção da Etapa 19.
+
+---
+
+## Etapa 20 — Correção de compilação Angular
+
+A Etapa 20 não altera tabelas, constraints ou dados do banco de dados.
+
+Foi criado apenas o script de verificação documental:
+
+```text
+database/10_verificacao_correcao_compilacao_angular.sql
+```
+
+Essa etapa corrige exclusivamente a herança dos services Angular especializados, removendo duplicidade da propriedade `tempoLimiteMs`.

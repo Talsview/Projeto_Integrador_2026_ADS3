@@ -7,8 +7,6 @@ import { ApiResponse, PageResponse } from '../models/api-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class PagamentoApiService extends BaseApiService<Pagamento> {
-  private readonly tempoLimiteMs = 10000;
-
   constructor(http: HttpClient) {
     super(http, 'pagamentos');
   }

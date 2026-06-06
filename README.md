@@ -1111,3 +1111,38 @@ database/08_verificacao_pagamentos_status_os.sql
 ## Etapa 19 — Fluxo automático de pagamentos
 
 A tela de Pagamentos e o backend foram ajustados para que, ao salvar um pagamento, o sistema atualize automaticamente a tabela, o resumo financeiro e o status da Ordem de Serviço. O backend conduz a OS até PAGAMENTO respeitando o histórico e finaliza automaticamente a OS quando o valor pago quita o total.
+
+---
+
+## Etapa 20 — Correção de compilação Angular nos services especializados
+
+Nesta etapa foi corrigido um erro de compilação do frontend Angular envolvendo herança entre `BaseApiService`, `OrdemServicoApiService` e `PagamentoApiService`.
+
+### Problema corrigido
+
+O Angular acusava erro porque os services especializados declaravam novamente a propriedade `tempoLimiteMs`, já existente na classe base.
+
+### Correção aplicada
+
+```text
+BaseApiService
+- tempoLimiteMs alterado para protected.
+
+OrdemServicoApiService
+- removida declaração duplicada de tempoLimiteMs.
+
+PagamentoApiService
+- removida declaração duplicada de tempoLimiteMs.
+```
+
+### Arquivos alterados
+
+```text
+frontend/oficina-web/src/app/core/services/base-api.service.ts
+frontend/oficina-web/src/app/core/services/ordem-servico-api.service.ts
+frontend/oficina-web/src/app/core/services/pagamento-api.service.ts
+
+docs/README_ETAPA20_CORRECAO_COMPILACAO_ANGULAR_SERVICES.md
+docs/adr/ADR-023-correcao-heranca-services-angular.md
+database/10_verificacao_correcao_compilacao_angular.sql
+```

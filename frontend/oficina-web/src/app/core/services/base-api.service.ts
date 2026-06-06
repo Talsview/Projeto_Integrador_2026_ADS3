@@ -5,7 +5,7 @@ import { ApiResponse, PageResponse } from '../models/api-response.model';
 
 export abstract class BaseApiService<T> {
   protected readonly apiBaseUrl = environment.apiBaseUrl;
-  private readonly tempoLimiteMs = 10000;
+  protected readonly tempoLimiteMs = 10000;
 
   protected constructor(
     protected readonly http: HttpClient,
