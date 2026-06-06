@@ -1126,88 +1126,444 @@ Fluxo:
 
 ## 15. Padrões de Projeto Aplicados
 
-O projeto contempla seis padrões de projeto exigidos academicamente.
+O sistema AV CAR AUTO CENTER implementa os seis padrões de projeto exigidos pela disciplina:
+
+```text
+Singleton
+Adapter
+Iterator
+Template Method
+Factory Method
+Decorator
+```
+
+Cada padrão foi aplicado em uma parte específica do sistema, com objetivo funcional e justificativa técnica. As classes possuem comentários no código identificando o padrão aplicado, facilitando a avaliação e apresentação do projeto.
+
+---
 
 ### 15.1 Singleton
 
-Aplicação:
+#### Localização no projeto
 
-* Gerenciamento centralizado de contexto/configuração/conexão.
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/singleton/DatabaseConnectionSingleton.java
+```
 
-Objetivo:
+#### Classe principal
 
-* Garantir uma única instância de recurso compartilhado;
-* Evitar múltiplas conexões ou estados inconsistentes.
+```text
+DatabaseConnectionSingleton
+```
 
----
+#### Onde é aplicado
 
-### 15.2 Adapter
+O padrão Singleton foi aplicado na verificação centralizada da conexão local com o banco de dados PostgreSQL.
 
-Aplicação:
+Embora o sistema utilize Spring Data JPA para persistência, essa classe foi criada para demonstrar o padrão Singleton e permitir uma verificação técnica da disponibilidade do banco local.
 
-* Adaptação de dados para tabelas, respostas ou componentes de tela.
+#### Justificativa
 
-Objetivo:
+Como o sistema da oficina deve funcionar localmente, sem dependência obrigatória de internet, é importante existir um ponto único para verificar se o banco de dados está disponível.
 
-* Converter dados do domínio para formatos mais adequados à visualização;
-* Reduzir acoplamento entre frontend, DTOs e entidades.
+O Singleton garante que exista apenas uma instância responsável por essa verificação, evitando duplicidade de configuração e espalhamento da lógica de conexão pelo sistema.
 
----
+#### Responsabilidade no sistema
 
-### 15.3 Iterator
-
-Aplicação:
-
-* Percorrer coleções de Ordens de Serviço, itens ou fila de atendimento.
-
-Objetivo:
-
-* Padronizar navegação sobre listas;
-* Apoiar funcionalidades de estrutura de dados.
+```text
+Centralizar a checagem técnica da conexão local com PostgreSQL.
+```
 
 ---
 
-### 15.4 Template Method
+### 15.2 Factory Method
 
-Aplicação:
+#### Localização no projeto
 
-* Algoritmos de ordenação manual.
+```text
+src/main/java/br/com/avcar/oficina/business/pessoa/designpattern/factory/
+```
 
-Objetivo:
+#### Classes principais
 
-* Definir esqueleto do algoritmo;
-* Permitir variações por data, prioridade ou valor.
+```text
+ClienteFactoryMethod.java
+ClienteCadastroFactory.java
+ClientePessoaFisicaFactory.java
+ClientePessoaJuridicaFactory.java
+```
+
+#### Onde é aplicado
+
+O padrão Factory Method foi aplicado no cadastro de clientes, especificamente na criação de Cliente Pessoa Física e Cliente Pessoa Jurídica.
+
+O sistema possui a regra de que todo cliente deve ser classificado como Pessoa Física ou Pessoa Jurídica, nunca os dois ao mesmo tempo. Dessa forma, a criação do cliente não deve ficar espalhada diretamente no Controller ou no Service.
+
+#### Funcionamento
+
+O fluxo de criação é organizado da seguinte forma:
+
+```text
+ClienteService
+        ↓
+ClienteCadastroFactory
+        ↓
+ClienteFactoryMethod
+        ↓
+ClientePessoaFisicaFactory ou ClientePessoaJuridicaFactory
+        ↓
+PessoaModel + ClienteModel + Especialização PF/PJ
+```
+
+#### Justificativa
+
+O Factory Method foi escolhido porque o cadastro de cliente possui especializações diferentes.
+
+A fábrica permite criar corretamente a estrutura de objetos conforme o tipo do cliente informado:
+
+```text
+Pessoa Física → PessoaModel + ClienteModel + PessoaFisicaModel
+Pessoa Jurídica → PessoaModel + ClienteModel + PessoaJuridicaModel
+```
+
+Isso melhora a organização, reduz duplicidade e respeita a generalização/especialização definida no modelo de banco de dados.
+
+#### Responsabilidade no sistema
+
+```text
+Criar clientes Pessoa Física e Pessoa Jurídica de forma organizada, extensível e compatível com o modelo conceitual.
+```
 
 ---
 
-### 15.5 Factory Method
+### 15.3 Adapter
 
-Aplicação:
+#### Localização no projeto
 
-* Criação de clientes Pessoa Física e Pessoa Jurídica.
+```text
+src/main/java/br/com/avcar/oficina/business/veiculo/adapter/VeiculoResponseAdapter.java
+```
 
-Objetivo:
+#### Classe principal
 
-* Encapsular a criação de objetos;
-* Evitar lógica duplicada no cadastro de clientes;
-* Garantir especialização correta.
+```text
+VeiculoResponseAdapter
+```
+
+#### Onde é aplicado
+
+O padrão Adapter foi aplicado na montagem das respostas de veículo enviadas para o frontend Angular.
+
+No banco de dados e no domínio, os dados de veículo estão distribuídos entre várias entidades:
+
+```text
+VeiculoModel
+ModeloModel
+MarcaModel
+HistoricoProprietarioModel
+ClienteModel
+PessoaModel
+```
+
+Porém, para a tela Angular, é mais adequado receber uma resposta consolidada com:
+
+```text
+placa
+marca
+modelo
+proprietário atual
+histórico de proprietários
+dados resumidos do veículo
+```
+
+#### Justificativa
+
+O Adapter foi escolhido porque a estrutura interna do domínio não deve ser exposta diretamente para a View.
+
+Ele converte entidades internas complexas em DTOs mais adequados para consumo pelo frontend.
+
+#### DTOs gerados pelo Adapter
+
+```text
+VeiculoDTO
+VeiculoResumoDTO
+HistoricoProprietarioDTO
+```
+
+#### Responsabilidade no sistema
+
+```text
+Adaptar os dados internos de veículo, modelo, marca e histórico de proprietário para respostas apropriadas ao Angular.
+```
+
+---
+
+### 15.4 Iterator
+
+#### Localização no projeto
+
+```text
+src/main/java/br/com/avcar/oficina/core/estrutura/iterator/OficinaIterator.java
+src/main/java/br/com/avcar/oficina/core/estrutura/fila/FilaAtendimentoIterator.java
+src/main/java/br/com/avcar/oficina/core/estrutura/lista/ListaLinearIterator.java
+```
+
+#### Classes principais
+
+```text
+OficinaIterator
+FilaAtendimentoIterator
+ListaLinearIterator
+```
+
+#### Onde é aplicado
+
+O padrão Iterator foi aplicado nas estruturas lineares utilizadas no controle operacional da oficina, principalmente na Fila de Atendimento das Ordens de Serviço.
+
+A fila organiza as OS aguardando atendimento, respeitando uma lógica próxima ao funcionamento real de uma oficina mecânica.
+
+#### Funcionamento
+
+O Iterator permite percorrer a estrutura sem expor sua implementação interna.
+
+Exemplo conceitual:
+
+```text
+Fila de Atendimento
+        ↓
+FilaAtendimentoIterator
+        ↓
+hasNext()
+        ↓
+next()
+        ↓
+reset()
+```
+
+#### Justificativa
+
+O Iterator foi escolhido porque o sistema utiliza estruturas lineares customizadas e precisa percorrer seus elementos de forma controlada.
+
+Com isso, o Service ou Controller não precisa conhecer os nós internos da fila ou da lista.
+
+#### Responsabilidade no sistema
+
+```text
+Percorrer filas e listas lineares de Ordens de Serviço sem expor a estrutura interna.
+```
+
+---
+
+### 15.5 Template Method
+
+#### Localização no projeto
+
+```text
+src/main/java/br/com/avcar/oficina/core/estrutura/ordenacao/OrdenadorTemplate.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/estrutura/ordenacao/
+```
+
+#### Classes principais
+
+```text
+OrdenadorTemplate.java
+OrdenadorOrdemServicoPorDataAbertura.java
+OrdenadorOrdemServicoPorPrioridade.java
+OrdenadorOrdemServicoPorValorTotal.java
+```
+
+#### Onde é aplicado
+
+O padrão Template Method foi aplicado no algoritmo manual de ordenação das Ordens de Serviço.
+
+O sistema permite ordenar a fila/listagem de OS por diferentes critérios:
+
+```text
+Data de abertura
+Prioridade
+Valor total
+```
+
+#### Funcionamento
+
+A classe abstrata `OrdenadorTemplate` define o esqueleto fixo do algoritmo de ordenação.
+
+As subclasses alteram apenas o critério de comparação.
+
+Fluxo conceitual:
+
+```text
+OrdenadorTemplate
+        ↓
+Método ordenar()
+        ↓
+Algoritmo de ordenação manual
+        ↓
+comparar()
+        ↓
+Subclasse define o critério
+```
+
+#### Justificativa
+
+Esse padrão foi escolhido porque permite reaproveitar o mesmo algoritmo de ordenação, alterando somente a regra de comparação.
+
+Além disso, atende ao requisito acadêmico de implementar um algoritmo de ordenação manual, sem depender de bibliotecas prontas como `Collections.sort()` ou `Stream.sorted()`.
+
+#### Responsabilidade no sistema
+
+```text
+Definir o esqueleto do algoritmo de ordenação manual e permitir variação do critério por subclasses.
+```
 
 ---
 
 ### 15.6 Decorator
 
-Aplicação:
+#### Localização no projeto
 
-* Notificações e auditoria.
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/decorator/
+```
 
-Objetivo:
+#### Classes principais
 
-* Adicionar comportamento sem alterar a classe principal;
-* Permitir registrar auditoria junto com mensagens do sistema.
+```text
+Notificador.java
+NotificadorOperacional.java
+NotificadorDecorator.java
+NotificadorAuditoriaDecorator.java
+```
+
+#### Classes de apoio
+
+```text
+src/main/java/br/com/avcar/oficina/core/notification/dto/NotificacaoDTO.java
+src/main/java/br/com/avcar/oficina/core/notification/dto/NotificacaoResultadoDTO.java
+src/main/java/br/com/avcar/oficina/core/notification/service/NotificacaoService.java
+src/main/java/br/com/avcar/oficina/core/notification/controller/NotificacaoController.java
+```
+
+#### Onde é aplicado
+
+O padrão Decorator foi aplicado no mecanismo de notificação interna com auditoria operacional.
+
+Quando ocorre uma operação importante, como alteração de status de Ordem de Serviço, o sistema pode gerar uma notificação interna e adicionar informações de auditoria sem modificar a classe principal de notificação.
+
+#### Funcionamento
+
+A composição ocorre da seguinte forma:
+
+```text
+NotificadorOperacional
+        ↓ decorado por
+NotificadorAuditoriaDecorator
+        ↓
+Notificação com auditoria
+```
+
+#### Justificativa
+
+O Decorator foi escolhido porque permite adicionar comportamento extra a uma notificação sem alterar diretamente a classe base.
+
+Isso respeita o princípio de extensão sem modificação e melhora a rastreabilidade do sistema.
+
+#### Responsabilidade no sistema
+
+```text
+Adicionar auditoria a notificações internas sem alterar a classe principal de notificação.
+```
 
 ---
 
-## 16. Estrutura de Dados Aplicada
+## 16. Resumo dos Padrões de Projeto
+
+| Padrão          | Localização                                                              | Classes principais                                                                                                                      | Aplicação no sistema                                            |
+| --------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Singleton       | `core/designpattern/singleton`                                           | `DatabaseConnectionSingleton`                                                                                                           | Verificação centralizada da conexão local com PostgreSQL        |
+| Factory Method  | `business/pessoa/designpattern/factory`                                  | `ClienteFactoryMethod`, `ClienteCadastroFactory`, `ClientePessoaFisicaFactory`, `ClientePessoaJuridicaFactory`                          | Criação de clientes Pessoa Física e Pessoa Jurídica             |
+| Adapter         | `business/veiculo/adapter`                                               | `VeiculoResponseAdapter`                                                                                                                | Adaptação de dados de veículo para DTOs consumidos pelo Angular |
+| Iterator        | `core/estrutura/iterator`, `core/estrutura/fila`, `core/estrutura/lista` | `OficinaIterator`, `FilaAtendimentoIterator`, `ListaLinearIterator`                                                                     | Percurso de fila e lista linear sem expor implementação interna |
+| Template Method | `core/estrutura/ordenacao`, `business/ordemservico/estrutura/ordenacao`  | `OrdenadorTemplate`, `OrdenadorOrdemServicoPorDataAbertura`, `OrdenadorOrdemServicoPorPrioridade`, `OrdenadorOrdemServicoPorValorTotal` | Ordenação manual de Ordens de Serviço por critérios diferentes  |
+| Decorator       | `core/designpattern/decorator`                                           | `Notificador`, `NotificadorOperacional`, `NotificadorDecorator`, `NotificadorAuditoriaDecorator`                                        | Notificação interna com auditoria operacional                   |
+
+---
+
+## 17. Endpoint de Apoio para Demonstração dos Padrões
+
+O sistema também possui um endpoint acadêmico para listar os padrões de projeto aplicados.
+
+```http
+GET /api/padroes-projeto
+```
+
+Esse endpoint pode ser acessado pelo Swagger e ajuda na apresentação do projeto, pois mostra diretamente pela API quais padrões foram utilizados e onde estão aplicados.
+
+Localização do controller:
+
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/catalog/controller/PadraoProjetoController.java
+```
+
+DTO utilizado:
+
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/catalog/dto/PadraoProjetoDTO.java
+```
+
+Esse recurso não faz parte da operação diária da oficina. Ele foi criado como apoio acadêmico para facilitar a validação dos padrões de projeto exigidos pela disciplina.
+
+---
+
+## 18. Relação dos Padrões com os Requisitos do Projeto
+
+A aplicação dos padrões de projeto contribui para a organização e manutenção do sistema.
+
+### Singleton
+
+Contribui para o requisito de funcionamento local, pois centraliza a verificação da conexão com o banco PostgreSQL.
+
+### Factory Method
+
+Contribui para a regra de negócio de clientes, garantindo que o cliente seja corretamente criado como Pessoa Física ou Pessoa Jurídica.
+
+### Adapter
+
+Contribui para a integração entre backend e frontend, adaptando dados complexos do domínio para respostas simples e adequadas à tela.
+
+### Iterator
+
+Contribui para a estrutura de dados da Fila de Atendimento, permitindo percorrer Ordens de Serviço sem expor a implementação interna.
+
+### Template Method
+
+Contribui para o algoritmo de ordenação manual, permitindo ordenar Ordens de Serviço por data, prioridade ou valor total.
+
+### Decorator
+
+Contribui para rastreabilidade e auditoria, adicionando comportamento extra às notificações internas sem modificar a classe base.
+
+---
+
+## 19. Evidência dos Comentários no Código
+
+As classes relacionadas aos padrões de projeto possuem comentários identificando explicitamente sua aplicação.
+
+Exemplos de comentários presentes no código:
+
+```text
+PADRÃO DE PROJETO: SINGLETON
+PADRÃO DE PROJETO: ADAPTER
+PADRÃO DE PROJETO: ITERATOR
+PADRÃO DE PROJETO: TEMPLATE METHOD
+PADRÃO DE PROJETO: FACTORY METHOD
+PADRÃO DE PROJETO: DECORATOR
+```
+
+Esses comentários foram adicionados para facilitar a correção acadêmica e demonstrar claramente onde cada padrão está aplicado no sistema.
+
+Também recomendo trocar a numeração das próximas seções do README, porque essa versão expande bastante a parte dos padrões.
+
+## 20. Estrutura de Dados Aplicada
 
 O projeto aplica estrutura de dados no módulo de Fila de Atendimento.
 
@@ -1258,7 +1614,7 @@ Justificativa:
 
 ---
 
-## 17. Regras de Negócio Consolidadas
+## 21. Regras de Negócio Consolidadas
 
 Principais regras:
 
@@ -1291,7 +1647,7 @@ Principais regras:
 
 ---
 
-## 18. Principais Endpoints
+## 22. Principais Endpoints
 
 Os endpoints podem variar conforme implementação, mas seguem a organização REST.
 
@@ -1333,7 +1689,7 @@ http://localhost:8080/swagger-ui/index.html
 
 ---
 
-## 19. Geração de PDF
+## 23. Geração de PDF
 
 A geração de PDF usa o backend.
 
@@ -1373,7 +1729,7 @@ Formato do documento:
 
 ---
 
-## 20. Logos e Identidade Visual
+## 24. Logos e Identidade Visual
 
 O sistema utiliza logos responsivas para diferentes tamanhos de tela.
 
@@ -1403,7 +1759,7 @@ Uso:
 
 ---
 
-## 21. Paleta Visual
+## 25. Paleta Visual
 
 A paleta visual foi pensada para parecer com uma oficina mecânica moderna.
 
@@ -1427,7 +1783,7 @@ Objetivo:
 
 ---
 
-## 22. Responsividade
+## 26. Responsividade
 
 O sistema foi ajustado para funcionar em:
 
@@ -1447,7 +1803,7 @@ Comportamentos:
 
 ---
 
-## 23. Como Testar o Sistema
+## 27. Como Testar o Sistema
 
 ### 23.1 Teste do Backend
 
@@ -1501,7 +1857,7 @@ Teste recomendado:
 
 ---
 
-## 24. Problemas Comuns
+## 28. Problemas Comuns
 
 ### 24.1 Erro: package.json não encontrado
 
@@ -1597,7 +1953,7 @@ Verificar:
 
 ---
 
-## 25. Documentação Técnica
+## 29. Documentação Técnica
 
 A documentação do projeto inclui:
 
@@ -1621,7 +1977,7 @@ As ADRs registram decisões arquiteturais importantes, como:
 
 ---
 
-## 26. Observações Acadêmicas
+## 30. Observações Acadêmicas
 
 O projeto atende aos seguintes pontos acadêmicos:
 
@@ -1650,7 +2006,7 @@ O projeto atende aos seguintes pontos acadêmicos:
 
 ---
 
-## 27. Limitações Conhecidas
+## 31. Limitações Conhecidas
 
 O sistema é um projeto acadêmico e possui algumas limitações:
 
@@ -1664,7 +2020,7 @@ O sistema é um projeto acadêmico e possui algumas limitações:
 
 ---
 
-## 28. Possíveis Melhorias Futuras
+## 32. Possíveis Melhorias Futuras
 
 Melhorias que podem ser implementadas futuramente:
 
@@ -1688,7 +2044,7 @@ Melhorias que podem ser implementadas futuramente:
 
 ---
 
-## 29. Comandos Principais
+## 33. Comandos Principais
 
 ### Backend
 
@@ -1719,7 +2075,7 @@ CTRL + F5
 
 ---
 
-## 30. Resumo Final
+## 34. Resumo Final
 
 O AV CAR AUTO CENTER é um sistema de gestão de oficina mecânica desenvolvido com arquitetura monolítica em camadas, backend em Spring Boot, frontend em Angular e banco PostgreSQL.
 
@@ -1750,7 +2106,7 @@ A aplicação prioriza:
 
 ---
 
-## 31. Autor
+## 35. Autor
 
 Projeto desenvolvido para fins acadêmicos no contexto do Projeto Integrador.
 
