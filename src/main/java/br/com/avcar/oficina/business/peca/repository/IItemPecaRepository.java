@@ -2,6 +2,7 @@ package br.com.avcar.oficina.business.peca.repository;
 
 import br.com.avcar.oficina.business.peca.model.ItemPecaModel;
 import br.com.avcar.oficina.core.repository.IGenericRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Repository;
 public interface IItemPecaRepository extends IGenericRepository<ItemPecaModel> {
 
     Page<ItemPecaModel> findAllByIdOrdemServicoAndAtivoTrue(Long idOrdemServico, Pageable pageable);
+
+    List<ItemPecaModel> findByIdOrdemServicoAndAtivoTrue(Long idOrdemServico);
 
     @Query("""
            SELECT i

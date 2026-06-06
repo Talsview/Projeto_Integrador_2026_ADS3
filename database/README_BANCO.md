@@ -53,3 +53,28 @@ Nesta etapa foram implementadas no Java as entidades `Fornecedor`, `Peca` e `Ite
 Também foram incluídos índices únicos parciais para evitar duplicidade de CNPJ de fornecedor ativo e de código nacional de peça ativa, mantendo compatibilidade com a regra de exclusão lógica.
 
 O script `02_seed_inicial.sql` inclui fornecedores e peças iniciais para facilitar os testes pelo Swagger e pelo Angular.
+
+## Atualização da Etapa 7
+
+O script `01_create_schema.sql` já contempla as tabelas centrais do módulo de Ordem de Serviço:
+
+```text
+ordem_servico
+status_ordem_servico
+historico_status_ordem
+item_servico
+execucao_servico_terceirizado
+```
+
+Nesta etapa essas tabelas foram integradas ao código Java por meio de Models, DTOs, Repositories, Validations, Services, Controllers e Responses padronizadas.
+
+O script `02_seed_inicial.sql` já contém os quatro status oficiais da OS:
+
+```text
+ORCAMENTO
+EXECUCAO
+PAGAMENTO
+FINALIZADO
+```
+
+Esses registros são necessários para que o fluxo da OS funcione corretamente.

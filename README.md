@@ -2,7 +2,7 @@
 
 ## Situação desta versão
 
-Esta versão corresponde à **Etapa 6 — Módulo Peça, Fornecedor e ItemPeca**.
+Esta versão corresponde à **Etapa 7 — Módulo Ordem de Serviço, Status, Histórico de Status e ItemServico**.
 
 O projeto está sendo refatorado para funcionar como uma API REST em Spring Boot, com frontend Angular como camada View e PostgreSQL local como banco de dados.
 
@@ -394,10 +394,76 @@ docs/adr/ADR-009-item-peca-como-entidade-associativa.md
 
 ---
 
+# Etapa 7 — Módulo Ordem de Serviço, Status, Histórico de Status e ItemServico
+
+Foram implementados:
+
+```text
+OrdemServico
+StatusOrdemServico
+HistoricoStatusOrdem
+ItemServico
+ExecucaoServicoTerceirizado
+```
+
+Regras acadêmicas atendidas:
+
+```text
+Cliente solicita OrdemServico.
+Veiculo recebe OrdemServico.
+OrdemServico possui HistoricoStatusOrdem.
+A OS segue o fluxo: ORCAMENTO → EXECUCAO → PAGAMENTO → FINALIZADO.
+A OS deve possuir pelo menos um ItemServico antes de entrar em execução.
+Todo ItemServico possui Serviço cadastrado e Colaborador responsável.
+Serviço terceirizado gera ExecucaoServicoTerceirizado.
+ItemPeca passou a validar a existência da OrdemServico e recalcular o total da OS.
+```
+
+Endpoints de Ordem de Serviço:
+
+```text
+POST   /api/ordens-servico
+PUT    /api/ordens-servico/{id}
+PATCH  /api/ordens-servico/{id}/status
+GET    /api/ordens-servico/{id}
+GET    /api/ordens-servico
+GET    /api/ordens-servico/pesquisar?termo=valor
+DELETE /api/ordens-servico/{id}
+```
+
+Endpoints de ItemServico:
+
+```text
+POST   /api/itens-servico
+PUT    /api/itens-servico/{id}
+GET    /api/itens-servico/{id}
+GET    /api/itens-servico
+GET    /api/itens-servico/ordem-servico/{idOrdemServico}
+GET    /api/itens-servico/ordem-servico/{idOrdemServico}/pesquisar?termo=valor
+DELETE /api/itens-servico/{id}
+```
+
+Endpoints de Status da OS:
+
+```text
+GET    /api/status-ordem-servico/{id}
+GET    /api/status-ordem-servico
+GET    /api/status-ordem-servico/pesquisar?termo=valor
+```
+
+Documentação:
+
+```text
+docs/README_ETAPA7_ORDEM_SERVICO.md
+docs/adr/ADR-010-fluxo-ordem-servico.md
+```
+
+---
+
 ## Próxima etapa recomendada
 
 ```text
-Etapa 7 — OrdemServico, StatusOrdemServico, HistoricoStatusOrdem e ItemServico
+Etapa 8 — GarantiaPeca, GarantiaServico e início automático das garantias após finalização da OS
 ```
 
-Essa próxima etapa será o centro operacional do sistema, integrando Cliente, Veículo, Serviço, Colaborador, Peças, Fornecedor, Garantias e Pagamento.
+Essa próxima etapa completará a regra de garantia, iniciando os prazos de peça e serviço após o status FINALIZADO.
