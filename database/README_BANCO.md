@@ -1,240 +1,113 @@
-# Banco de Dados Local - AV CAR AUTO CENTER
+# Banco de Dados Local — AV CAR AUTO CENTER
 
-## Decisão adotada
+## Organização oficial dos scripts
 
-O banco físico será criado por script SQL, e a aplicação Spring Boot apenas validará a estrutura existente com:
+A partir da Etapa 22, os scripts SQL foram reorganizados para evitar confusão entre criação do banco, carga inicial e verificações de teste.
+
+```text
+database
+├── 01_schema
+│   └── 01_create_schema.sql
+├── 02_seed
+│   └── 02_seed_inicial.sql
+├── 03_verificacoes
+│   ├── 03_verificacao_integracao_frontend.sql
+│   ├── 04_verificacao_desempenho_integracao.sql
+│   ├── 05_verificacao_frontend_telas.sql
+│   ├── 06_verificacao_frontend_estados_atualizacao.sql
+│   ├── 07_verificacao_correcao_atualizacao_visual.sql
+│   ├── 08_verificacao_pagamentos_status_os.sql
+│   ├── 09_verificacao_fluxo_automatico_pagamentos.sql
+│   ├── 10_verificacao_correcao_compilacao_angular.sql
+│   └── 11_verificacao_carregamento_inicial_telas.sql
+└── 04_completo
+    └── 00_SCRIPT_COMPLETO_BANCO.sql
+```
+
+## Forma recomendada para montar o banco do zero
+
+No pgAdmin, crie o banco `car_repair` e execute os scripts nesta ordem:
+
+```text
+1. database/01_schema/01_create_schema.sql
+2. database/02_seed/02_seed_inicial.sql
+```
+
+Depois disso, rode o backend Spring Boot.
+
+## Script completo opcional
+
+O arquivo abaixo permanece disponível apenas como alternativa para demonstração ou recuperação rápida:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```
+
+Ele contém criação de tabelas e dados iniciais em um único arquivo. Porém, para organização acadêmica e manutenção do projeto, recomenda-se usar os scripts separados por finalidade.
+
+## Scripts de verificação
+
+Os scripts da pasta abaixo não devem ser usados para criar o banco nem para alimentar dados obrigatórios:
+
+```text
+database/03_verificacoes
+```
+
+Eles servem apenas para conferência no pgAdmin, por exemplo:
+
+```text
+- verificar se existem funções cadastradas;
+- verificar se existem marcas, modelos e serviços iniciais;
+- conferir se o Angular possui dados para exibir nas telas;
+- validar se pagamentos e ordens de serviço estão sendo atualizados.
+```
+
+## Configuração do Spring Boot
+
+O projeto usa banco físico criado manualmente por SQL. Por isso, no `application.properties`, a aplicação deve validar a estrutura existente:
 
 ```properties
 spring.jpa.hibernate.ddl-auto=validate
 ```
 
-Essa decisão evita dependência do Hibernate para criação automática das tabelas e facilita a entrega acadêmica do modelo físico.
+Essa decisão evita que o Hibernate crie ou altere tabelas automaticamente, mantendo fidelidade ao modelo físico entregue no projeto.
 
-## Ordem de execução no pgAdmin
+## Identificadores
 
-```text
-1. Criar o banco car_repair no PostgreSQL.
-2. Executar database/01_create_schema.sql.
-3. Executar database/02_seed_inicial.sql.
-4. Iniciar a aplicação Spring Boot.
-5. Acessar o Swagger em http://localhost:9081/swagger-ui.html.
-```
+Todas as chaves primárias foram definidas como `BIGSERIAL` no PostgreSQL, compatíveis com `Long` no Java.
 
-## Observação
+## Regra de execução
 
-Os campos de identificador usam `BIGSERIAL`, compatível com o uso de `Long` no Java.
-
-## Atualização da Etapa 5
-
-O script `01_create_schema.sql` já contempla as tabelas do módulo de Serviços:
+Para evitar erro de tabela inexistente ou dados obrigatórios ausentes, sempre respeite esta ordem:
 
 ```text
-servico
-servico_interno
-servico_terceirizado
-empresa_terceirizada
+1. Criar banco car_repair.
+2. Executar schema.
+3. Executar seed.
+4. Rodar backend.
+5. Rodar Angular.
 ```
 
-O script `02_seed_inicial.sql` inclui serviços iniciais para testes do Swagger e do Angular, separando serviços internos e terceirizados conforme a generalização/especialização validada no MER.
+## Observação sobre dados iniciais
 
-## Atualização da Etapa 6
-
-O script `01_create_schema.sql` contempla também as tabelas do módulo de Peças:
+O `02_seed_inicial.sql` inclui registros essenciais para o sistema funcionar, como:
 
 ```text
-fornecedor
-peca
-item_peca
-garantia_peca
+- Status da Ordem de Serviço: ORCAMENTO, EXECUCAO, PAGAMENTO e FINALIZADO;
+- Funções iniciais: Mecânico, Atendente, Secretária, Faxineiro, Estoquista e Gerente;
+- Marcas e modelos para testes;
+- Serviços internos e terceirizados;
+- Fornecedores e peças iniciais.
 ```
 
-Nesta etapa foram implementadas no Java as entidades `Fornecedor`, `Peca` e `ItemPeca`. A tabela `garantia_peca` permanece no modelo físico e será integrada ao fluxo completo quando a Ordem de Serviço e sua finalização forem implementadas.
+Esses registros são importantes para que as telas Angular carreguem opções e consultas logo ao serem abertas.
 
-Também foram incluídos índices únicos parciais para evitar duplicidade de CNPJ de fornecedor ativo e de código nacional de peça ativa, mantendo compatibilidade com a regra de exclusão lógica.
-
-O script `02_seed_inicial.sql` inclui fornecedores e peças iniciais para facilitar os testes pelo Swagger e pelo Angular.
-
-## Atualização da Etapa 7
-
-O script `01_create_schema.sql` já contempla as tabelas centrais do módulo de Ordem de Serviço:
-
-```text
-ordem_servico
-status_ordem_servico
-historico_status_ordem
-item_servico
-execucao_servico_terceirizado
-```
-
-Nesta etapa essas tabelas foram integradas ao código Java por meio de Models, DTOs, Repositories, Validations, Services, Controllers e Responses padronizadas.
-
-O script `02_seed_inicial.sql` já contém os quatro status oficiais da OS:
-
-```text
-ORCAMENTO
-EXECUCAO
-PAGAMENTO
-FINALIZADO
-```
-
-Esses registros são necessários para que o fluxo da OS funcione corretamente.
-
-## Atualização da Etapa 8
-
-O script `01_create_schema.sql` passa a contemplar integralmente as tabelas de garantia utilizadas pela aplicação:
-
-```text
-garantia_peca
-garantia_servico
-```
-
-Também foi adicionado o campo abaixo à tabela `peca`:
-
-```text
-prazo_garantia_dias INTEGER NOT NULL DEFAULT 90
-```
-
-Esse campo permite que a garantia da peça aplicada na OS tenha prazo próprio. A garantia de serviço continua utilizando o campo `prazo_garantia_dias` da tabela `servico`.
-
-As garantias são criadas quando os itens são lançados na OS e iniciadas automaticamente quando a Ordem de Serviço passa para o status `FINALIZADO`.
-
-## Atualização da Etapa 9
-
-O script `01_create_schema.sql` contempla a tabela financeira da Ordem de Serviço:
-
-```text
-pagamento
-```
-
-Nesta etapa a tabela `pagamento` foi integrada ao código Java por meio de Model, DTO, Repository, Validation, Mapper, Service e Controller REST.
-
-Regras financeiras aplicadas:
-
-```text
-Uma Ordem de Serviço pode gerar nenhum, um ou vários pagamentos.
-Pagamentos só podem ser registrados quando a OS está no status PAGAMENTO.
-Apenas pagamentos com status PAGO abatem o saldo financeiro da OS.
-A OS só pode avançar para FINALIZADO quando o total pago for igual ou superior ao valor total da OS.
-Pagamentos não podem ser alterados após a finalização da OS.
-```
-
-Também foi corrigida a duplicidade da coluna `id_empresa_terceirizada` na tabela `execucao_servico_terceirizado` e incluída a restrição `ck_pagamento_forma` para padronizar as formas de pagamento aceitas.
-
-## Atualização da Etapa 13
-
-Não houve criação de novas tabelas nesta etapa. A atualização foi voltada à integração do frontend Angular com o backend Spring Boot.
-
-Foi adicionado o script auxiliar:
-
-```text
-database/03_verificacao_integracao_frontend.sql
-```
-
-Esse script não altera dados e não altera a estrutura do banco. Ele apenas consulta registros importantes para conferir se o ambiente está pronto para o Angular consumir a API REST.
-
-Ordem recomendada para testes completos:
-
-```text
-1. Criar o banco car_repair.
-2. Executar database/01_create_schema.sql.
-3. Executar database/02_seed_inicial.sql.
-4. Executar database/03_verificacao_integracao_frontend.sql para conferência.
-5. Rodar o backend em http://localhost:9081.
-6. Rodar o Angular em http://localhost:4200 usando npm.cmd run start:proxy.
-```
-
-## Atualização da Etapa 14
-
-Não houve criação de novas tabelas nesta etapa. A atualização foi voltada à melhoria de desempenho percebido na comunicação entre Angular e backend.
-
-Foi adicionado o script auxiliar:
-
-```text
-database/04_verificacao_desempenho_integracao.sql
-```
-
-Esse script não altera dados e não altera estrutura. Ele apenas consulta o banco para confirmar se o PostgreSQL está respondendo rapidamente antes do teste no Angular.
-
-Também foi ajustado o endpoint:
-
-```text
-GET /api/database/status
-```
-
-Agora ele retorna:
-
-```text
-available
-mensagem
-tempoRespostaMs
-```
-
-Esse ajuste facilita identificar se a lentidão está no frontend, no backend ou na conexão local com o PostgreSQL.
-
----
-
-# Etapa 15 — Verificação de dados para telas Angular
+## Verificação da Etapa 22
 
 Foi adicionado o script:
 
 ```text
-database/05_verificacao_frontend_telas.sql
+database/03_verificacoes/11_verificacao_carregamento_inicial_telas.sql
 ```
 
-Esse script não altera dados. Ele apenas consulta a quantidade de registros nas principais tabelas usadas pelas telas Angular, ajudando a verificar se existem dados suficientes para testar cadastros, consultas, OS, itens, pagamentos e garantias.
-
-## Etapa 16 — Verificação da atualização automática do frontend
-
-Foi adicionado o script:
-
-```text
-database/06_verificacao_frontend_estados_atualizacao.sql
-```
-
-Esse script auxilia a conferência dos registros criados pelo Angular após operações de cadastro, alteração ou exclusão lógica. Ele pode ser executado no pgAdmin para validar se a tabela do frontend está refletindo os dados persistidos no PostgreSQL.
-
----
-
-# Verificação da Etapa 17 — Atualização visual do Angular
-
-Arquivo adicionado:
-
-```text
-07_verificacao_correcao_atualizacao_visual.sql
-```
-
-Este script permite verificar no PostgreSQL se os registros cadastrados pelo frontend estão sendo persistidos corretamente. A correção visual foi aplicada no Angular, por meio do interceptor global da API e da configuração explícita de detecção de mudanças.
-
-
----
-
-# Verificação da Etapa 18 — Pagamentos e status atual da OS
-
-Arquivo adicionado:
-
-```text
-08_verificacao_pagamentos_status_os.sql
-```
-
-Este script consulta o status atual das Ordens de Serviço. Ele ajuda a confirmar se a OS selecionada está em `PAGAMENTO`, que é a condição necessária para registrar pagamento no sistema.
-
-A tela Angular de Pagamentos agora também exibe esse status e impede o envio de pagamento quando a OS ainda está em `ORCAMENTO` ou `EXECUCAO`.
-
-
-## Script 09 — Verificação do fluxo automático de pagamentos
-
-O arquivo `09_verificacao_fluxo_automatico_pagamentos.sql` permite conferir no banco o status atual das Ordens de Serviço e os pagamentos registrados após a correção da Etapa 19.
-
----
-
-## Etapa 20 — Correção de compilação Angular
-
-A Etapa 20 não altera tabelas, constraints ou dados do banco de dados.
-
-Foi criado apenas o script de verificação documental:
-
-```text
-database/10_verificacao_correcao_compilacao_angular.sql
-```
-
-Essa etapa corrige exclusivamente a herança dos services Angular especializados, removendo duplicidade da propriedade `tempoLimiteMs`.
+Esse script consulta a quantidade de registros das principais tabelas usadas pelo frontend. Ele ajuda a confirmar se existem dados para serem exibidos automaticamente quando o usuário abre as telas de cadastro e consulta.

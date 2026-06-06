@@ -1146,3 +1146,75 @@ docs/README_ETAPA20_CORRECAO_COMPILACAO_ANGULAR_SERVICES.md
 docs/adr/ADR-023-correcao-heranca-services-angular.md
 database/10_verificacao_correcao_compilacao_angular.sql
 ```
+
+
+---
+
+# Etapa 21 — Script SQL único do banco de dados
+
+Foi criado o arquivo:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```
+
+Esse arquivo permanece disponível como script consolidado opcional para criar o banco físico e inserir os dados iniciais obrigatórios em uma única execução no pgAdmin.
+
+A partir da Etapa 22, os scripts foram reorganizados por finalidade. Para montar o banco do zero, recomenda-se usar `database/01_schema/01_create_schema.sql` e depois `database/02_seed/02_seed_inicial.sql`. O script completo permanece em `database/04_completo` apenas como alternativa opcional.
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA21_SCRIPT_SQL_UNICO.md
+docs/adr/ADR-024-script-sql-unico-banco.md
+```
+
+---
+
+# Etapa 22 — Organização dos Scripts SQL e Carregamento Inicial Automático das Telas
+
+Nesta etapa foram feitos dois ajustes solicitados durante os testes do sistema.
+
+## 1. Organização dos scripts SQL
+
+Os scripts do banco foram reorganizados por finalidade:
+
+```text
+database/01_schema/01_create_schema.sql       → criação das tabelas e constraints
+database/02_seed/02_seed_inicial.sql          → dados iniciais obrigatórios
+database/03_verificacoes/*.sql                → consultas auxiliares de conferência
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql → script completo opcional
+```
+
+A forma recomendada para montar o banco do zero passa a ser:
+
+```text
+1. Executar database/01_schema/01_create_schema.sql
+2. Executar database/02_seed/02_seed_inicial.sql
+```
+
+O script completo permanece disponível, mas apenas como alternativa de demonstração ou recriação rápida.
+
+## 2. Correção do carregamento inicial das telas Angular
+
+Foi corrigido o comportamento em que algumas telas, como Funções, só exibiam os dados do banco depois de o usuário clicar em um botão ou digitar em algum campo.
+
+A correção foi aplicada no interceptor global da API, garantindo que as respostas HTTP atualizem a interface automaticamente.
+
+Também foi ajustado o `package.json` para que `npm.cmd start` já execute o Angular com proxy para o backend:
+
+```text
+ng serve --proxy-config proxy.conf.json --open
+```
+
+## Resultado esperado
+
+Ao abrir telas como Clientes, Funções, Colaboradores, Veículos, Serviços ou Pagamentos, os dados existentes no PostgreSQL devem aparecer automaticamente, sem necessidade de clicar em “Listar todos”.
+
+Documentação adicionada:
+
+```text
+docs/README_ETAPA22_ORGANIZACAO_SQL_CARREGAMENTO_TELAS.md
+docs/adr/ADR-025-organizacao-sql-carregamento-inicial-telas.md
+database/03_verificacoes/11_verificacao_carregamento_inicial_telas.sql
+```

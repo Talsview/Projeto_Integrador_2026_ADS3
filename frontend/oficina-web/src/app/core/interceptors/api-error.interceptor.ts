@@ -1,28 +1,44 @@
-import { NgZone, inject } from '@angular/core';
+import { ApplicationRef, NgZone, inject } from '@angular/core';
 import { HttpErrorResponse, HttpEvent, HttpInterceptorFn } from '@angular/common/http';
 import { Observable, TimeoutError } from 'rxjs';
 
 /**
  * Interceptor global de comunicação com a API.
  *
- * Além de padronizar as mensagens de erro, este interceptor força o retorno
- * das respostas HTTP para dentro do NgZone do Angular. Também prioriza os
- * detalhes de erro enviados pelo backend, evitando mensagens genéricas como
- * "Violação de Regra de Negócio" quando existe uma causa específica.
+ * Além de padronizar as mensagens de erro, este interceptor garante que as
+ * respostas HTTP retornem para dentro do NgZone do Angular e força uma
+ * atualização visual após cada resposta. Essa correção evita o problema em que
+ * a tela só exibia os dados depois de o usuário clicar em outro botão ou campo.
  */
 export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
   const zone = inject(NgZone);
+  const appRef = inject(ApplicationRef);
+
+  const atualizarInterface = () => {
+    window.setTimeout(() => {
+      zone.run(() => appRef.tick());
+    }, 0);
+  };
 
   return new Observable<HttpEvent<unknown>>((observer) => {
     const subscription = next(req).subscribe({
       next: (event) => {
-        zone.run(() => observer.next(event));
+        zone.run(() => {
+          observer.next(event);
+          atualizarInterface();
+        });
       },
       error: (error: HttpErrorResponse | TimeoutError) => {
-        zone.run(() => observer.error(normalizarErroApi(error)));
+        zone.run(() => {
+          observer.error(normalizarErroApi(error));
+          atualizarInterface();
+        });
       },
       complete: () => {
-        zone.run(() => observer.complete());
+        zone.run(() => {
+          observer.complete();
+          atualizarInterface();
+        });
       }
     });
 
