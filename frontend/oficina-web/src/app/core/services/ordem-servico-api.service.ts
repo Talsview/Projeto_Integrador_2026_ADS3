@@ -16,6 +16,14 @@ export class OrdemServicoApiService extends BaseApiService<OrdemServicoResumo> {
       .pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as OrdemServicoResumo));
   }
 
+  baixarNotaFiscalPdf(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiBaseUrl}/notas-fiscais/ordens-servico/${id}/pdf`, {
+      responseType: 'blob',
+      headers: this.noCacheHeaders,
+      params: this.parametrosSemCache()
+    }).pipe(timeout(this.tempoLimiteMs));
+  }
+
   filaAtendimento(): Observable<OrdemServicoResumo[]> {
     return this.http.get<ApiResponse<any> | any>(
       `${this.apiBaseUrl}/estrutura-dados/ordens-servico/fila-atendimento`,

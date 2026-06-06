@@ -206,3 +206,17 @@ A etapa 28 foi uma alteração visual do frontend Angular. Não houve mudança e
 ## Etapa 30
 
 A etapa 30 alterou apenas a camada visual do Angular, substituindo o menu lateral por abas superiores e ajustando o estilo para uma aparência mais quadrada. Nenhuma tabela, chave estrangeira, constraint ou seed do banco de dados foi alterada nesta etapa.
+
+
+## Observação da Etapa 32
+
+A Etapa 32 não alterou o modelo físico, scripts SQL ou dados iniciais. As alterações foram concentradas no frontend Angular, especificamente na paleta visual e na aplicação das logos da AV CAR AUTO CENTER.
+
+## Observação — Etapa 33
+
+A Etapa 33 alterou somente a identidade visual do frontend Angular, com implementação de logos responsivas e favicon. Nenhuma tabela, chave, constraint, seed ou regra do banco de dados foi modificada nesta etapa.
+
+
+## Etapa 34 - Nota Fiscal / Recibo em PDF
+
+Esta etapa não altera a estrutura física do banco de dados. A geração do PDF utiliza dados já existentes nas tabelas de Ordem de Serviço, Cliente, Veículo, ItemServico, ItemPeca, Fornecedor e Pagamento.

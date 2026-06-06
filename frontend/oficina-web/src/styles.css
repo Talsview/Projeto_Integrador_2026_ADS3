@@ -1,26 +1,30 @@
 :root {
-  --app-bg: #f6f8fc;
+  --app-bg: #eef1f5;
   --surface: #ffffff;
   --surface-soft: #f8fafc;
-  --border: #e3ebf6;
-  --border-strong: #d6e0ef;
-  --text: #0f223d;
-  --muted: #60718d;
-  --primary: #1d4ed8;
-  --primary-strong: #0b2e67;
-  --primary-soft: #eef4ff;
-  --blue: #2563eb;
-  --success: #059669;
-  --success-soft: #dcfce7;
-  --danger: #dc2626;
-  --danger-soft: #fee2e2;
-  --warning: #d97706;
-  --warning-soft: #fff7ed;
-  --info: #7c3aed;
-  --info-soft: #f3e8ff;
-  --shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
-  --shadow-soft: 0 6px 16px rgba(15, 23, 42, 0.055);
-  --radius: 8px;
+  --border: #d8e0ea;
+  --border-strong: #c7d0dc;
+  --text: #18212b;
+  --muted: #64748b;
+  --primary: #0b253f;
+  --primary-strong: #071a2d;
+  --primary-soft: #e9eef5;
+  --accent: #f4511e;
+  --accent-strong: #d84315;
+  --accent-soft: #fff1eb;
+  --steel: #374151;
+  --blue: #0b2e6b;
+  --success: #198754;
+  --success-soft: #e8f7ee;
+  --danger: #dc3545;
+  --danger-soft: #fdecec;
+  --warning: #f59e0b;
+  --warning-soft: #fff5e5;
+  --info: #0d6efd;
+  --info-soft: #eaf1fb;
+  --shadow: 0 8px 22px rgba(15, 23, 42, 0.10);
+  --shadow-soft: 0 4px 12px rgba(15, 23, 42, 0.06);
+  --radius: 6px;
 }
 
 * { box-sizing: border-box; }
@@ -30,7 +34,8 @@ body {
   min-height: 100%;
   font-family: Inter, "Segoe UI", Roboto, Arial, Helvetica, sans-serif;
   background:
-    radial-gradient(circle at top left, rgba(37, 99, 235, .055), transparent 34%),
+    linear-gradient(180deg, rgba(7, 26, 45, .035), transparent 260px),
+    radial-gradient(circle at top right, rgba(244, 81, 30, .06), transparent 32%),
     var(--app-bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
@@ -212,4 +217,153 @@ th {
 
 @media (max-width: 1180px) {
   .grid.two { grid-template-columns: 1fr; }
+}
+
+
+/* Etapa 32 — paleta AV CAR AUTO CENTER aplicada ao sistema */
+button {
+  border-radius: 5px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-strong));
+  box-shadow: 0 8px 18px rgba(7, 26, 45, .16);
+}
+button:hover:not(:disabled) { box-shadow: 0 12px 24px rgba(7, 26, 45, .22); }
+button.secondary {
+  background: #eef1f5;
+  color: var(--primary);
+  border: 1px solid var(--border-strong);
+  box-shadow: none;
+}
+button.danger { background: linear-gradient(135deg, var(--danger), #b4232f); }
+button.accent,
+.btn-accent,
+.btn-primary,
+.actions button:first-of-type:not(.secondary):not(.danger) {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: #ffffff;
+}
+
+input, select, textarea { border-radius: 5px; background: #ffffff; }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(244,81,30,.12);
+}
+
+.page-title { color: var(--primary-strong); letter-spacing: -.035em; }
+.page-subtitle { color: var(--muted); }
+.card { border-radius: 6px; border: 1px solid var(--border); box-shadow: var(--shadow-soft); }
+.card:hover { box-shadow: var(--shadow); }
+.table-wrap { border-radius: 6px; border-color: var(--border); }
+th { background: #eef1f5; color: var(--primary); }
+tr:hover td { background: #fffaf7; }
+.badge, .tag, .status-badge { border-radius: 4px; }
+.badge-success, .tag.success, .status-badge.success { background: var(--success-soft); color: var(--success); }
+.badge-warning, .tag.warning, .status-badge.warning { background: var(--warning-soft); color: #a35b00; }
+.badge-danger, .tag.danger, .status-badge.danger { background: var(--danger-soft); color: var(--danger); }
+.badge-info, .tag.info, .status-badge.info { background: var(--primary-soft); color: var(--primary); }
+.alert.success, .alert-success { border-color: #bfe8cf; background: #e8f7ee; color: #115c38; }
+.alert.error, .alert-error { border-color: #f4b7b7; background: #fdecec; color: #9b1c1c; }
+.content-grid, .grid.two, .grid.three, .grid.four { align-items: start; }
+@media (max-width: 840px) { .grid.two, .grid.three, .grid.four, .form-row { grid-template-columns: 1fr; } }
+
+/* Etapa 33 — refinamento visual para combinar com a nova logo responsiva */
+:root {
+  --app-bg: #eef1f5;
+  --surface: #ffffff;
+  --surface-soft: #f8fafc;
+  --border: #d8e0ea;
+  --border-strong: #c7d0dc;
+  --text: #18212b;
+  --muted: #64748b;
+  --primary: #0b253f;
+  --primary-strong: #061729;
+  --primary-soft: #e9eef5;
+  --accent: #f4511e;
+  --accent-strong: #d84315;
+  --accent-soft: #fff1eb;
+  --steel: #374151;
+  --shadow: 0 8px 22px rgba(15, 23, 42, 0.10);
+  --shadow-soft: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+body {
+  background:
+    radial-gradient(circle at top right, rgba(244, 81, 30, .065), transparent 34%),
+    linear-gradient(180deg, rgba(7, 26, 45, .035), transparent 300px),
+    var(--app-bg);
+}
+
+button,
+.btn-primary,
+.actions button:first-of-type:not(.secondary):not(.danger) {
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  border: 1px solid var(--accent);
+  color: #ffffff;
+}
+
+button.secondary,
+.btn-secondary {
+  background: #ffffff;
+  border: 1px solid var(--border-strong);
+  color: var(--primary);
+}
+
+button.danger,
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545, #b4232f);
+  border: 1px solid #dc3545;
+  color: #ffffff;
+}
+
+input,
+select,
+textarea {
+  border-color: var(--border-strong);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(244,81,30,.12);
+}
+
+.card,
+.panel,
+.stat-card,
+.mini-panel,
+.date-card,
+.table-wrap {
+  border-color: var(--border) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.card:hover,
+.panel:hover,
+.stat-card:hover,
+.mini-panel:hover {
+  box-shadow: var(--shadow) !important;
+}
+
+.page-title,
+h1,
+h2,
+h3 {
+  color: var(--primary-strong);
+}
+
+th {
+  background: var(--primary-soft) !important;
+  color: var(--primary) !important;
+}
+
+tbody tr:hover td {
+  background: #fffaf7;
+}
+
+.badge-info,
+.badge.info,
+.status-badge.info,
+.tag.info {
+  background: var(--primary-soft);
+  color: var(--primary);
 }

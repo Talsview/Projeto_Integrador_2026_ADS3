@@ -101,3 +101,27 @@ Errado:
 ```text
 frontend
 ```
+
+
+## Etapa 32 — Paleta visual de oficina e implementação das logos
+
+Nesta etapa foi aplicada uma identidade visual mais compatível com uma oficina mecânica, utilizando azul automotivo escuro, grafite, cinza metálico e laranja como cor de destaque. O layout superior por categorias foi mantido, mas a aparência foi ajustada para ficar mais profissional e alinhada à marca AV CAR AUTO CENTER.
+
+Alterações principais:
+
+- Implementação da logo completa no cabeçalho superior do Angular.
+- Implementação da logo em formato de ícone como favicon da aba do navegador.
+- Criação da pasta `frontend/oficina-web/public/assets/branding` para armazenar os arquivos visuais da marca.
+- Ajuste da paleta global no `src/styles.css`.
+- Reformulação do cabeçalho, menu superior, botões, cards, tabelas, campos e badges.
+- Preservação das rotas, services, endpoints e integração Angular com o backend Spring Boot.
+
+Arquivos principais alterados:
+
+- `frontend/oficina-web/src/index.html`
+- `frontend/oficina-web/src/app/app.component.html`
+- `frontend/oficina-web/src/app/app.component.css`
+- `frontend/oficina-web/src/styles.css`
+- `frontend/oficina-web/src/app/pages/dashboard/dashboard.component.css`
+- `frontend/oficina-web/public/assets/branding/av-car-favicon.png`
+- `frontend/oficina-web/public/assets/branding/av-car-logo-horizontal.png`

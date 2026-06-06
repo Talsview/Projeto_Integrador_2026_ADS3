@@ -86,7 +86,52 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
+  baixarNotaFiscal(ordem: OrdemServicoResumo): void {
+    if (!ordem.id) {
+      this.erro = 'Selecione uma Ordem de Serviço válida para gerar a nota fiscal.';
+      this.atualizarTela();
+      return;
+    }
+
+    this.processando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
+    this.atualizarTela();
+
+    this.ordemApi.baixarNotaFiscalPdf(ordem.id)
+      .pipe(finalize(() => { this.processando = false; this.atualizarTela(); }))
+      .subscribe({
+        next: blob => {
+          const nomeArquivo = this.montarNomeArquivoNota(ordem);
+          this.salvarArquivo(blob, nomeArquivo);
+          this.mensagem = 'Nota fiscal/recibo em PDF gerado com sucesso.';
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message ?? 'Não foi possível gerar a nota fiscal em PDF.';
+          this.atualizarTela();
+        }
+      });
+  }
+
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+
+  private salvarArquivo(blob: Blob, nomeArquivo: string): void {
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nomeArquivo;
+    link.click();
+    window.URL.revokeObjectURL(url);
+  }
+
+  private montarNomeArquivoNota(ordem: OrdemServicoResumo): string {
+    const numero = (ordem.numeroOs ?? ordem.id?.toString() ?? 'os')
+      .replace(/[^a-zA-Z0-9_-]/g, '-')
+      .toLowerCase();
+    return `nota-fiscal-${numero}.pdf`;
+  }
+
   private formularioInicial(): any { return { idCliente: 0, idVeiculo: 0, prioridade: 'NORMAL', observacao: '' }; }
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

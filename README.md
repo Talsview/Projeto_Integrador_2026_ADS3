@@ -1500,3 +1500,66 @@ frontend/oficina-web/src/app/app.component.css
 docs/README_ETAPA31_MENU_SUPERIOR_CATEGORIAS.md
 docs/adr/ADR-034-menu-superior-categorias-angular.md
 ```
+
+
+## Etapa 32 — Paleta visual de oficina e implementação das logos
+
+Nesta etapa foi aplicada uma identidade visual mais compatível com uma oficina mecânica, utilizando azul automotivo escuro, grafite, cinza metálico e laranja como cor de destaque. O layout superior por categorias foi mantido, mas a aparência foi ajustada para ficar mais profissional e alinhada à marca AV CAR AUTO CENTER.
+
+Alterações principais:
+
+- Implementação da logo completa no cabeçalho superior do Angular.
+- Implementação da logo em formato de ícone como favicon da aba do navegador.
+- Criação da pasta `frontend/oficina-web/public/assets/branding` para armazenar os arquivos visuais da marca.
+- Ajuste da paleta global no `src/styles.css`.
+- Reformulação do cabeçalho, menu superior, botões, cards, tabelas, campos e badges.
+- Preservação das rotas, services, endpoints e integração Angular com o backend Spring Boot.
+
+Arquivos principais alterados:
+
+- `frontend/oficina-web/src/index.html`
+- `frontend/oficina-web/src/app/app.component.html`
+- `frontend/oficina-web/src/app/app.component.css`
+- `frontend/oficina-web/src/styles.css`
+- `frontend/oficina-web/src/app/pages/dashboard/dashboard.component.css`
+- `frontend/oficina-web/public/assets/branding/av-car-favicon.png`
+- `frontend/oficina-web/public/assets/branding/av-car-logo-horizontal.png`
+
+## Etapa 33 — Logos responsivas implementadas no Angular
+
+Nesta etapa foi implementado no código do frontend Angular o pacote de logos responsivas da AV CAR AUTO CENTER. A aplicação agora utiliza favicon, ícones em múltiplos tamanhos e logo adaptável no cabeçalho do sistema.
+
+Arquivos principais alterados:
+
+```text
+frontend/oficina-web/src/index.html
+frontend/oficina-web/src/app/app.component.html
+frontend/oficina-web/src/app/app.component.css
+frontend/oficina-web/src/styles.css
+frontend/oficina-web/public/assets/branding
+```
+
+A implementação mantém a comunicação com o backend Spring Boot e não altera endpoints, services ou regras de negócio. Para visualizar corretamente a nova logo e o favicon, recomenda-se executar o frontend e limpar o cache do navegador com `CTRL + F5`.
+
+
+## Etapa 34 - Nota Fiscal / Recibo em PDF
+
+Foi adicionada a geração de PDF para Ordens de Serviço. A tela **Ordens de Serviço** agora possui o botão **Nota PDF**, que baixa um documento com cabeçalho da oficina, dados do cliente, veículo, peças, serviços, pagamentos, totais e assinaturas.
+
+Endpoint criado no backend:
+
+```http
+GET /api/notas-fiscais/ordens-servico/{id}/pdf
+```
+
+Arquivos principais:
+
+```text
+src/main/java/br/com/avcar/oficina/business/notafiscal/controller/NotaFiscalController.java
+src/main/java/br/com/avcar/oficina/business/notafiscal/service/NotaFiscalPdfService.java
+frontend/oficina-web/src/app/core/services/ordem-servico-api.service.ts
+frontend/oficina-web/src/app/pages/ordens-servico/ordens-servico.component.ts
+frontend/oficina-web/src/app/pages/ordens-servico/ordens-servico.component.html
+```
+
+Observação: o documento gerado é uma nota/comprovante interno simplificado e não substitui uma nota fiscal eletrônica oficial autorizada por órgão fiscal.

@@ -1,18 +1,37 @@
 <div class="app-shell top-layout">
   <header class="system-header">
-    <div class="system-brand" routerLink="/" aria-label="Página inicial">
-      <div class="brand-mark">AV</div>
-      <div class="brand-text">
-        <strong>AV CAR AUTO CENTER</strong>
-        <span>Sistema de gestão para oficina mecânica</span>
+    <a class="system-brand" routerLink="/" aria-label="Página inicial da AV CAR AUTO CENTER">
+      <picture class="brand-picture">
+        <source
+          media="(max-width: 560px)"
+          srcset="assets/branding/av-car-logo-icon-64x64.png 1x, assets/branding/av-car-logo-icon-128x128.png 2x"
+        >
+        <source
+          media="(max-width: 980px)"
+          srcset="assets/branding/av-car-logo-header-sm.png 1x, assets/branding/av-car-logo-header.png 2x"
+        >
+        <img
+          class="brand-logo"
+          src="assets/branding/av-car-logo-header.png"
+          srcset="assets/branding/av-car-logo-header-sm.png 145w, assets/branding/av-car-logo-header.png 237w, assets/branding/av-car-logo-horizontal.png 768w"
+          sizes="(max-width: 560px) 48px, (max-width: 980px) 145px, 237px"
+          alt="AV CAR AUTO CENTER - Gestão de Oficina"
+          width="237"
+          height="72"
+        >
+      </picture>
+
+      <div class="brand-summary">
+        <strong>Sistema de Gestão</strong>
+        <span>Controle local de oficina mecânica</span>
       </div>
-    </div>
+    </a>
 
     <div class="system-actions">
       <a class="primary-shortcut" routerLink="/ordens-servico">Nova OS</a>
       <a class="api-link" [href]="swaggerUrl" target="_blank" rel="noopener">Swagger</a>
       <div class="user-chip" aria-label="Usuário logado">
-        <span class="avatar">A</span>
+        <span class="avatar">ADM</span>
         <span><strong>Administrador</strong><small>Gerente</small></span>
       </div>
     </div>
@@ -26,7 +45,6 @@
     <div class="category-menu" *ngFor="let group of menuGroups">
       <button class="category-button" type="button" [attr.aria-label]="'Abrir categoria ' + group.title">
         <span>{{ group.title }}</span>
-        <span class="category-caret">▾</span>
       </button>
 
       <div class="category-dropdown" role="menu">
