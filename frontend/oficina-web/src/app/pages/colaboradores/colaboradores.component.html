@@ -9,7 +9,7 @@
     <div class="form-row">
       <div><label>Nome</label><input [(ngModel)]="form.nome" placeholder="Nome completo"></div>
       <div><label>Status</label><select [(ngModel)]="form.statusColaborador"><option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option></select></div>
-      <div><label>Telefone</label><input [(ngModel)]="form.telefone"></div>
+      <div><label>Telefone</label><input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneCampo()"></div>
       <div><label>E-mail</label><input [(ngModel)]="form.email"></div>
       <div><label>Data de admissão</label><input type="date" [(ngModel)]="form.dataAdmissao"></div>
       <div><label>Endereço</label><input [(ngModel)]="form.endereco"></div>

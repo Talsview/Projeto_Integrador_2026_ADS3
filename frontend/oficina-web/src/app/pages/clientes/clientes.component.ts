@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { cnpjValido, cpfValido, formatarCnpj, formatarCpf, somenteDigitos } from '../../core/validation/documento-validation';
-import { emailValido, nomePessoaValido, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
+import { emailValido, formatarTelefone, nomePessoaValido, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
 import { ClientePessoaFisica, ClientePessoaJuridica, ClienteResumo, TipoCliente } from '../../models/cliente.model';
 
 @Component({
@@ -163,6 +163,20 @@ export class ClientesComponent implements OnInit {
     this.validarCnpjSePreenchido();
   }
 
+
+  formatarTelefoneCampo(): void {
+    this.form.telefone = formatarTelefone(this.form.telefone);
+    this.validarTelefoneSePreenchido();
+  }
+
+  validarTelefoneSePreenchido(): void {
+    if (!telefoneValido(this.form.telefone)) {
+      this.errosCampo['telefone'] = 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
+      return;
+    }
+    delete this.errosCampo['telefone'];
+  }
+
   validarCpfSePreenchido(): void {
     const cpf = somenteDigitos(this.form.cpf);
     if (!cpf) {
@@ -208,7 +222,7 @@ export class ClientesComponent implements OnInit {
     }
 
     if (!telefoneValido(this.form.telefone)) {
-      this.errosCampo['telefone'] = 'Informe um telefone válido com DDD.';
+      this.errosCampo['telefone'] = 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
     }
 
     if (!emailValido(this.form.email)) {

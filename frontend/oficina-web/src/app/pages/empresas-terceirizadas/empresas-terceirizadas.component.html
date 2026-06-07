@@ -2,7 +2,7 @@
 <p class="page-subtitle">Cadastro das empresas externas que podem executar serviços terceirizados, mantendo a responsabilidade da oficina perante o cliente.</p>
 <div class="grid two">
   <section class="card"><h2>{{ form.id ? 'Editar empresa' : 'Nova empresa' }}</h2>
-    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="form.nomeEmpresa"></div><div><label>CNPJ</label><input [(ngModel)]="form.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="form.telefone"></div><div><label>E-mail</label><input [(ngModel)]="form.email"></div></div>
+    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="form.nomeEmpresa"></div><div><label>CNPJ</label><input [(ngModel)]="form.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneCampo()"></div><div><label>E-mail</label><input [(ngModel)]="form.email"></div></div>
     <label>Endereço</label><input [(ngModel)]="form.endereco">
     <div class="actions" style="margin-top: 14px;"><button (click)="salvar()">Salvar</button><button class="secondary" (click)="limpar()">Limpar</button></div>
     <p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>

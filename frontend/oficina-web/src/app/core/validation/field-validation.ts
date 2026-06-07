@@ -20,9 +20,25 @@ export function emailValido(valor: string | null | undefined): boolean {
 }
 
 export function telefoneValido(valor: string | null | undefined): boolean {
-  const digitos = somenteDigitosCampo(valor);
+  const texto = String(valor ?? '').trim();
+  const digitos = somenteDigitosCampo(texto);
   if (!digitos) return true;
+  if (/[^0-9()\s-]/.test(texto)) return false;
   return digitos.length >= 10 && digitos.length <= 11;
+}
+
+export function formatarTelefone(valor: string | number | null | undefined): string {
+  const digitos = somenteDigitosCampo(valor).slice(0, 11);
+
+  if (!digitos) return '';
+  if (digitos.length <= 2) return `(${digitos}`;
+  if (digitos.length <= 6) return `(${digitos.slice(0, 2)}) ${digitos.slice(2)}`;
+
+  if (digitos.length <= 10) {
+    return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 6)}-${digitos.slice(6)}`;
+  }
+
+  return `(${digitos.slice(0, 2)}) ${digitos.slice(2, 7)}-${digitos.slice(7)}`;
 }
 
 export function nomePessoaValido(valor: string | null | undefined): boolean {

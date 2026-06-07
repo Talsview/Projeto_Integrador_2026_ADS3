@@ -5,7 +5,7 @@ import { finalize, forkJoin, switchMap } from 'rxjs';
 import { FornecedorApiService } from '../../core/services/fornecedor-api.service';
 import { PecaApiService } from '../../core/services/peca-api.service';
 import { cnpjValido, somenteDigitos } from '../../core/validation/documento-validation';
-import { anoVeiculoValido, emailValido, numeroNaoNegativo, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
+import { anoVeiculoValido, emailValido, formatarTelefone, numeroNaoNegativo, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
 import { Fornecedor, Peca } from '../../models/peca.model';
 
 @Component({ selector: 'app-pecas-fornecedores', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './pecas-fornecedores.component.html' })
@@ -71,6 +71,11 @@ export class PecasFornecedoresComponent implements OnInit {
     });
   }
 
+  formatarTelefoneFornecedorCampo(): void {
+    this.fornecedorForm.telefone = formatarTelefone(this.fornecedorForm.telefone);
+    this.atualizarTela();
+  }
+
   editarFornecedor(f: Fornecedor): void { this.fornecedorForm = { ...f }; this.atualizarTela(); }
   editarPeca(p: Peca): void { this.pecaForm = { ...p }; this.atualizarTela(); }
 
@@ -81,7 +86,7 @@ export class PecasFornecedoresComponent implements OnInit {
     if (!textoCadastroValido(this.fornecedorForm.nomeFornecedor, true)) return 'Informe um nome de fornecedor válido.';
     const cnpj = somenteDigitos(this.fornecedorForm.cnpj);
     if (cnpj && !cnpjValido(cnpj)) return 'Informe um CNPJ de fornecedor válido ou deixe o campo vazio.';
-    if (!telefoneValido(this.fornecedorForm.telefone)) return 'Informe um telefone válido com DDD.';
+    if (!telefoneValido(this.fornecedorForm.telefone)) return 'Informe somente números no telefone do fornecedor, com DDD. Exemplo: (62) 99999-9999.';
     if (!emailValido(this.fornecedorForm.email)) return 'Informe um e-mail válido.';
     return undefined;
   }

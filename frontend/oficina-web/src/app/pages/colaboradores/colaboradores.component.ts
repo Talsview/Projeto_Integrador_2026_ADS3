@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { ColaboradorApiService } from '../../core/services/colaborador-api.service';
-import { dataFutura, emailValido, nomePessoaValido, telefoneValido } from '../../core/validation/field-validation';
+import { dataFutura, emailValido, formatarTelefone, nomePessoaValido, telefoneValido } from '../../core/validation/field-validation';
 import { FuncaoApiService } from '../../core/services/funcao-api.service';
 import { Colaborador, ColaboradorResumo, Funcao, StatusColaborador } from '../../models/pessoa.model';
 
@@ -170,9 +170,14 @@ export class ColaboradoresComponent implements OnInit {
     this.atualizarTela();
   }
 
+  formatarTelefoneCampo(): void {
+    this.form.telefone = formatarTelefone(this.form.telefone);
+    this.atualizarTela();
+  }
+
   private validarFormulario(): string | undefined {
     if (!nomePessoaValido(this.form.nome)) return 'Informe um nome de colaborador válido, sem números ou caracteres especiais indevidos.';
-    if (!telefoneValido(this.form.telefone)) return 'Informe um telefone válido com DDD.';
+    if (!telefoneValido(this.form.telefone)) return 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
     if (!emailValido(this.form.email)) return 'Informe um e-mail válido.';
     if (dataFutura(this.form.dataAdmissao)) return 'A data de admissão não pode ser futura.';
     const funcoesIds = Object.entries(this.funcoesSelecionadas).filter(([, marcado]) => marcado).map(([id]) => Number(id));

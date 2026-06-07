@@ -24,7 +24,8 @@
     <div class="form-row">
       <div>
         <label>Telefone</label>
-        <input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" [disabled]="salvando">
+        <input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneCampo()" (blur)="validarTelefoneSePreenchido()" [class.input-invalid]="!!errosCampo['telefone']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['telefone']">{{ errosCampo['telefone'] }}</p>
       </div>
       <div>
         <label>E-mail</label>

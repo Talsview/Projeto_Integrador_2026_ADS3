@@ -16,6 +16,7 @@ import java.util.regex.Pattern;
 public final class ValidationUtils {
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final Pattern TELEFONE_PATTERN = Pattern.compile("^[0-9()\\s-]+$");
     private static final Pattern TEXTO_NOME_PATTERN = Pattern.compile("^[\\p{L}0-9 .,'ºª&/-]+$");
     private static final Pattern TEXTO_PESSOA_PATTERN = Pattern.compile("^[\\p{L} .,'ºª-]+$");
     private static final Pattern PLACA_ANTIGA_PATTERN = Pattern.compile("^[A-Z]{3}[0-9]{4}$");
@@ -99,12 +100,16 @@ public final class ValidationUtils {
     }
 
     public static void validatePhone(String phone, boolean required) {
+        String value = trimToNull(phone);
         String digits = DocumentoValidationUtils.somenteDigitos(phone);
         if (digits == null || digits.isEmpty()) {
             if (required) {
                 throw new FieldValidationException("O campo telefone é obrigatório.");
             }
             return;
+        }
+        if (value != null && !TELEFONE_PATTERN.matcher(value).matches()) {
+            throw new FieldValidationException("O telefone deve conter apenas números, espaços, parênteses e hífen.");
         }
         if (digits.length() < 10 || digits.length() > 11) {
             throw new FieldValidationException("Informe um telefone válido com DDD.");

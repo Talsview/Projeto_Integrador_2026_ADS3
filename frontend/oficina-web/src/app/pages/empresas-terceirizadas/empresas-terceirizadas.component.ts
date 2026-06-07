@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize, switchMap } from 'rxjs';
 import { EmpresaTerceirizadaApiService } from '../../core/services/empresa-terceirizada-api.service';
 import { cnpjValido, somenteDigitos } from '../../core/validation/documento-validation';
-import { emailValido, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
+import { emailValido, formatarTelefone, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
 import { EmpresaTerceirizada } from '../../models/servico.model';
 
 @Component({ selector: 'app-empresas-terceirizadas', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './empresas-terceirizadas.component.html' })
@@ -63,11 +63,16 @@ export class EmpresasTerceirizadasComponent implements OnInit {
   }
 
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+  formatarTelefoneCampo(): void {
+    this.form.telefone = formatarTelefone(this.form.telefone);
+    this.atualizarTela();
+  }
+
   private validarFormulario(): string | undefined {
     if (!textoCadastroValido(this.form.nomeEmpresa, true)) return 'Informe um nome de empresa terceirizada válido.';
     const cnpj = somenteDigitos(this.form.cnpj);
     if (cnpj && !cnpjValido(cnpj)) return 'Informe um CNPJ válido ou deixe o campo vazio.';
-    if (!telefoneValido(this.form.telefone)) return 'Informe um telefone válido com DDD.';
+    if (!telefoneValido(this.form.telefone)) return 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
     if (!emailValido(this.form.email)) return 'Informe um e-mail válido.';
     return undefined;
   }

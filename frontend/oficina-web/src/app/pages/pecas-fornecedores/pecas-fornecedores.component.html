@@ -4,7 +4,7 @@
 
 <div class="grid two">
   <section class="card"><h2>{{ fornecedorForm.id ? 'Editar fornecedor' : 'Novo fornecedor' }}</h2>
-    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="fornecedorForm.nomeFornecedor"></div><div><label>CNPJ</label><input [(ngModel)]="fornecedorForm.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="fornecedorForm.telefone"></div><div><label>E-mail</label><input [(ngModel)]="fornecedorForm.email"></div></div>
+    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="fornecedorForm.nomeFornecedor"></div><div><label>CNPJ</label><input [(ngModel)]="fornecedorForm.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="fornecedorForm.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneFornecedorCampo()"></div><div><label>E-mail</label><input [(ngModel)]="fornecedorForm.email"></div></div>
     <label>Endereço</label><input [(ngModel)]="fornecedorForm.endereco">
     <div class="actions" style="margin-top: 14px;"><button (click)="salvarFornecedor()">Salvar fornecedor</button></div>
     <h3>Fornecedores</h3><div class="actions"><input [(ngModel)]="termoFornecedor" placeholder="Pesquisar fornecedor"><button (click)="pesquisarFornecedores()">Pesquisar</button><button class="secondary" (click)="listarFornecedores()">Listar</button></div>
