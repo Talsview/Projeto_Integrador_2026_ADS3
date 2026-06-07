@@ -51,7 +51,7 @@ public class OrdemServicoController {
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<OrdemServicoDTO>> alterarStatus(@PathVariable Long id,
                                                                       @RequestBody AlterarStatusOrdemServicoDTO dto) {
-        OrdemServicoDTO updated = ordemServicoService.alterarStatus(id, dto);
+        OrdemServicoDTO updated = ordemServicoService.alterarStatusManual(id, dto);
         return ResponseEntity.ok(ApiResponse.success("Status da Ordem de Serviço alterado com sucesso.", updated));
     }
 

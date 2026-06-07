@@ -20,8 +20,12 @@
     <button type="button" (click)="carregarRelatorio()" [disabled]="carregando">{{ carregando ? 'Atualizando...' : 'Atualizar relatório' }}</button>
     <button type="button" class="secondary" (click)="exportarPlanilhaExcel()" [disabled]="carregando || !indicadores.length">Exportar planilha Excel</button>
   </div>
-  <p class="alert success" *ngIf="mensagem">{{ mensagem }}</p>
-  <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  <p class="alert warning" *ngIf="avisosRelatorio.length">
+    {{ erro }}
+    <br>
+    <small>{{ avisosRelatorio.join(' | ') }}</small>
+  </p>
+  <p class="alert error" *ngIf="erro && !avisosRelatorio.length">{{ erro }}</p>
 </section>
 
 <div class="report-kpi-grid">
@@ -63,7 +67,7 @@
         <tbody>
           <tr *ngFor="let garantia of garantiasAtivas">
             <td>{{ garantia.id }}</td>
-            <td>{{ garantia.nomePeca || garantia.nomeServico || 'Item não informado' }}</td>
+            <td>{{ obterNomeGarantia(garantia) }}</td>
             <td><span class="badge info">{{ garantia.statusGarantia }}</span></td>
             <td>{{ garantia.dataFim | date:'dd/MM/yyyy' }}</td>
           </tr>

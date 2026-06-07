@@ -1127,3 +1127,39 @@ body.reduce-motion * {
   .os-field-priority { max-width: none; }
   .status-report-item em { text-align: left; }
 }
+
+/* Etapa 49C - aviso parcial em relatórios */
+.alert.warning,
+.alert-warning {
+  border-color: #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+/* Etapa 50 - Fluxo sequencial da OS */
+.status-flow-card .status-flow-panel {
+  display: grid;
+  grid-template-columns: minmax(160px, 1fr) minmax(220px, 2fr);
+  gap: 14px;
+  align-items: center;
+  margin: 12px 0;
+  padding: 14px;
+  border: 1px solid var(--border-color, #d8e0eb);
+  border-radius: 10px;
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.status-flow-card .status-flow-panel label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--muted-color, #52657f);
+}
+
+@media (max-width: 760px) {
+  .status-flow-card .status-flow-panel {
+    grid-template-columns: 1fr;
+  }
+}

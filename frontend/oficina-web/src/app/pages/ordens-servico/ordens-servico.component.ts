@@ -109,7 +109,21 @@ export class OrdensServicoComponent implements OnInit {
     this.termoVeiculoOs = ordem.placaVeiculo ?? '';
     this.atualizarTela();
   }
-  selecionarParaStatus(ordem: OrdemServicoResumo): void { this.ordemSelecionada = ordem; this.observacaoStatus = ''; this.atualizarTela(); }
+  selecionarParaStatus(ordem: OrdemServicoResumo): void {
+    this.ordemSelecionada = ordem;
+    this.observacaoStatus = '';
+
+    const proximo = this.proximoStatusFluxo(ordem.statusAtual);
+    if (proximo) {
+      this.novoStatus = proximo;
+      this.erro = undefined;
+    } else {
+      this.erro = this.normalizarStatusFluxo(ordem.statusAtual) === 'PAGAMENTO'
+        ? 'A OS está em PAGAMENTO. O registro financeiro deve ser feito somente na tela Pagamentos.'
+        : 'Esta Ordem de Serviço já está finalizada ou não possui próxima etapa disponível.';
+    }
+    this.atualizarTela();
+  }
 
   excluir(ordem: OrdemServicoResumo): void {
     if (!ordem.id) return;
@@ -121,13 +135,107 @@ export class OrdensServicoComponent implements OnInit {
   }
 
   alterarStatus(): void {
-    if (!this.ordemSelecionada?.id) { this.erro = 'Selecione uma Ordem de Serviço.'; this.atualizarTela(); return; }
-    this.processando = true; this.erro = undefined; this.atualizarTela();
-    const payload: AlterarStatusOrdemServico = { novoStatus: this.novoStatus, observacao: this.observacaoStatus };
-    this.ordemApi.alterarStatus(this.ordemSelecionada.id, payload).pipe(switchMap(() => this.ordemApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: ordens => { this.mensagem = 'Status alterado com sucesso. A tabela foi atualizada automaticamente.'; this.observacaoStatus = ''; this.ordens = [...ordens]; this.atualizarTela(); },
-      error: error => { this.erro = error.message; this.atualizarTela(); }
-    });
+    if (!this.ordemSelecionada?.id) {
+      this.erro = 'Selecione uma Ordem de Serviço.';
+      this.atualizarTela();
+      return;
+    }
+
+    const proximo = this.proximoStatusFluxo(this.ordemSelecionada.statusAtual);
+    if (!proximo) {
+      this.erro = this.statusAtualNormalizado() === 'PAGAMENTO'
+        ? 'A OS está em PAGAMENTO. O registro financeiro deve ser feito somente na tela Pagamentos.'
+        : 'Esta Ordem de Serviço já está finalizada ou não possui próxima etapa disponível.';
+      this.atualizarTela();
+      return;
+    }
+
+    this.novoStatus = proximo;
+    this.processando = true;
+    this.erro = undefined;
+    this.atualizarTela();
+
+    const payload: AlterarStatusOrdemServico = {
+      novoStatus: proximo,
+      observacao: this.observacaoStatus || this.mensagemPadraoAvancoStatus(this.ordemSelecionada.statusAtual, proximo)
+    };
+
+    this.ordemApi.alterarStatus(this.ordemSelecionada.id, payload)
+      .pipe(
+        switchMap(() => this.ordemApi.listar()),
+        finalize(() => { this.processando = false; this.atualizarTela(); })
+      )
+      .subscribe({
+        next: ordens => {
+          this.mensagem = `OS avançada para ${proximo}. A listagem foi atualizada automaticamente.`;
+          this.observacaoStatus = '';
+          this.ordens = [...ordens];
+          this.ordemSelecionada = undefined;
+          this.novoStatus = 'EXECUCAO';
+          this.atualizarTela();
+        },
+        error: error => { this.erro = error.message; this.atualizarTela(); }
+      });
+  }
+
+  statusAtualNormalizado(): StatusFluxoOrdemServico | '' {
+    return this.normalizarStatusFluxo(this.ordemSelecionada?.statusAtual);
+  }
+
+  proximoStatusSelecionado(): StatusFluxoOrdemServico | null {
+    return this.proximoStatusFluxo(this.ordemSelecionada?.statusAtual);
+  }
+
+  textoProximoStatus(): string {
+    const proximo = this.proximoStatusSelecionado();
+    const statusAtual = this.statusAtualNormalizado();
+    if (!this.ordemSelecionada) return 'Selecione uma OS para visualizar a próxima etapa.';
+    if (statusAtual === 'PAGAMENTO') {
+      return 'Sem avanço nesta tela. A OS está aguardando pagamento.';
+    }
+    if (statusAtual === 'FINALIZADO') {
+      return 'FINALIZADO — a OS já concluiu todo o fluxo.';
+    }
+    if (!proximo) return 'Esta OS não possui próxima etapa disponível.';
+    return `${statusAtual || 'SEM STATUS'} → ${proximo}`;
+  }
+
+  podeAvancarStatus(): boolean {
+    return !!this.ordemSelecionada?.id && !!this.proximoStatusSelecionado() && !this.processando;
+  }
+
+  private proximoStatusFluxo(status?: string): StatusFluxoOrdemServico | null {
+    switch (this.normalizarStatusFluxo(status)) {
+      case 'ORCAMENTO': return 'EXECUCAO';
+      case 'EXECUCAO': return 'PAGAMENTO';
+      /*
+       * A tela de Ordens de Serviço avança somente até PAGAMENTO.
+       * A transição PAGAMENTO -> FINALIZADO pertence ao módulo Pagamentos,
+       * onde o backend valida a quitação financeira e finaliza a OS automaticamente.
+       */
+      case 'PAGAMENTO': return null;
+      default: return null;
+    }
+  }
+
+  private normalizarStatusFluxo(status?: string): StatusFluxoOrdemServico | '' {
+    const valor = (status ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toUpperCase()
+      .replace(/Ç/g, 'C')
+      .trim();
+
+    if (valor === 'ORCAMENTO') return 'ORCAMENTO';
+    if (valor === 'EXECUCAO') return 'EXECUCAO';
+    if (valor === 'PAGAMENTO') return 'PAGAMENTO';
+    if (valor === 'FINALIZADO') return 'FINALIZADO';
+    return '';
+  }
+
+  private mensagemPadraoAvancoStatus(statusAtual: string | undefined, novoStatus: StatusFluxoOrdemServico): string {
+    const atual = this.normalizarStatusFluxo(statusAtual) || 'status anterior';
+    return `Avanço operacional do fluxo da OS: ${atual} para ${novoStatus}.`;
   }
 
   baixarNotaFiscal(ordem: OrdemServicoResumo): void {

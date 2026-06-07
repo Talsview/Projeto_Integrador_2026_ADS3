@@ -1,7 +1,7 @@
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize, forkJoin } from 'rxjs';
+import { catchError, finalize, forkJoin, Observable, of } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { GarantiaApiService } from '../../core/services/garantia-api.service';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
@@ -40,6 +40,7 @@ export class RelatoriosComponent implements OnInit {
   carregando = false;
   erro?: string;
   mensagem?: string;
+  avisosRelatorio: string[] = [];
   dataInicio = '';
   dataFim = '';
 
@@ -69,19 +70,28 @@ export class RelatoriosComponent implements OnInit {
     this.carregarRelatorio();
   }
 
+  obterNomeGarantia(garantia: GarantiaPeca | GarantiaServico): string {
+    if (this.ehGarantiaPeca(garantia)) {
+      return garantia.nomePeca || 'Peça não informada';
+    }
+
+    return garantia.nomeServico || 'Serviço não informado';
+  }
+
   carregarRelatorio(): void {
     this.carregando = true;
     this.erro = undefined;
     this.mensagem = undefined;
+    this.avisosRelatorio = [];
     this.atualizarTela();
 
     forkJoin({
-      clientes: this.clienteApi.listar(),
-      veiculos: this.veiculoApi.listar(),
-      ordens: this.ordemApi.listar(),
-      pagamentos: this.pagamentoApi.listar(),
-      garantiasPecas: this.garantiaApi.listarGarantiasPecas(),
-      garantiasServicos: this.garantiaApi.listarGarantiasServicos()
+      clientes: this.carregarListaComFallback(this.clienteApi.listar(), 'clientes'),
+      veiculos: this.carregarListaComFallback(this.veiculoApi.listar(), 'veículos'),
+      ordens: this.carregarListaComFallback(this.ordemApi.listar(), 'ordens de serviço'),
+      pagamentos: this.carregarListaComFallback(this.pagamentoApi.listar(), 'pagamentos'),
+      garantiasPecas: this.carregarListaComFallback(this.garantiaApi.listarGarantiasPecas(), 'garantias de peças'),
+      garantiasServicos: this.carregarListaComFallback(this.garantiaApi.listarGarantiasServicos(), 'garantias de serviços')
     }).pipe(
       finalize(() => { this.carregando = false; this.atualizarTela(); })
     ).subscribe({
@@ -93,11 +103,30 @@ export class RelatoriosComponent implements OnInit {
         this.garantiasPecas = dados.garantiasPecas;
         this.garantiasServicos = dados.garantiasServicos;
         this.montarRelatorio();
-        this.mensagem = 'Relatórios atualizados com dados do backend.';
+
+        if (this.avisosRelatorio.length) {
+          this.erro = 'Alguns dados do relatório não puderam ser carregados. Verifique se o backend está ativo e se os endpoints estão respondendo.';
+        } else {
+          this.erro = undefined;
+        }
+        this.mensagem = undefined;
+
         this.atualizarTela();
       },
-      error: e => { this.erro = e.message ?? 'Não foi possível carregar os relatórios.'; this.atualizarTela(); }
+      error: () => {
+        this.erro = 'Não foi possível carregar os relatórios. Verifique se o backend Spring Boot está rodando e se o proxy aponta para a porta correta.';
+        this.atualizarTela();
+      }
     });
+  }
+
+  private carregarListaComFallback<T>(fonte$: Observable<T[]>, nome: string): Observable<T[]> {
+    return fonte$.pipe(
+      catchError(() => {
+        this.avisosRelatorio.push(`Falha ao carregar ${nome}.`);
+        return of([] as T[]);
+      })
+    );
   }
 
   exportarPlanilhaExcel(): void {
@@ -121,7 +150,7 @@ export class RelatoriosComponent implements OnInit {
     link.download = `relatorio-gerencial-av-car-${this.dataInicio || 'inicio'}-${this.dataFim || 'fim'}.xls`;
     link.click();
     window.URL.revokeObjectURL(url);
-    this.mensagem = 'Planilha Excel gerada com formatação profissional.';
+    this.mensagem = undefined;
     this.atualizarTela();
   }
 
@@ -278,18 +307,23 @@ export class RelatoriosComponent implements OnInit {
   }
 
   private montarAbaGarantias(garantias: Array<GarantiaPeca | GarantiaServico>): string {
-    const linhas = garantias.map(g => this.row([
-      this.cell(g.id ?? '', 'TextCenter'),
-      this.cell('nomePeca' in g ? 'PEÇA' : 'SERVIÇO', 'TextCenter'),
-      this.cell(('nomePeca' in g ? g.nomePeca : g.nomeServico) ?? '', 'Text'),
-      this.cell(g.statusGarantia ?? '', this.estiloGarantia(g.statusGarantia)),
-      this.cell(String(g.prazoDias ?? ''), 'TextCenter'),
-      this.cell(this.formatarDataHora(g.dataInicio), 'TextCenter'),
-      this.cell(this.formatarDataHora(g.dataFim), 'TextCenter'),
-      this.cell(this.formatarDataHora(g.dataAcionamento), 'TextCenter'),
-      this.cell(g.responsavelAnalise ?? '', 'Text'),
-      this.cell(g.observacao ?? '', 'TextWrap')
-    ]));
+    const linhas = garantias.map(g => {
+      const garantiaPeca = this.ehGarantiaPeca(g);
+      const item = garantiaPeca ? (g.nomePeca ?? '') : (g.nomeServico ?? '');
+
+      return this.row([
+        this.cell(g.id ?? '', 'TextCenter'),
+        this.cell(garantiaPeca ? 'PEÇA' : 'SERVIÇO', 'TextCenter'),
+        this.cell(item, 'Text'),
+        this.cell(g.statusGarantia ?? '', this.estiloGarantia(g.statusGarantia)),
+        this.cell(String(g.prazoDias ?? ''), 'TextCenter'),
+        this.cell(this.formatarDataHora(g.dataInicio), 'TextCenter'),
+        this.cell(this.formatarDataHora(g.dataFim), 'TextCenter'),
+        this.cell(this.formatarDataHora(g.dataAcionamento), 'TextCenter'),
+        this.cell(g.responsavelAnalise ?? '', 'Text'),
+        this.cell(g.observacao ?? '', 'TextWrap')
+      ]);
+    });
 
     return this.worksheet('Garantias', [
       this.columns([80, 90, 240, 120, 90, 130, 130, 150, 180, 300]),
@@ -297,6 +331,10 @@ export class RelatoriosComponent implements OnInit {
       this.row([this.cell('ID', 'Header'), this.cell('Tipo', 'Header'), this.cell('Item', 'Header'), this.cell('Status', 'Header'), this.cell('Prazo', 'Header'), this.cell('Início', 'Header'), this.cell('Fim', 'Header'), this.cell('Acionamento', 'Header'), this.cell('Responsável', 'Header'), this.cell('Observação', 'Header')]),
       ...linhas
     ]);
+  }
+
+  private ehGarantiaPeca(garantia: GarantiaPeca | GarantiaServico): garantia is GarantiaPeca {
+    return 'idItemPeca' in garantia || 'idPeca' in garantia || 'nomePeca' in garantia;
   }
 
   private montarWorkbookExcelXml(worksheets: string[]): string {

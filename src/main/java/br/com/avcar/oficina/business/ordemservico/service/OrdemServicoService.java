@@ -156,6 +156,21 @@ public class OrdemServicoService {
         return ordemServicoRepository.search(termo.trim(), pageable).map(this::montarResumo);
     }
 
+    /**
+     * Avanço de status solicitado pela tela de Ordens de Serviço.
+     *
+     * Esta operação manual deve conduzir a OS somente até PAGAMENTO. A etapa
+     * FINALIZADO é responsabilidade do módulo Pagamentos, pois depende da
+     * validação de quitação financeira e inicia as garantias após a finalização.
+     */
+    @Transactional
+    public OrdemServicoDTO alterarStatusManual(Long id, AlterarStatusOrdemServicoDTO dto) {
+        if (dto != null && StatusFluxoOrdemServico.FINALIZADO.equals(dto.getNovoStatus())) {
+            throw new RuleValidationException("A OS não pode ser finalizada manualmente nesta tela. Registre o pagamento e, após a quitação, o sistema finalizará a OS automaticamente.");
+        }
+        return alterarStatus(id, dto);
+    }
+
     @Transactional
     public OrdemServicoDTO alterarStatus(Long id, AlterarStatusOrdemServicoDTO dto) {
         validation.validateId(id);

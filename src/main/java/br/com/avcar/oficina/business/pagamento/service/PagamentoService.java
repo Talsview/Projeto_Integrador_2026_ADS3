@@ -61,7 +61,7 @@ public class PagamentoService {
         validation.validateInsert(dto);
 
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
-        ordemServico = prepararOrdemParaReceberPagamento(ordemServico);
+        validarOrdemPermitePagamento(ordemServico);
 
         prepararDataPagamento(dto);
         validarPagamentoContraOrdem(dto, ordemServico, null);
@@ -184,43 +184,13 @@ public class PagamentoService {
 
 
     /**
-     * Conduz automaticamente a Ordem de Serviço até a etapa PAGAMENTO quando
-     * o usuário registra um pagamento pela tela. A regra de fluxo continua
-     * preservada, pois o sistema registra as transições intermediárias no
-     * HistoricoStatusOrdem em vez de pular etapas.
+     * Pagamentos não conduzem a OS até a etapa PAGAMENTO.
+     *
+     * A OS deve chegar em PAGAMENTO pelo fluxo operacional da tela de Ordens
+     * de Serviço: ORCAMENTO -> EXECUCAO -> PAGAMENTO. Somente depois disso a
+     * tela Pagamentos pode registrar valores. Essa regra evita que o usuário
+     * quite uma OS que ainda está em orçamento ou execução.
      */
-    private OrdemServicoModel prepararOrdemParaReceberPagamento(OrdemServicoModel ordemServico) {
-        HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(ordemServico.getId());
-        if (statusAtual == null) {
-            throw new RuleValidationException("A Ordem de Serviço não possui status para receber pagamento.");
-        }
-
-        String nomeStatus = statusAtual.getStatusOrdemServico().getNomeStatus();
-
-        if (StatusFluxoOrdemServico.FINALIZADO.name().equals(nomeStatus)) {
-            throw new RuleValidationException("Ordem de Serviço finalizada não permite registro de novos pagamentos.");
-        }
-
-        if (StatusFluxoOrdemServico.ORCAMENTO.name().equals(nomeStatus)) {
-            alterarStatusAutomaticamente(ordemServico.getId(), StatusFluxoOrdemServico.EXECUCAO,
-                    "Avanço automático para execução ao registrar pagamento.");
-            ordemServico = ordemServicoService.buscarModelAtivo(ordemServico.getId());
-            nomeStatus = buscarStatusAtualOuNulo(ordemServico.getId()).getStatusOrdemServico().getNomeStatus();
-        }
-
-        if (StatusFluxoOrdemServico.EXECUCAO.name().equals(nomeStatus)) {
-            alterarStatusAutomaticamente(ordemServico.getId(), StatusFluxoOrdemServico.PAGAMENTO,
-                    "Avanço automático para pagamento ao registrar pagamento.");
-            ordemServico = ordemServicoService.buscarModelAtivo(ordemServico.getId());
-            nomeStatus = buscarStatusAtualOuNulo(ordemServico.getId()).getStatusOrdemServico().getNomeStatus();
-        }
-
-        if (!StatusFluxoOrdemServico.PAGAMENTO.name().equals(nomeStatus)) {
-            throw new RuleValidationException("A Ordem de Serviço não está em uma etapa válida para receber pagamento.");
-        }
-
-        return ordemServico;
-    }
 
     private void validarPagamentoContraOrdem(PagamentoDTO dto, OrdemServicoModel ordemServico, PagamentoModel pagamentoAtual) {
         if (dto.getDataPagamento() != null && ordemServico.getDataAbertura() != null
