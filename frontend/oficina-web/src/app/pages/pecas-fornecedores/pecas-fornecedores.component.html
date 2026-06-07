@@ -13,8 +13,8 @@
     <label>Endereço</label><input [(ngModel)]="fornecedorForm.endereco">
     <div class="actions" style="margin-top: 14px;"><button (click)="salvarFornecedor()">Salvar fornecedor</button></div>
     <h3>Fornecedores</h3><div class="actions"><input [(ngModel)]="termoFornecedor" placeholder="Pesquisar fornecedor"><button (click)="pesquisarFornecedores()">Pesquisar</button><button class="secondary" (click)="listarFornecedores()">Listar</button></div>
-    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Fornecedor</th><th>CNPJ</th><th>Ações</th></tr></thead><tbody>
-      <tr *ngFor="let f of fornecedores"><td>{{ f.id }}</td><td>{{ f.nomeFornecedor }}</td><td>{{ f.cnpj }}</td><td class="actions"><button class="secondary" (click)="editarFornecedor(f)">Editar</button><button class="danger" (click)="excluirFornecedor(f)">Inativar</button></td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Fornecedor</th><th>CNPJ</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let f of fornecedores"><td>{{ f.id }}</td><td>{{ f.nomeFornecedor }}</td><td>{{ f.cnpj }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarFornecedor(f)">Editar</button><button class="danger" (click)="excluirFornecedor(f)">Inativar</button></td></tr>
       <tr *ngIf="!fornecedores.length"><td colspan="4">Nenhum fornecedor encontrado.</td></tr>
     </tbody></table></div>
   </section>
@@ -32,8 +32,8 @@
     <label>Descrição</label><textarea rows="2" [(ngModel)]="pecaForm.descricao"></textarea>
     <div class="actions" style="margin-top: 14px;"><button (click)="salvarPeca()">Salvar peça</button></div>
     <h3>Peças</h3><div class="actions"><input [(ngModel)]="termoPeca" placeholder="Pesquisar peça"><button (click)="pesquisarPecas()">Pesquisar</button><button class="secondary" (click)="listarPecas()">Listar</button></div>
-    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Peça</th><th>Código</th><th>Garantia</th><th>Ações</th></tr></thead><tbody>
-      <tr *ngFor="let p of pecas"><td>{{ p.id }}</td><td>{{ p.nomePeca }}</td><td>{{ p.codigoNacional }}</td><td>{{ p.prazoGarantiaDias }} dias</td><td class="actions"><button class="secondary" (click)="editarPeca(p)">Editar</button><button class="danger" (click)="excluirPeca(p)">Inativar</button></td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Peça</th><th>Código</th><th>Garantia</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let p of pecas"><td>{{ p.id }}</td><td>{{ p.nomePeca }}</td><td>{{ p.codigoNacional }}</td><td>{{ p.prazoGarantiaDias }} dias</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarPeca(p)">Editar</button><button class="danger" (click)="excluirPeca(p)">Inativar</button></td></tr>
       <tr *ngIf="!pecas.length"><td colspan="5">Nenhuma peça encontrada.</td></tr>
     </tbody></table></div>
   </section>

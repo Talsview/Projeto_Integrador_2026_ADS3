@@ -104,7 +104,7 @@
           <th>Valor</th>
           <th>Data</th>
           <th>Status</th>
-          <th>Ações</th>
+          <th class="actions-col">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -114,7 +114,7 @@
           <td>{{ p.valorPago | currency:'BRL' }}</td>
           <td>{{ p.dataPagamento | date:'short' }}</td>
           <td><span class="badge">{{ p.statusPagamento }}</span></td>
-          <td class="actions">
+          <td class="actions row-actions actions-sticky">
             <button class="secondary" (click)="editar(p)" [disabled]="statusAtualOs === 'FINALIZADO'">Editar</button>
             <button class="secondary" (click)="alterarStatus(p, 'PAGO')" [disabled]="statusAtualOs === 'FINALIZADO'">Marcar pago</button>
             <button class="danger" (click)="excluir(p)" [disabled]="statusAtualOs === 'FINALIZADO'">Inativar</button>

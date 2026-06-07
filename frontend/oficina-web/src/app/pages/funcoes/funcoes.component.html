@@ -33,15 +33,15 @@
     </div>
     <p *ngIf="carregando">Carregando funções...</p>
     <p *ngIf="sincronizandoTabela">Sincronizando tabela com o banco de dados...</p>
-    <div class="table-wrap" style="margin-top: 14px;">
-      <table>
-        <thead><tr><th>ID</th><th>Função</th><th>Descrição</th><th>Ações</th></tr></thead>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;">
+      <table class="cadastro-table">
+        <thead><tr><th>ID</th><th>Função</th><th>Descrição</th><th class="actions-col">Ações</th></tr></thead>
         <tbody>
           <tr *ngFor="let funcao of funcoes">
             <td>{{ funcao.id }}</td>
             <td>{{ funcao.nomeFuncao }}</td>
             <td>{{ funcao.descricao }}</td>
-            <td class="actions"><button type="button" class="secondary" (click)="editar(funcao)">Editar</button><button type="button" class="danger" (click)="excluir(funcao)" [disabled]="processando">Inativar</button></td>
+            <td class="actions row-actions actions-sticky"><button type="button" class="secondary" (click)="editar(funcao)">Editar</button><button type="button" class="danger" (click)="excluir(funcao)" [disabled]="processando">Inativar</button></td>
           </tr>
           <tr *ngIf="!funcoes.length && !carregando"><td colspan="4">Nenhuma função encontrada.</td></tr>
         </tbody>

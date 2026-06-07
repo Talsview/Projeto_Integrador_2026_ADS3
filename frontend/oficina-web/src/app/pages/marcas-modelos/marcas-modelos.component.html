@@ -13,8 +13,8 @@
 
     <h3>Marcas cadastradas</h3>
     <div class="actions"><input [(ngModel)]="termoMarca" placeholder="Pesquisar marca"><button type="button" (click)="pesquisarMarcas()">Pesquisar</button><button type="button" class="secondary" (click)="listarMarcas()">Listar</button></div>
-    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Marca</th><th>Ações</th></tr></thead><tbody>
-      <tr *ngFor="let marca of marcas"><td>{{ marca.id }}</td><td>{{ marca.nomeMarca }}</td><td class="actions"><button class="secondary" (click)="editarMarca(marca)">Editar</button><button class="danger" (click)="excluirMarca(marca)" [disabled]="processando">Inativar</button></td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Marca</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let marca of marcas"><td>{{ marca.id }}</td><td>{{ marca.nomeMarca }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarMarca(marca)">Editar</button><button class="danger" (click)="excluirMarca(marca)" [disabled]="processando">Inativar</button></td></tr>
       <tr *ngIf="!marcas.length"><td colspan="3">Nenhuma marca encontrada.</td></tr>
     </tbody></table></div>
   </section>
@@ -30,8 +30,8 @@
     <h3>Modelos cadastrados</h3>
     <div class="actions"><input [(ngModel)]="termoModelo" placeholder="Pesquisar modelo"><button type="button" (click)="pesquisarModelos()">Pesquisar</button><button type="button" class="secondary" (click)="listarModelos()">Listar</button></div>
     <p *ngIf="carregando">Carregando modelos...</p>
-    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Marca</th><th>Modelo</th><th>Ações</th></tr></thead><tbody>
-      <tr *ngFor="let modelo of modelos"><td>{{ modelo.id }}</td><td>{{ modelo.nomeMarca }}</td><td>{{ modelo.nomeModelo }}</td><td class="actions"><button class="secondary" (click)="editarModelo(modelo)">Editar</button><button class="danger" (click)="excluirModelo(modelo)" [disabled]="processando">Inativar</button></td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Marca</th><th>Modelo</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let modelo of modelos"><td>{{ modelo.id }}</td><td>{{ modelo.nomeMarca }}</td><td>{{ modelo.nomeModelo }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarModelo(modelo)">Editar</button><button class="danger" (click)="excluirModelo(modelo)" [disabled]="processando">Inativar</button></td></tr>
       <tr *ngIf="!modelos.length && !carregando"><td colspan="4">Nenhum modelo encontrado.</td></tr>
     </tbody></table></div>
   </section>

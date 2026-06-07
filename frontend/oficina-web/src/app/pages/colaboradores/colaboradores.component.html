@@ -65,22 +65,39 @@
       <button type="button" class="secondary" (click)="listar()">Listar todos</button>
     </div>
     <p *ngIf="carregando">Carregando colaboradores...</p>
-    <div class="table-wrap" style="margin-top: 14px;">
-      <table>
-        <thead><tr><th>ID</th><th>Nome</th><th>Status</th><th>Funções</th><th>Telefone</th><th>Ações</th></tr></thead>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;">
+      <table class="cadastro-table cadastro-table-compact">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Colaborador</th>
+            <th>Funções</th>
+            <th>Contato</th>
+            <th class="actions-col">Ações</th>
+          </tr>
+        </thead>
         <tbody>
           <tr *ngFor="let colaborador of colaboradores">
             <td>{{ colaborador.id }}</td>
-            <td>{{ colaborador.nome }}</td>
-            <td><span class="badge">{{ colaborador.statusColaborador }}</span></td>
-            <td>{{ colaborador.funcoes }}</td>
-            <td>{{ colaborador.telefone }}</td>
-            <td class="actions">
+            <td>
+              <div class="entity-cell">
+                <strong>{{ colaborador.nome }}</strong>
+                <span class="badge">{{ colaborador.statusColaborador }}</span>
+              </div>
+            </td>
+            <td>{{ colaborador.funcoes || '-' }}</td>
+            <td>
+              <div class="contact-cell">
+                <span>{{ colaborador.telefone || '-' }}</span>
+                <small>{{ colaborador.email || '-' }}</small>
+              </div>
+            </td>
+            <td class="actions row-actions actions-sticky">
               <button type="button" class="secondary" (click)="editar(colaborador)" [disabled]="processando">Editar</button>
               <button type="button" class="danger" (click)="excluir(colaborador)" [disabled]="processando">Inativar</button>
             </td>
           </tr>
-          <tr *ngIf="!colaboradores.length && !carregando"><td colspan="6">Nenhum colaborador encontrado.</td></tr>
+          <tr *ngIf="!colaboradores.length && !carregando"><td colspan="5">Nenhum colaborador encontrado.</td></tr>
         </tbody>
       </table>
     </div>

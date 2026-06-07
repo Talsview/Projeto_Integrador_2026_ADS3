@@ -21,8 +21,8 @@
     <h2>Consulta</h2>
     <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar serviço" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar</button></div>
     <p *ngIf="carregando">Carregando serviços...</p>
-    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Serviço</th><th>Tipo</th><th>Garantia</th><th>Valor</th><th>Ações</th></tr></thead><tbody>
-      <tr *ngFor="let servico of servicos"><td>{{ servico.id }}</td><td>{{ servico.nomeServico }}</td><td><span class="badge">{{ servico.tipoServico }}</span></td><td>{{ servico.prazoGarantiaDias }} dias</td><td>{{ servico.valorBase | currency:'BRL' }}</td><td class="actions"><button class="secondary" (click)="editar(servico)">Editar</button><button class="danger" (click)="excluir(servico)" [disabled]="processando">Inativar</button></td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Serviço</th><th>Tipo</th><th>Garantia</th><th>Valor</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let servico of servicos"><td>{{ servico.id }}</td><td>{{ servico.nomeServico }}</td><td><span class="badge">{{ servico.tipoServico }}</span></td><td>{{ servico.prazoGarantiaDias }} dias</td><td>{{ servico.valorBase | currency:'BRL' }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editar(servico)">Editar</button><button class="danger" (click)="excluir(servico)" [disabled]="processando">Inativar</button></td></tr>
       <tr *ngIf="!servicos.length && !carregando"><td colspan="6">Nenhum serviço encontrado.</td></tr>
     </tbody></table></div>
   </section>

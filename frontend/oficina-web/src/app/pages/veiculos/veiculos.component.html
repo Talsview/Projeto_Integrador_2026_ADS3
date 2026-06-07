@@ -26,9 +26,41 @@
     <h2>Consulta</h2>
     <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar por placa, cliente, marca ou modelo" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar todos</button></div>
     <p *ngIf="carregando">Carregando veículos...</p>
-    <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>ID</th><th>Placa</th><th>Marca</th><th>Modelo</th><th>Ano fab.</th><th>KM</th><th>Proprietário</th><th>Ações</th></tr></thead><tbody>
-      <tr *ngFor="let veiculo of veiculos"><td>{{ veiculo.id }}</td><td><strong>{{ veiculo.placa }}</strong></td><td>{{ veiculo.nomeMarca }}</td><td>{{ veiculo.nomeModelo }}</td><td>{{ veiculo.anoVeiculo }}/{{ veiculo.anoModelo }}</td><td>{{ veiculo.quilometragemAtual }}</td><td>{{ veiculo.nomeProprietarioAtual }}</td><td class="actions"><button class="secondary" (click)="editar(veiculo)">Editar</button><button class="danger" (click)="excluir(veiculo)" [disabled]="processando">Inativar</button></td></tr>
-      <tr *ngIf="!veiculos.length && !carregando"><td colspan="8">Nenhum veículo encontrado.</td></tr>
-    </tbody></table></div>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;">
+      <table class="cadastro-table cadastro-table-compact">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Veículo</th>
+            <th>Classificação</th>
+            <th>Proprietário</th>
+            <th class="actions-col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let veiculo of veiculos">
+            <td>{{ veiculo.id }}</td>
+            <td>
+              <div class="entity-cell">
+                <strong>{{ veiculo.placa }}</strong>
+                <small>KM {{ veiculo.quilometragemAtual || 0 }}</small>
+              </div>
+            </td>
+            <td>
+              <div class="contact-cell">
+                <span>{{ veiculo.nomeMarca || '-' }} / {{ veiculo.nomeModelo || '-' }}</span>
+                <small>Ano {{ veiculo.anoVeiculo }}/{{ veiculo.anoModelo }}</small>
+              </div>
+            </td>
+            <td>{{ veiculo.nomeProprietarioAtual || '-' }}</td>
+            <td class="actions row-actions actions-sticky">
+              <button class="secondary" (click)="editar(veiculo)">Editar</button>
+              <button class="danger" (click)="excluir(veiculo)" [disabled]="processando">Inativar</button>
+            </td>
+          </tr>
+          <tr *ngIf="!veiculos.length && !carregando"><td colspan="5">Nenhum veículo encontrado.</td></tr>
+        </tbody>
+      </table>
+    </div>
   </section>
 </div>
