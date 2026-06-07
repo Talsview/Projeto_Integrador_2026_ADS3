@@ -113,9 +113,7 @@ public class OrdemServicoService {
         validarVeiculoPertenceAoClienteAtual(cliente.getId(), veiculo.getId());
 
         OrdemServicoModel ordemServico = ordemServicoMapper.toModel(dto, cliente, veiculo);
-        if (ordemServico.getNumeroOs() == null) {
-            ordemServico.setNumeroOs(gerarNumeroOs());
-        }
+        ordemServico.setNumeroOs(gerarProximoNumeroOsSequencial());
         OrdemServicoModel saved = ordemServicoRepository.save(ordemServico);
 
         StatusOrdemServicoModel statusInicial = statusService.buscarPorFluxo(StatusFluxoOrdemServico.ORCAMENTO);
@@ -319,11 +317,20 @@ public class OrdemServicoService {
         }
     }
 
-    private String gerarNumeroOs() {
-        String numero;
-        do {
-            numero = "OS-" + System.currentTimeMillis();
-        } while (ordemServicoRepository.existsActiveByNumeroOs(numero));
+    /**
+     * Gera numeração sequencial da Ordem de Serviço.
+     *
+     * A numeração considera todas as OS registradas na tabela, inclusive as
+     * inativas. Assim, se a OS 2 for inativada, nenhuma nova OS assumirá o
+     * número 2, preservando histórico, rastreabilidade e integridade documental.
+     */
+    private String gerarProximoNumeroOsSequencial() {
+        long proximoNumero = ordemServicoRepository.buscarMaiorNumeroOsNumerico() + 1L;
+        String numero = String.valueOf(proximoNumero);
+        while (ordemServicoRepository.existsByNumeroOsIgnoreCase(numero)) {
+            proximoNumero++;
+            numero = String.valueOf(proximoNumero);
+        }
         return numero;
     }
 }

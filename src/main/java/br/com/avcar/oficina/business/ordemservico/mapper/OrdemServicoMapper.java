@@ -32,7 +32,7 @@ public class OrdemServicoMapper {
     public void atualizarModel(OrdemServicoModel model, OrdemServicoDTO dto, ClienteModel cliente, VeiculoModel veiculo) {
         model.setCliente(cliente);
         model.setVeiculo(veiculo);
-        model.setNumeroOs(normalize(dto.getNumeroOs()));
+        // Número da OS é gerado exclusivamente no service para impedir edição manual e reutilização.
         model.setDataAbertura(dto.getDataAbertura() == null ? LocalDateTime.now() : dto.getDataAbertura());
         model.setPrioridade(dto.getPrioridade() == null ? PrioridadeOrdemServico.NORMAL : dto.getPrioridade());
         model.setValorTotal(dto.getValorTotal() == null ? BigDecimal.ZERO : dto.getValorTotal());

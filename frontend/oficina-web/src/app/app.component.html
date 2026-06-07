@@ -42,13 +42,13 @@
       Início
     </a>
 
-    <div class="category-menu" *ngFor="let group of menuGroups">
-      <button class="category-button" type="button" [attr.aria-label]="'Abrir categoria ' + group.title">
+    <div class="category-menu" *ngFor="let group of menuGroups" [class.open]="menuAberto === group.title">
+      <button class="category-button" type="button" (click)="alternarMenu(group.title, $event)" [attr.aria-expanded]="menuAberto === group.title" [attr.aria-label]="'Abrir categoria ' + group.title">
         <span>{{ group.title }}</span>
       </button>
 
       <div class="category-dropdown" role="menu">
-        <a class="dropdown-item" *ngFor="let item of group.items" [routerLink]="item.route" routerLinkActive="active" role="menuitem">
+        <a class="dropdown-item" *ngFor="let item of group.items" [routerLink]="item.route" routerLinkActive="active" role="menuitem" (click)="fecharMenu()">
           <span class="item-code">{{ item.icon }}</span>
           <span class="item-text">
             <strong>{{ item.label }}</strong>

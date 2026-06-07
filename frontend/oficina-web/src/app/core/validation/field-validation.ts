@@ -22,8 +22,11 @@ export function emailValido(valor: string | null | undefined): boolean {
 export function telefoneValido(valor: string | null | undefined): boolean {
   const texto = String(valor ?? '').trim();
   const digitos = somenteDigitosCampo(texto);
-  if (!digitos) return true;
+  // Campo vazio é permitido quando o formulário tratar telefone como opcional.
+  // Porém, se o usuário digitou letras ou símbolos não permitidos, o campo deve ser inválido.
+  if (!texto) return true;
   if (/[^0-9()\s-]/.test(texto)) return false;
+  if (!digitos) return false;
   return digitos.length >= 10 && digitos.length <= 11;
 }
 

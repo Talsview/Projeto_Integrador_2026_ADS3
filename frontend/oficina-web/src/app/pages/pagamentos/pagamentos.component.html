@@ -34,12 +34,9 @@
     Esta Ordem de Serviço já está finalizada. Novos pagamentos não devem ser registrados.
   </div>
 
-  <div class="actions" style="margin-top: 14px;">
-    <button (click)="carregarPagamentos()" [disabled]="!idOrdemSelecionada || carregando">
-      {{ carregando ? 'Atualizando...' : 'Atualizar pagamentos' }}
-    </button>
-    <button class="secondary" (click)="carregarOrdens()" [disabled]="carregando">Atualizar ordens</button>
-  </div>
+  <p class="page-subtitle" *ngIf="idOrdemSelecionada" style="margin-top: 14px;">
+    Pagamentos, resumo financeiro e status da OS são carregados automaticamente ao selecionar a Ordem de Serviço e após cada operação.
+  </p>
 </section>
 
 <div class="grid two" style="margin-top: 16px;">

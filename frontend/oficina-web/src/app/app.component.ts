@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { environment } from '../environments/environment';
 import { MenuGroup } from './core/models/menu-item.model';
@@ -12,6 +12,29 @@ import { MenuGroup } from './core/models/menu-item.model';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
+
+  protected menuAberto?: string;
+
+  protected alternarMenu(titulo: string, event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.menuAberto = this.menuAberto === titulo ? undefined : titulo;
+  }
+
+  protected fecharMenu(): void {
+    this.menuAberto = undefined;
+  }
+
+  @HostListener('document:click')
+  protected fecharMenuAoClicarFora(): void {
+    this.fecharMenu();
+  }
+
+  @HostListener('document:keydown.escape')
+  protected fecharMenuAoPressionarEscape(): void {
+    this.fecharMenu();
+  }
+
   protected readonly swaggerUrl = environment.swaggerUrl;
 
   protected readonly menuGroups: MenuGroup[] = [

@@ -5,18 +5,18 @@
 
 <div class="grid two">
   <section class="card">
-    <h2>Novo cliente</h2>
+    <h2>{{ clienteEditandoId ? 'Editar cliente' : 'Novo cliente' }}</h2>
     <div class="form-row">
       <div>
         <label>Tipo de cliente</label>
-        <select [(ngModel)]="tipoCliente" (ngModelChange)="aoAlterarTipoCliente()" [disabled]="salvando">
+        <select [(ngModel)]="tipoCliente" (ngModelChange)="aoAlterarTipoCliente()" [disabled]="salvando || !!clienteEditandoId">
           <option value="PESSOA_FISICA">Pessoa Física</option>
           <option value="PESSOA_JURIDICA">Pessoa Jurídica</option>
         </select>
       </div>
       <div>
         <label>Nome</label>
-        <input [(ngModel)]="form.nome" placeholder="Nome do cliente" [class.input-invalid]="!!errosCampo['nome']" [disabled]="salvando">
+        <input [(ngModel)]="form.nome" placeholder="Nome do cliente" maxlength="150" [class.input-invalid]="!!errosCampo['nome']" [disabled]="salvando">
         <p class="field-error" *ngIf="errosCampo['nome']">{{ errosCampo['nome'] }}</p>
       </div>
     </div>
@@ -29,14 +29,14 @@
       </div>
       <div>
         <label>E-mail</label>
-        <input [(ngModel)]="form.email" placeholder="cliente@email.com" [class.input-invalid]="!!errosCampo['email']" [disabled]="salvando">
+        <input [(ngModel)]="form.email" placeholder="cliente@email.com" maxlength="150" [class.input-invalid]="!!errosCampo['email']" [disabled]="salvando">
         <p class="field-error" *ngIf="errosCampo['email']">{{ errosCampo['email'] }}</p>
       </div>
     </div>
 
     <div>
       <label>Endereço</label>
-      <input [(ngModel)]="form.endereco" placeholder="Endereço completo" [disabled]="salvando">
+      <input [(ngModel)]="form.endereco" placeholder="Endereço completo" maxlength="255" [disabled]="salvando">
     </div>
 
     <div class="form-row" *ngIf="tipoCliente === 'PESSOA_FISICA'">
@@ -47,7 +47,7 @@
       </div>
       <div>
         <label>RG</label>
-        <input [(ngModel)]="form.rg" [disabled]="salvando">
+        <input [(ngModel)]="form.rg" maxlength="30" [disabled]="salvando">
       </div>
       <div>
         <label>Data de nascimento</label>
@@ -64,22 +64,22 @@
       </div>
       <div>
         <label>Razão social</label>
-        <input [(ngModel)]="form.razaoSocial" [class.input-invalid]="!!errosCampo['razaoSocial']" [disabled]="salvando">
+        <input [(ngModel)]="form.razaoSocial" maxlength="180" [class.input-invalid]="!!errosCampo['razaoSocial']" [disabled]="salvando">
         <p class="field-error" *ngIf="errosCampo['razaoSocial']">{{ errosCampo['razaoSocial'] }}</p>
       </div>
       <div>
         <label>Nome fantasia</label>
-        <input [(ngModel)]="form.nomeFantasia" [disabled]="salvando">
+        <input [(ngModel)]="form.nomeFantasia" maxlength="180" [disabled]="salvando">
       </div>
       <div>
         <label>Inscrição estadual</label>
-        <input [(ngModel)]="form.inscricaoEstadual" [disabled]="salvando">
+        <input [(ngModel)]="form.inscricaoEstadual" maxlength="40" [disabled]="salvando">
       </div>
     </div>
 
     <div class="actions" style="margin-top: 14px;">
       <button type="button" (click)="salvar()" [disabled]="salvando">
-        {{ salvando ? 'Salvando...' : 'Salvar' }}
+        {{ salvando ? 'Salvando...' : (clienteEditandoId ? 'Atualizar' : 'Salvar') }}
       </button>
       <button type="button" class="secondary" (click)="limpar()" [disabled]="salvando">Limpar</button>
     </div>
@@ -103,29 +103,40 @@
     <p *ngIf="consultando">Atualizando tabela de clientes...</p>
     <p *ngIf="sincronizandoTabela">Salvamento concluído. Sincronizando a tabela com o banco de dados...</p>
 
-    <div class="table-wrap" style="margin-top: 14px;">
-      <table>
+    <div class="table-wrap clientes-table-wrap" style="margin-top: 14px;">
+      <table class="clientes-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>Tipo</th>
-            <th>Nome</th>
+            <th>Cliente</th>
             <th>Documento</th>
-            <th>Telefone</th>
-            <th>E-mail</th>
+            <th>Contato</th>
+            <th class="actions-col">Ações</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let cliente of clientes">
             <td>{{ cliente.id }}</td>
-            <td><span class="badge">{{ cliente.tipoCliente }}</span></td>
-            <td>{{ cliente.nome }}</td>
-            <td>{{ cliente.documento }}</td>
-            <td>{{ cliente.telefone }}</td>
-            <td>{{ cliente.email }}</td>
+            <td>
+              <div class="entity-cell">
+                <strong>{{ cliente.nome }}</strong>
+                <span class="badge">{{ cliente.tipoCliente }}</span>
+              </div>
+            </td>
+            <td>{{ cliente.documento || '-' }}</td>
+            <td>
+              <div class="contact-cell">
+                <span>{{ cliente.telefone || '-' }}</span>
+                <small>{{ cliente.email || '-' }}</small>
+              </div>
+            </td>
+            <td class="row-actions actions-sticky">
+              <button type="button" class="secondary" (click)="editar(cliente)" [disabled]="consultando || salvando">Editar</button>
+              <button type="button" class="danger" (click)="inativar(cliente)" [disabled]="consultando || salvando">Inativar</button>
+            </td>
           </tr>
           <tr *ngIf="!clientes.length && !consultando">
-            <td colspan="6">Nenhum cliente encontrado.</td>
+            <td colspan="5">Nenhum cliente encontrado.</td>
           </tr>
         </tbody>
       </table>

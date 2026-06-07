@@ -392,3 +392,246 @@ textarea.input-error {
   background: #fff8f8 !important;
   box-shadow: 0 0 0 3px rgba(220, 53, 69, .10) !important;
 }
+
+/* Etapa 40 — ajuste de layout para telas com muitas colunas e ações por linha
+   Objetivo: evitar que formulários e tabelas fiquem espremidos após a inclusão de validações,
+   mensagens por campo e botões de editar/inativar. */
+.content {
+  width: 100%;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding-left: clamp(18px, 2vw, 36px);
+  padding-right: clamp(18px, 2vw, 36px);
+}
+
+.page-subtitle {
+  max-width: none;
+}
+
+/* A classe .grid.two é usada tanto no layout da página quanto dentro de cards.
+   Por isso o grid base fica flexível, e o grid principal da página recebe largura maior. */
+.grid.two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.content > .grid.two {
+  grid-template-columns: minmax(520px, 0.88fr) minmax(760px, 1.12fr);
+  gap: clamp(18px, 1.6vw, 28px);
+}
+
+.card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.form-row {
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+}
+
+/* Evita que ações dentro de tabelas herdem o layout flex dos filtros/formulários. */
+td.actions {
+  display: table-cell !important;
+  white-space: nowrap;
+  min-width: 190px;
+}
+
+td.actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  min-width: 82px;
+  padding: 8px 12px;
+  margin-right: 8px;
+  margin-bottom: 6px;
+  vertical-align: middle;
+}
+
+td.actions button:last-child {
+  margin-right: 0;
+}
+
+.table-wrap {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.table-wrap table {
+  width: 100%;
+  min-width: 820px;
+}
+
+/* Tabelas operacionais possuem mais colunas e precisam de largura mínima maior. */
+.content > .grid.two .card:nth-child(2) .table-wrap table,
+.table-wrap table:has(th:nth-child(7)),
+.table-wrap table:has(th:nth-child(8)) {
+  min-width: 980px;
+}
+
+.actions:not(td.actions) {
+  width: 100%;
+}
+
+.actions:not(td.actions) input,
+.actions:not(td.actions) select {
+  min-width: min(320px, 100%);
+}
+
+.actions:not(td.actions) button {
+  flex: 0 0 auto;
+}
+
+/* Espaçamento para mensagens de erro não achatadas dentro de formulários. */
+.field-error {
+  min-height: 16px;
+}
+
+/* Checkboxes, radios e listas internas não devem assumir largura de input normal. */
+input[type="checkbox"],
+input[type="radio"] {
+  width: auto;
+  min-width: 16px;
+}
+
+@media (max-width: 1520px) {
+  .content > .grid.two {
+    grid-template-columns: 1fr;
+  }
+
+  .content > .grid.two > .card {
+    max-width: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .form-row,
+  .grid.two,
+  .grid.three,
+  .grid.four {
+    grid-template-columns: 1fr;
+  }
+
+  .actions:not(td.actions) {
+    align-items: stretch;
+  }
+
+  .actions:not(td.actions) input,
+  .actions:not(td.actions) button {
+    flex: 1 1 100%;
+  }
+
+  td.actions {
+    min-width: 170px;
+  }
+
+  td.actions button {
+    min-width: 74px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+.field-hint {
+  display: block;
+  margin-top: 5px;
+  color: var(--muted, #64748b);
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+/* Etapa 42 — listagem de clientes sem necessidade de arrastar para encontrar ações */
+.clientes-table-wrap {
+  overflow-x: visible !important;
+}
+
+.clientes-table-wrap .clientes-table {
+  min-width: 0 !important;
+  table-layout: auto;
+}
+
+.clientes-table th,
+.clientes-table td {
+  white-space: normal;
+}
+
+.clientes-table th:first-child,
+.clientes-table td:first-child {
+  width: 60px;
+}
+
+.clientes-table .actions-col,
+.clientes-table .row-actions {
+  width: 190px;
+  min-width: 190px;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.clientes-table .row-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  min-height: 36px;
+  padding: 8px 12px;
+  margin-right: 8px;
+  margin-bottom: 0;
+  vertical-align: middle;
+}
+
+.clientes-table .row-actions button:last-child {
+  margin-right: 0;
+}
+
+.entity-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 180px;
+}
+
+.entity-cell strong {
+  font-weight: 850;
+  color: var(--primary-strong, #061729);
+}
+
+.contact-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 190px;
+}
+
+.contact-cell small {
+  color: var(--muted, #64748b);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 760px) {
+  .clientes-table-wrap {
+    overflow-x: auto !important;
+  }
+
+  .clientes-table-wrap .clientes-table {
+    min-width: 660px !important;
+  }
+
+  .clientes-table .actions-col,
+  .clientes-table .row-actions {
+    position: sticky;
+    right: 0;
+    z-index: 2;
+    background: #ffffff;
+    box-shadow: -8px 0 12px rgba(15, 23, 42, .06);
+  }
+
+  .clientes-table thead .actions-col {
+    background: var(--primary-soft, #e9eef5) !important;
+    z-index: 3;
+  }
+}

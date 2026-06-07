@@ -24,19 +24,11 @@ public class OrdemServicoValidation {
 
     public void validateInsert(OrdemServicoDTO dto) {
         validateDto(dto);
-        if (dto.getNumeroOs() != null && !dto.getNumeroOs().isBlank()
-                && ordemServicoRepository.existsActiveByNumeroOs(dto.getNumeroOs().trim())) {
-            throw new RuleValidationException("Já existe uma Ordem de Serviço ativa com esse número.");
-        }
     }
 
     public void validateUpdate(Long id, OrdemServicoDTO dto) {
         validateId(id);
         validateDto(dto);
-        if (dto.getNumeroOs() != null && !dto.getNumeroOs().isBlank()
-                && ordemServicoRepository.existsActiveByNumeroOsAndIdNot(dto.getNumeroOs().trim(), id)) {
-            throw new RuleValidationException("Já existe outra Ordem de Serviço ativa com esse número.");
-        }
     }
 
     public void validateStatusChange(AlterarStatusOrdemServicoDTO dto,
@@ -93,10 +85,6 @@ public class OrdemServicoValidation {
         }
         if (dto.getValorTotal() != null && dto.getValorTotal().compareTo(BigDecimal.ZERO) < 0) {
             throw new RuleValidationException("O valor total da OS não pode ser negativo.");
-        }
-        if (dto.getNumeroOs() != null && !dto.getNumeroOs().isBlank()
-                && !dto.getNumeroOs().trim().matches("^[A-Za-z0-9_/-]{1,30}$")) {
-            throw new RuleValidationException("O número da OS contém caracteres inválidos.");
         }
         ValidationUtils.maxLength(dto.getObservacao(), 2000, "observação da OS");
     }

@@ -368,3 +368,76 @@
     max-width: 230px;
   }
 }
+
+/* Etapa 40 — navegação superior mais estável em telas menores */
+.category-navigation {
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: thin;
+}
+
+.category-navigation::-webkit-scrollbar {
+  height: 8px;
+}
+
+.category-navigation::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, .25);
+}
+
+@media (max-width: 1520px) {
+  .category-home,
+  .category-button {
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 12px;
+  }
+}
+
+/* Etapa 42 — correção dos menus superiores por clique
+   O overflow horizontal da etapa anterior estava prendendo o dropdown dentro da barra.
+   Agora as categorias abrem por clique, fecham ao selecionar uma opção e ficam acima do conteúdo. */
+.category-navigation {
+  overflow: visible !important;
+  flex-wrap: wrap;
+  align-items: stretch;
+  row-gap: 0;
+}
+
+.category-menu.open .category-dropdown,
+.category-menu:focus-within .category-dropdown,
+.category-menu:hover .category-dropdown {
+  display: block;
+}
+
+.category-dropdown {
+  z-index: 9999;
+}
+
+.category-button[aria-expanded="true"] {
+  background: var(--accent, #f4511e);
+  color: #ffffff;
+}
+
+@media (max-width: 1180px) {
+  .category-navigation {
+    top: 150px;
+    overflow: visible !important;
+  }
+}
+
+@media (max-width: 760px) {
+  .category-navigation {
+    top: 145px;
+    overflow: visible !important;
+  }
+
+  .category-dropdown {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    width: auto;
+    top: 194px;
+    max-height: calc(100vh - 210px);
+    overflow-y: auto;
+  }
+}

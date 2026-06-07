@@ -33,3 +33,19 @@ export interface ClientePessoaJuridica extends BaseDTO {
   nomeFantasia?: string;
   inscricaoEstadual?: string;
 }
+
+export interface ClienteDetalhe extends BaseDTO {
+  pessoaId?: number;
+  tipoCliente?: TipoCliente;
+  nome?: string;
+  telefone?: string;
+  email?: string;
+  endereco?: string;
+  cpf?: string;
+  rg?: string;
+  dataNascimento?: string;
+  cnpj?: string;
+  razaoSocial?: string;
+  nomeFantasia?: string;
+  inscricaoEstadual?: string;
+}

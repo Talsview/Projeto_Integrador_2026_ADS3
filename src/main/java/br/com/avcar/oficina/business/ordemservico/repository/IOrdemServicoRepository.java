@@ -14,6 +14,8 @@ public interface IOrdemServicoRepository extends IGenericRepository<OrdemServico
 
     Optional<OrdemServicoModel> findByNumeroOsAndAtivoTrue(String numeroOs);
 
+    boolean existsByNumeroOsIgnoreCase(String numeroOs);
+
     @Query("""
            SELECT COUNT(os) > 0
              FROM OrdemServicoModel os
@@ -30,6 +32,14 @@ public interface IOrdemServicoRepository extends IGenericRepository<OrdemServico
               AND LOWER(os.numeroOs) = LOWER(:numeroOs)
            """)
     boolean existsActiveByNumeroOsAndIdNot(@Param("numeroOs") String numeroOs, @Param("id") Long id);
+
+
+    @Query(value = """
+           SELECT COALESCE(MAX(CAST(numero_os AS BIGINT)), 0)
+             FROM ordem_servico
+            WHERE numero_os ~ '^[0-9]+$'
+           """, nativeQuery = true)
+    Long buscarMaiorNumeroOsNumerico();
 
     @Query("""
            SELECT os

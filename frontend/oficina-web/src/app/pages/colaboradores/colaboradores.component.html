@@ -7,25 +7,50 @@
   <section class="card">
     <h2>{{ form.id ? 'Editar colaborador' : 'Novo colaborador' }}</h2>
     <div class="form-row">
-      <div><label>Nome</label><input [(ngModel)]="form.nome" placeholder="Nome completo"></div>
-      <div><label>Status</label><select [(ngModel)]="form.statusColaborador"><option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option></select></div>
-      <div><label>Telefone</label><input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneCampo()"></div>
-      <div><label>E-mail</label><input [(ngModel)]="form.email"></div>
-      <div><label>Data de admissão</label><input type="date" [(ngModel)]="form.dataAdmissao"></div>
-      <div><label>Endereço</label><input [(ngModel)]="form.endereco"></div>
+      <div>
+        <label>Nome</label>
+        <input [(ngModel)]="form.nome" placeholder="Nome completo" maxlength="150" (blur)="validarNome()" [class.input-invalid]="!!errosCampo['nome']" [disabled]="processando">
+        <p class="field-error" *ngIf="errosCampo['nome']">{{ errosCampo['nome'] }}</p>
+      </div>
+      <div>
+        <label>Status</label>
+        <select [(ngModel)]="form.statusColaborador" [disabled]="processando">
+          <option *ngFor="let status of statusOptions" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+      <div>
+        <label>Telefone</label>
+        <input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneCampo()" (blur)="validarTelefoneSePreenchido()" [class.input-invalid]="!!errosCampo['telefone']" [disabled]="processando">
+        <p class="field-error" *ngIf="errosCampo['telefone']">{{ errosCampo['telefone'] }}</p>
+      </div>
+      <div>
+        <label>E-mail</label>
+        <input [(ngModel)]="form.email" placeholder="colaborador@email.com" maxlength="150" (blur)="validarEmailSePreenchido()" [class.input-invalid]="!!errosCampo['email']" [disabled]="processando">
+        <p class="field-error" *ngIf="errosCampo['email']">{{ errosCampo['email'] }}</p>
+      </div>
+      <div>
+        <label>Data de admissão</label>
+        <input type="date" [(ngModel)]="form.dataAdmissao" (blur)="validarDataAdmissao()" [class.input-invalid]="!!errosCampo['dataAdmissao']" [disabled]="processando">
+        <p class="field-error" *ngIf="errosCampo['dataAdmissao']">{{ errosCampo['dataAdmissao'] }}</p>
+      </div>
+      <div>
+        <label>Endereço</label>
+        <input [(ngModel)]="form.endereco" maxlength="255" [disabled]="processando">
+      </div>
     </div>
 
     <h3>Funções</h3>
     <p class="page-subtitle">Selecione uma ou mais funções. Mecânico é uma função, não uma entidade separada.</p>
-    <div class="grid two">
+    <div class="grid two" [class.input-invalid]="!!errosCampo['funcoes']">
       <label *ngFor="let funcao of funcoes" style="display:flex; gap:8px; align-items:center; font-weight:600;">
-        <input type="checkbox" style="width:auto;" [ngModel]="isFuncaoSelecionada(funcao.id)" (ngModelChange)="setFuncaoSelecionada(funcao.id, $event)">
+        <input type="checkbox" style="width:auto;" [ngModel]="isFuncaoSelecionada(funcao.id)" (ngModelChange)="setFuncaoSelecionada(funcao.id, $event)" [disabled]="processando">
         {{ funcao.nomeFuncao }}
       </label>
     </div>
+    <p class="field-error" *ngIf="errosCampo['funcoes']">{{ errosCampo['funcoes'] }}</p>
 
     <div class="actions" style="margin-top: 14px;">
-      <button type="button" (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar' }}</button>
+      <button type="button" (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : (form.id ? 'Atualizar' : 'Salvar') }}</button>
       <button type="button" class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button>
     </div>
     <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
@@ -50,7 +75,10 @@
             <td><span class="badge">{{ colaborador.statusColaborador }}</span></td>
             <td>{{ colaborador.funcoes }}</td>
             <td>{{ colaborador.telefone }}</td>
-            <td class="actions"><button type="button" class="secondary" (click)="editar(colaborador)">Editar</button><button type="button" class="danger" (click)="excluir(colaborador)" [disabled]="processando">Inativar</button></td>
+            <td class="actions">
+              <button type="button" class="secondary" (click)="editar(colaborador)" [disabled]="processando">Editar</button>
+              <button type="button" class="danger" (click)="excluir(colaborador)" [disabled]="processando">Inativar</button>
+            </td>
           </tr>
           <tr *ngIf="!colaboradores.length && !carregando"><td colspan="6">Nenhum colaborador encontrado.</td></tr>
         </tbody>

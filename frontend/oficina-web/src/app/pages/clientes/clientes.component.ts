@@ -5,7 +5,7 @@ import { finalize, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { cnpjValido, cpfValido, formatarCnpj, formatarCpf, somenteDigitos } from '../../core/validation/documento-validation';
 import { emailValido, formatarTelefone, nomePessoaValido, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
-import { ClientePessoaFisica, ClientePessoaJuridica, ClienteResumo, TipoCliente } from '../../models/cliente.model';
+import { ClienteDetalhe, ClientePessoaFisica, ClientePessoaJuridica, ClienteResumo, TipoCliente } from '../../models/cliente.model';
 
 @Component({
   selector: 'app-clientes',
@@ -24,20 +24,9 @@ export class ClientesComponent implements OnInit {
   consultando = false;
   salvando = false;
   sincronizandoTabela = false;
+  clienteEditandoId?: number;
 
-  form = {
-    nome: '',
-    telefone: '',
-    email: '',
-    endereco: '',
-    cpf: '',
-    rg: '',
-    dataNascimento: '',
-    cnpj: '',
-    razaoSocial: '',
-    nomeFantasia: '',
-    inscricaoEstadual: ''
-  };
+  form = this.formularioInicial();
 
   constructor(
     private readonly clienteApi: ClienteApiService,
@@ -112,9 +101,7 @@ export class ClientesComponent implements OnInit {
     this.sincronizandoTabela = true;
     this.atualizarTela();
 
-    const acao = this.tipoCliente === 'PESSOA_FISICA'
-      ? this.clienteApi.criarPessoaFisica(this.montarPayloadPessoaFisica())
-      : this.clienteApi.criarPessoaJuridica(this.montarPayloadPessoaJuridica());
+    const acao = this.montarAcaoSalvarOuAtualizar();
 
     acao.pipe(
       switchMap(() => this.clienteApi.listar()),
@@ -125,9 +112,12 @@ export class ClientesComponent implements OnInit {
       })
     ).subscribe({
       next: clientesAtualizados => {
+        const editando = Boolean(this.clienteEditandoId);
         this.clientes = [...clientesAtualizados];
-        this.mensagem = 'Cliente salvo com sucesso. A tabela foi atualizada automaticamente.';
-        this.limpar();
+        this.limpar(false);
+        this.mensagem = editando
+          ? 'Cliente atualizado com sucesso. A tabela foi atualizada automaticamente.'
+          : 'Cliente salvo com sucesso. A tabela foi atualizada automaticamente.';
         this.atualizarTela();
       },
       error: (error: Error) => {
@@ -137,16 +127,76 @@ export class ClientesComponent implements OnInit {
     });
   }
 
-  limpar(): void {
-    this.form = {
-      nome: '', telefone: '', email: '', endereco: '', cpf: '', rg: '', dataNascimento: '',
-      cnpj: '', razaoSocial: '', nomeFantasia: '', inscricaoEstadual: ''
-    };
+  editar(cliente: ClienteResumo): void {
+    if (!cliente.id) return;
+
+    this.consultando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
     this.errosCampo = {};
+    this.atualizarTela();
+
+    this.clienteApi.buscarDetalhado(cliente.id)
+      .pipe(finalize(() => {
+        this.consultando = false;
+        this.atualizarTela();
+      }))
+      .subscribe({
+        next: detalhe => this.preencherFormularioEdicao(detalhe),
+        error: error => {
+          this.erro = error.message ?? 'Não foi possível carregar o cliente para edição.';
+          this.atualizarTela();
+        }
+      });
+  }
+
+  inativar(cliente: ClienteResumo): void {
+    if (!cliente.id) return;
+    const confirmou = window.confirm(`Deseja realmente inativar o cliente ${cliente.nome ?? ''}?`);
+    if (!confirmou) return;
+
+    this.consultando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
+    this.atualizarTela();
+
+    this.clienteApi.inativarEListar(cliente.id)
+      .pipe(finalize(() => {
+        this.consultando = false;
+        this.atualizarTela();
+      }))
+      .subscribe({
+        next: clientesAtualizados => {
+          this.clientes = [...clientesAtualizados];
+          this.mensagem = 'Cliente inativado com sucesso. A tabela foi atualizada automaticamente.';
+          if (this.clienteEditandoId === cliente.id) {
+            this.limpar(false);
+          }
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message ?? 'Não foi possível inativar o cliente.';
+          this.atualizarTela();
+        }
+      });
+  }
+
+  limpar(limparMensagens = true): void {
+    this.form = this.formularioInicial();
+    this.errosCampo = {};
+    this.clienteEditandoId = undefined;
+    this.tipoCliente = 'PESSOA_FISICA';
+    if (limparMensagens) {
+      this.mensagem = undefined;
+      this.erro = undefined;
+    }
     this.atualizarTela();
   }
 
   aoAlterarTipoCliente(): void {
+    if (this.clienteEditandoId) {
+      return;
+    }
     this.errosCampo = {};
     this.erro = undefined;
     this.mensagem = undefined;
@@ -162,7 +212,6 @@ export class ClientesComponent implements OnInit {
     this.form.cnpj = formatarCnpj(this.form.cnpj);
     this.validarCnpjSePreenchido();
   }
-
 
   formatarTelefoneCampo(): void {
     this.form.telefone = formatarTelefone(this.form.telefone);
@@ -209,6 +258,55 @@ export class ClientesComponent implements OnInit {
       return;
     }
     delete this.errosCampo['cnpj'];
+  }
+
+  private montarAcaoSalvarOuAtualizar() {
+    if (this.tipoCliente === 'PESSOA_FISICA') {
+      const payload = this.montarPayloadPessoaFisica();
+      return this.clienteEditandoId
+        ? this.clienteApi.atualizarPessoaFisica(this.clienteEditandoId, payload)
+        : this.clienteApi.criarPessoaFisica(payload);
+    }
+
+    const payload = this.montarPayloadPessoaJuridica();
+    return this.clienteEditandoId
+      ? this.clienteApi.atualizarPessoaJuridica(this.clienteEditandoId, payload)
+      : this.clienteApi.criarPessoaJuridica(payload);
+  }
+
+  private preencherFormularioEdicao(detalhe: ClienteDetalhe): void {
+    this.clienteEditandoId = detalhe.id;
+    this.tipoCliente = detalhe.tipoCliente ?? 'PESSOA_FISICA';
+    this.form = {
+      nome: detalhe.nome ?? '',
+      telefone: formatarTelefone(detalhe.telefone ?? ''),
+      email: detalhe.email ?? '',
+      endereco: detalhe.endereco ?? '',
+      cpf: detalhe.cpf ? formatarCpf(detalhe.cpf) : '',
+      rg: detalhe.rg ?? '',
+      dataNascimento: detalhe.dataNascimento ?? '',
+      cnpj: detalhe.cnpj ? formatarCnpj(detalhe.cnpj) : '',
+      razaoSocial: detalhe.razaoSocial ?? '',
+      nomeFantasia: detalhe.nomeFantasia ?? '',
+      inscricaoEstadual: detalhe.inscricaoEstadual ?? ''
+    };
+    this.atualizarTela();
+  }
+
+  private formularioInicial() {
+    return {
+      nome: '',
+      telefone: '',
+      email: '',
+      endereco: '',
+      cpf: '',
+      rg: '',
+      dataNascimento: '',
+      cnpj: '',
+      razaoSocial: '',
+      nomeFantasia: '',
+      inscricaoEstadual: ''
+    };
   }
 
   private validarFormulario(): boolean {

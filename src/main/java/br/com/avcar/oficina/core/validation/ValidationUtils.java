@@ -102,14 +102,17 @@ public final class ValidationUtils {
     public static void validatePhone(String phone, boolean required) {
         String value = trimToNull(phone);
         String digits = DocumentoValidationUtils.somenteDigitos(phone);
-        if (digits == null || digits.isEmpty()) {
+        if (value == null) {
             if (required) {
                 throw new FieldValidationException("O campo telefone é obrigatório.");
             }
             return;
         }
-        if (value != null && !TELEFONE_PATTERN.matcher(value).matches()) {
+        if (!TELEFONE_PATTERN.matcher(value).matches()) {
             throw new FieldValidationException("O telefone deve conter apenas números, espaços, parênteses e hífen.");
+        }
+        if (digits == null || digits.isEmpty()) {
+            throw new FieldValidationException("Informe um telefone válido com DDD.");
         }
         if (digits.length() < 10 || digits.length() > 11) {
             throw new FieldValidationException("Informe um telefone válido com DDD.");
