@@ -27,6 +27,7 @@ import br.com.avcar.oficina.business.pagamento.repository.IPagamentoRepository;
 import br.com.avcar.oficina.business.pessoa.model.ClienteModel;
 import br.com.avcar.oficina.business.pessoa.repository.IClienteRepository;
 import br.com.avcar.oficina.business.veiculo.model.VeiculoModel;
+import br.com.avcar.oficina.business.veiculo.repository.IHistoricoProprietarioRepository;
 import br.com.avcar.oficina.business.veiculo.repository.IVeiculoRepository;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
@@ -55,6 +56,7 @@ public class OrdemServicoService {
     private final IOrdemServicoRepository ordemServicoRepository;
     private final IClienteRepository clienteRepository;
     private final IVeiculoRepository veiculoRepository;
+    private final IHistoricoProprietarioRepository historicoProprietarioRepository;
     private final IHistoricoStatusOrdemRepository historicoStatusRepository;
     private final IItemServicoRepository itemServicoRepository;
     private final IItemPecaRepository itemPecaRepository;
@@ -71,6 +73,7 @@ public class OrdemServicoService {
     public OrdemServicoService(IOrdemServicoRepository ordemServicoRepository,
                                IClienteRepository clienteRepository,
                                IVeiculoRepository veiculoRepository,
+                               IHistoricoProprietarioRepository historicoProprietarioRepository,
                                IHistoricoStatusOrdemRepository historicoStatusRepository,
                                IItemServicoRepository itemServicoRepository,
                                IItemPecaRepository itemPecaRepository,
@@ -86,6 +89,7 @@ public class OrdemServicoService {
         this.ordemServicoRepository = ordemServicoRepository;
         this.clienteRepository = clienteRepository;
         this.veiculoRepository = veiculoRepository;
+        this.historicoProprietarioRepository = historicoProprietarioRepository;
         this.historicoStatusRepository = historicoStatusRepository;
         this.itemServicoRepository = itemServicoRepository;
         this.itemPecaRepository = itemPecaRepository;
@@ -106,6 +110,7 @@ public class OrdemServicoService {
 
         ClienteModel cliente = buscarClienteAtivo(dto.getIdCliente());
         VeiculoModel veiculo = buscarVeiculoAtivo(dto.getIdVeiculo());
+        validarVeiculoPertenceAoClienteAtual(cliente.getId(), veiculo.getId());
 
         OrdemServicoModel ordemServico = ordemServicoMapper.toModel(dto, cliente, veiculo);
         if (ordemServico.getNumeroOs() == null) {
@@ -127,6 +132,7 @@ public class OrdemServicoService {
 
         ClienteModel cliente = buscarClienteAtivo(dto.getIdCliente());
         VeiculoModel veiculo = buscarVeiculoAtivo(dto.getIdVeiculo());
+        validarVeiculoPertenceAoClienteAtual(cliente.getId(), veiculo.getId());
 
         ordemServicoMapper.atualizarModel(ordemServico, dto, cliente, veiculo);
         OrdemServicoModel saved = ordemServicoRepository.save(ordemServico);
@@ -251,6 +257,14 @@ public class OrdemServicoService {
     private VeiculoModel buscarVeiculoAtivo(Long id) {
         return veiculoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Veículo não encontrado ou inativo."));
+    }
+
+    private void validarVeiculoPertenceAoClienteAtual(Long idCliente, Long idVeiculo) {
+        historicoProprietarioRepository.findFirstByVeiculoIdAndAtivoTrueAndProprietarioAtualTrue(idVeiculo)
+                .filter(historico -> historico.getCliente() != null
+                        && historico.getCliente().getId() != null
+                        && historico.getCliente().getId().equals(idCliente))
+                .orElseThrow(() -> new RuleValidationException("O veículo selecionado não pertence ao cliente informado como proprietário atual."));
     }
 
     private HistoricoStatusOrdemModel buscarStatusAtual(Long idOrdemServico) {

@@ -6,12 +6,12 @@
 
 <div class="grid two" style="margin-top: 16px;">
   <section class="card"><h2>Garantias de peças</h2><div class="table-wrap"><table><thead><tr><th>Peça</th><th>Fornecedor</th><th>Prazo</th><th>Início</th><th>Fim</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-    <tr *ngFor="let g of garantiasPecas"><td>{{ g.nomePeca }}</td><td>{{ g.nomeFornecedor }}</td><td>{{ g.prazoDias }} dias</td><td>{{ g.dataInicio | date }}</td><td>{{ g.dataFim | date }}</td><td><span class="badge">{{ g.statusGarantia }}</span></td><td class="actions"><button class="secondary" (click)="acionarPeca(g)">Acionar</button><button class="danger" (click)="encerrarPeca(g)">Encerrar</button></td></tr>
+    <tr *ngFor="let g of garantiasPecas"><td>{{ g.nomePeca }}</td><td>{{ g.nomeFornecedor }}</td><td>{{ g.prazoDias }} dias</td><td>{{ g.dataInicio | date }}</td><td>{{ g.dataFim | date }}</td><td><span class="badge">{{ g.statusGarantia }}</span></td><td class="actions"><button class="secondary" (click)="acionarPeca(g)" [disabled]="!permiteAcionar(g.statusGarantia) || processando">Acionar</button><button class="danger" (click)="encerrarPeca(g)" [disabled]="!permiteEncerrar(g.statusGarantia) || processando">Encerrar</button></td></tr>
     <tr *ngIf="!garantiasPecas.length"><td colspan="7">Nenhuma garantia de peça encontrada.</td></tr>
   </tbody></table></div></section>
 
   <section class="card"><h2>Garantias de serviços</h2><div class="table-wrap"><table><thead><tr><th>Serviço</th><th>Responsável</th><th>Prazo</th><th>Início</th><th>Fim</th><th>Status</th><th>Ações</th></tr></thead><tbody>
-    <tr *ngFor="let g of garantiasServicos"><td>{{ g.nomeServico }}</td><td>{{ g.nomeColaboradorResponsavel }}</td><td>{{ g.prazoDias }} dias</td><td>{{ g.dataInicio | date }}</td><td>{{ g.dataFim | date }}</td><td><span class="badge">{{ g.statusGarantia }}</span></td><td class="actions"><button class="secondary" (click)="acionarServico(g)">Acionar</button><button class="danger" (click)="encerrarServico(g)">Encerrar</button></td></tr>
+    <tr *ngFor="let g of garantiasServicos"><td>{{ g.nomeServico }}</td><td>{{ g.nomeColaboradorResponsavel }}</td><td>{{ g.prazoDias }} dias</td><td>{{ g.dataInicio | date }}</td><td>{{ g.dataFim | date }}</td><td><span class="badge">{{ g.statusGarantia }}</span></td><td class="actions"><button class="secondary" (click)="acionarServico(g)" [disabled]="!permiteAcionar(g.statusGarantia) || processando">Acionar</button><button class="danger" (click)="encerrarServico(g)" [disabled]="!permiteEncerrar(g.statusGarantia) || processando">Encerrar</button></td></tr>
     <tr *ngIf="!garantiasServicos.length"><td colspan="7">Nenhuma garantia de serviço encontrada.</td></tr>
   </tbody></table></div></section>
 </div>

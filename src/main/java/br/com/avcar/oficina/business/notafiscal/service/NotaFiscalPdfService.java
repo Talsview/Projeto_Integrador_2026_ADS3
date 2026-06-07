@@ -1,5 +1,6 @@
 package br.com.avcar.oficina.business.notafiscal.service;
 
+import br.com.avcar.oficina.business.ordemservico.enums.StatusFluxoOrdemServico;
 import br.com.avcar.oficina.business.ordemservico.model.ItemServicoModel;
 import br.com.avcar.oficina.business.ordemservico.model.OrdemServicoModel;
 import br.com.avcar.oficina.business.ordemservico.model.HistoricoStatusOrdemModel;
@@ -108,6 +109,7 @@ public class NotaFiscalPdfService {
 
         validarDadosParaEmissao(ordem, servicos, pecas, statusAtual);
         recalcularEmMemoria(ordem, servicos, pecas);
+        validarRegrasFinanceirasParaNota(ordem, pagamentos, statusAtual);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             Document document = new Document(PageSize.A4, 26, 26, 24, 24);
@@ -147,6 +149,31 @@ public class NotaFiscalPdfService {
         }
         if (ordem.getDataAbertura() != null && ordem.getDataAbertura().isAfter(LocalDateTime.now())) {
             throw new BusinessException("Não é possível gerar a nota/recibo interno para OS com data de abertura futura.");
+        }
+    }
+
+    private void validarRegrasFinanceirasParaNota(OrdemServicoModel ordem,
+                                                  List<PagamentoModel> pagamentos,
+                                                  HistoricoStatusOrdemModel statusAtual) {
+        String status = statusAtual != null && statusAtual.getStatusOrdemServico() != null
+                ? statusAtual.getStatusOrdemServico().getNomeStatus()
+                : "";
+        if (!StatusFluxoOrdemServico.FINALIZADO.name().equals(status)) {
+            throw new BusinessException("A nota/recibo interno final só pode ser emitida para Ordem de Serviço finalizada.");
+        }
+
+        BigDecimal total = ordem.getValorTotal() == null ? BigDecimal.ZERO : ordem.getValorTotal();
+        BigDecimal pago = pagamentos.stream()
+                .filter(p -> StatusPagamento.PAGO.equals(p.getStatusPagamento()))
+                .map(PagamentoModel::getValorPago)
+                .filter(v -> v != null)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        if (total.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BusinessException("A nota/recibo interno final não pode ser emitida para OS com valor total zerado ou inconsistente.");
+        }
+        if (pago.compareTo(total) < 0) {
+            throw new BusinessException("A nota/recibo interno final só pode ser emitida quando a OS estiver quitada.");
         }
     }
 

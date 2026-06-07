@@ -77,13 +77,21 @@ export function anoVeiculoValido(ano: number | string | null | undefined, obriga
   return Number.isInteger(valor) && valor >= 1900 && valor <= limite;
 }
 
+export function normalizarPlaca(valor: string | null | undefined): string {
+  return String(valor ?? '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().slice(0, 7);
+}
+
 export function placaValida(valor: string | null | undefined): boolean {
-  const placa = (valor ?? '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  const placa = normalizarPlaca(valor);
   return /^[A-Z]{3}[0-9]{4}$/.test(placa) || /^[A-Z]{3}[0-9][A-Z][0-9]{2}$/.test(placa);
 }
 
+export function normalizarChassi(valor: string | null | undefined): string {
+  return String(valor ?? '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase().replace(/[IOQ]/g, '').slice(0, 17);
+}
+
 export function chassiValido(valor: string | null | undefined): boolean {
-  const chassi = (valor ?? '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
+  const chassi = String(valor ?? '').replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
   if (!chassi) return true;
   return /^[A-HJ-NPR-Z0-9]{17}$/.test(chassi);
 }
@@ -94,4 +102,8 @@ export function numeroMaiorQueZero(valor: number | string | null | undefined): b
 
 export function numeroNaoNegativo(valor: number | string | null | undefined): boolean {
   return Number(valor ?? 0) >= 0;
+}
+
+export function limitarTexto(valor: string | null | undefined, tamanho: number): string {
+  return String(valor ?? '').slice(0, tamanho);
 }

@@ -26,6 +26,7 @@ export class OrdensServicoComponent implements OnInit {
   novoStatus: StatusFluxoOrdemServico = 'EXECUCAO';
   observacaoStatus = '';
   form: any = this.formularioInicial();
+  errosCampo: Record<string, string> = {};
 
   constructor(
     private readonly ordemApi: OrdemServicoApiService,
@@ -58,8 +59,7 @@ export class OrdensServicoComponent implements OnInit {
 
   salvar(): void {
     this.mensagem = undefined; this.erro = undefined;
-    const erroValidacao = this.validarFormulario();
-    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    if (!this.validarFormulario()) { this.erro = 'Corrija os campos destacados antes de salvar a Ordem de Serviço.'; this.atualizarTela(); return; }
     this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.ordemApi.atualizar(this.form.id, this.form) : this.ordemApi.criar(this.form);
     acao.pipe(switchMap(() => this.ordemApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
@@ -118,14 +118,37 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
-  limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+  limpar(): void { this.form = this.formularioInicial(); this.errosCampo = {}; this.atualizarTela(); }
 
-  private validarFormulario(): string | undefined {
-    if (!this.form.idCliente || Number(this.form.idCliente) <= 0) return 'Selecione o cliente da Ordem de Serviço.';
-    if (!this.form.idVeiculo || Number(this.form.idVeiculo) <= 0) return 'Selecione o veículo da Ordem de Serviço.';
-    if (this.form.dataAbertura && dataHoraFutura(this.form.dataAbertura)) return 'A data de abertura da OS não pode ser futura.';
-    if (!this.form.prioridade) return 'Selecione a prioridade da OS.';
-    return undefined;
+  aoAlterarCliente(): void {
+    const veiculoSelecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
+    if (veiculoSelecionado && Number(veiculoSelecionado.proprietarioAtualId ?? 0) !== Number(this.form.idCliente ?? 0)) {
+      this.form.idVeiculo = 0;
+    }
+    delete this.errosCampo['idCliente'];
+    delete this.errosCampo['idVeiculo'];
+    this.atualizarTela();
+  }
+
+  veiculosDoClienteSelecionado(): VeiculoResumo[] {
+    const idCliente = Number(this.form.idCliente ?? 0);
+    if (!idCliente) return this.veiculos;
+    return this.veiculos.filter(v => Number(v.proprietarioAtualId ?? 0) === idCliente);
+  }
+
+  private validarFormulario(): boolean {
+    this.errosCampo = {};
+    if (!this.form.idCliente || Number(this.form.idCliente) <= 0) this.errosCampo['idCliente'] = 'Selecione o cliente da Ordem de Serviço.';
+    if (!this.form.idVeiculo || Number(this.form.idVeiculo) <= 0) this.errosCampo['idVeiculo'] = 'Selecione o veículo da Ordem de Serviço.';
+
+    const veiculoSelecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
+    if (veiculoSelecionado && Number(veiculoSelecionado.proprietarioAtualId ?? 0) !== Number(this.form.idCliente ?? 0)) {
+      this.errosCampo['idVeiculo'] = 'O veículo selecionado não pertence ao cliente informado como proprietário atual.';
+    }
+
+    if (this.form.dataAbertura && dataHoraFutura(this.form.dataAbertura)) this.errosCampo['dataAbertura'] = 'A data de abertura da OS não pode ser futura.';
+    if (!this.form.prioridade) this.errosCampo['prioridade'] = 'Selecione a prioridade da OS.';
+    return Object.keys(this.errosCampo).length === 0;
   }
 
   private salvarArquivo(blob: Blob, nomeArquivo: string): void {

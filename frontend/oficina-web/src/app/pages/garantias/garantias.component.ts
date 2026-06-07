@@ -43,10 +43,18 @@ export class GarantiasComponent implements OnInit {
       .subscribe({ next: r => { this.garantiasPecas = [...r.pecas]; this.garantiasServicos = [...r.servicos]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } });
   }
 
-  acionarPeca(g: GarantiaPeca): void { this.executarAcaoPeca(g, 'ACIONAR'); }
-  encerrarPeca(g: GarantiaPeca): void { this.executarAcaoPeca(g, 'ENCERRAR'); }
-  acionarServico(g: GarantiaServico): void { this.executarAcaoServico(g, 'ACIONAR'); }
-  encerrarServico(g: GarantiaServico): void { this.executarAcaoServico(g, 'ENCERRAR'); }
+  acionarPeca(g: GarantiaPeca): void { if (!this.permiteAcionar(g.statusGarantia)) { this.erro = 'Apenas garantias vigentes podem ser acionadas.'; return; } this.executarAcaoPeca(g, 'ACIONAR'); }
+  encerrarPeca(g: GarantiaPeca): void { if (!this.permiteEncerrar(g.statusGarantia)) { this.erro = 'Apenas garantias acionadas podem ser encerradas.'; return; } this.executarAcaoPeca(g, 'ENCERRAR'); }
+  acionarServico(g: GarantiaServico): void { if (!this.permiteAcionar(g.statusGarantia)) { this.erro = 'Apenas garantias vigentes podem ser acionadas.'; return; } this.executarAcaoServico(g, 'ACIONAR'); }
+  encerrarServico(g: GarantiaServico): void { if (!this.permiteEncerrar(g.statusGarantia)) { this.erro = 'Apenas garantias acionadas podem ser encerradas.'; return; } this.executarAcaoServico(g, 'ENCERRAR'); }
+
+  permiteAcionar(status?: string): boolean {
+    return status === 'VIGENTE';
+  }
+
+  permiteEncerrar(status?: string): boolean {
+    return status === 'ACIONADA';
+  }
 
   private executarAcaoPeca(g: GarantiaPeca, tipo: 'ACIONAR' | 'ENCERRAR'): void {
     if (!g.id) return;

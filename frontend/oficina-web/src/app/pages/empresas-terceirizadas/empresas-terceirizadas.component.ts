@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, switchMap } from 'rxjs';
 import { EmpresaTerceirizadaApiService } from '../../core/services/empresa-terceirizada-api.service';
-import { cnpjValido, somenteDigitos } from '../../core/validation/documento-validation';
+import { cnpjValido, formatarCnpj, somenteDigitos } from '../../core/validation/documento-validation';
 import { emailValido, formatarTelefone, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
 import { EmpresaTerceirizada } from '../../models/servico.model';
 
@@ -16,6 +16,7 @@ export class EmpresasTerceirizadasComponent implements OnInit {
   carregando = false;
   processando = false;
   form: EmpresaTerceirizada = this.formularioInicial();
+  errosCampo: Record<string, string> = {};
 
   constructor(private readonly empresaApi: EmpresaTerceirizadaApiService, private readonly cdr: ChangeDetectorRef) {}
 
@@ -41,8 +42,7 @@ export class EmpresasTerceirizadasComponent implements OnInit {
 
   salvar(): void {
     this.mensagem = undefined; this.erro = undefined;
-    const erroValidacao = this.validarFormulario();
-    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    if (!this.validarFormulario()) { this.erro = 'Corrija os campos destacados antes de salvar a empresa terceirizada.'; this.atualizarTela(); return; }
     this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.empresaApi.atualizar(this.form.id, this.form) : this.empresaApi.criar(this.form);
     acao.pipe(switchMap(() => this.empresaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
@@ -62,19 +62,53 @@ export class EmpresasTerceirizadasComponent implements OnInit {
     });
   }
 
-  limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+  limpar(): void { this.form = this.formularioInicial(); this.errosCampo = {}; this.atualizarTela(); }
   formatarTelefoneCampo(): void {
     this.form.telefone = formatarTelefone(this.form.telefone);
+    this.validarTelefoneSePreenchido();
     this.atualizarTela();
   }
 
-  private validarFormulario(): string | undefined {
-    if (!textoCadastroValido(this.form.nomeEmpresa, true)) return 'Informe um nome de empresa terceirizada válido.';
+  formatarCnpjCampo(): void {
+    this.form.cnpj = formatarCnpj(this.form.cnpj);
+    this.validarCnpjSePreenchido();
+    this.atualizarTela();
+  }
+
+  validarTelefoneSePreenchido(): void {
+    if (!telefoneValido(this.form.telefone)) {
+      this.errosCampo['telefone'] = 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
+      return;
+    }
+    delete this.errosCampo['telefone'];
+  }
+
+  validarCnpjSePreenchido(): void {
     const cnpj = somenteDigitos(this.form.cnpj);
-    if (cnpj && !cnpjValido(cnpj)) return 'Informe um CNPJ válido ou deixe o campo vazio.';
-    if (!telefoneValido(this.form.telefone)) return 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
-    if (!emailValido(this.form.email)) return 'Informe um e-mail válido.';
-    return undefined;
+    if (!cnpj) {
+      delete this.errosCampo['cnpj'];
+      return;
+    }
+    if (cnpj.length < 14) {
+      this.errosCampo['cnpj'] = 'O CNPJ deve possuir 14 dígitos.';
+      return;
+    }
+    if (!cnpjValido(cnpj)) {
+      this.errosCampo['cnpj'] = 'CNPJ inválido. Informe um CNPJ real ou deixe o campo vazio.';
+      return;
+    }
+    delete this.errosCampo['cnpj'];
+  }
+
+  private validarFormulario(): boolean {
+    this.errosCampo = {};
+    if (!textoCadastroValido(this.form.nomeEmpresa, true)) this.errosCampo['nomeEmpresa'] = 'Informe um nome de empresa terceirizada válido.';
+    const cnpj = somenteDigitos(this.form.cnpj);
+    if (cnpj && cnpj.length !== 14) this.errosCampo['cnpj'] = 'O CNPJ deve possuir 14 dígitos.';
+    if (cnpj && cnpj.length === 14 && !cnpjValido(cnpj)) this.errosCampo['cnpj'] = 'CNPJ inválido. Informe um CNPJ real ou deixe o campo vazio.';
+    if (!telefoneValido(this.form.telefone)) this.errosCampo['telefone'] = 'Informe somente números no telefone, com DDD. Exemplo: (62) 99999-9999.';
+    if (!emailValido(this.form.email)) this.errosCampo['email'] = 'Informe um e-mail válido.';
+    return Object.keys(this.errosCampo).length === 0;
   }
 
   private formularioInicial(): EmpresaTerceirizada { return { nomeEmpresa: '', cnpj: '', telefone: '', email: '', endereco: '' }; }

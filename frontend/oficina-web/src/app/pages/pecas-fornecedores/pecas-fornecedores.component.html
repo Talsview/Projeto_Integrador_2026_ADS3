@@ -4,7 +4,12 @@
 
 <div class="grid two">
   <section class="card"><h2>{{ fornecedorForm.id ? 'Editar fornecedor' : 'Novo fornecedor' }}</h2>
-    <div class="form-row"><div><label>Nome</label><input [(ngModel)]="fornecedorForm.nomeFornecedor"></div><div><label>CNPJ</label><input [(ngModel)]="fornecedorForm.cnpj"></div><div><label>Telefone</label><input [(ngModel)]="fornecedorForm.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneFornecedorCampo()"></div><div><label>E-mail</label><input [(ngModel)]="fornecedorForm.email"></div></div>
+    <div class="form-row">
+      <div><label>Nome</label><input [(ngModel)]="fornecedorForm.nomeFornecedor" [class.input-error]="errosFornecedor['nomeFornecedor']"><small class="field-error" *ngIf="errosFornecedor['nomeFornecedor']">{{ errosFornecedor['nomeFornecedor'] }}</small></div>
+      <div><label>CNPJ</label><input [(ngModel)]="fornecedorForm.cnpj" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" (input)="formatarCnpjFornecedorCampo()" [class.input-error]="errosFornecedor['cnpj']"><small class="field-error" *ngIf="errosFornecedor['cnpj']">{{ errosFornecedor['cnpj'] }}</small></div>
+      <div><label>Telefone</label><input [(ngModel)]="fornecedorForm.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneFornecedorCampo()" [class.input-error]="errosFornecedor['telefone']"><small class="field-error" *ngIf="errosFornecedor['telefone']">{{ errosFornecedor['telefone'] }}</small></div>
+      <div><label>E-mail</label><input [(ngModel)]="fornecedorForm.email" [class.input-error]="errosFornecedor['email']"><small class="field-error" *ngIf="errosFornecedor['email']">{{ errosFornecedor['email'] }}</small></div>
+    </div>
     <label>Endereço</label><input [(ngModel)]="fornecedorForm.endereco">
     <div class="actions" style="margin-top: 14px;"><button (click)="salvarFornecedor()">Salvar fornecedor</button></div>
     <h3>Fornecedores</h3><div class="actions"><input [(ngModel)]="termoFornecedor" placeholder="Pesquisar fornecedor"><button (click)="pesquisarFornecedores()">Pesquisar</button><button class="secondary" (click)="listarFornecedores()">Listar</button></div>
@@ -15,7 +20,15 @@
   </section>
 
   <section class="card"><h2>{{ pecaForm.id ? 'Editar peça' : 'Nova peça' }}</h2>
-    <div class="form-row"><div><label>Nome da peça</label><input [(ngModel)]="pecaForm.nomePeca"></div><div><label>Código nacional</label><input [(ngModel)]="pecaForm.codigoNacional"></div><div><label>Marca da peça</label><input [(ngModel)]="pecaForm.marcaPeca"></div><div><label>Modelo aplicável</label><input [(ngModel)]="pecaForm.modeloAplicavel"></div><div><label>Ano veículo</label><input type="number" [(ngModel)]="pecaForm.anoVeiculo"></div><div><label>Ano modelo</label><input type="number" [(ngModel)]="pecaForm.anoModelo"></div><div><label>Garantia em dias</label><input type="number" [(ngModel)]="pecaForm.prazoGarantiaDias"></div></div>
+    <div class="form-row">
+      <div><label>Nome da peça</label><input [(ngModel)]="pecaForm.nomePeca" [class.input-error]="errosPeca['nomePeca']"><small class="field-error" *ngIf="errosPeca['nomePeca']">{{ errosPeca['nomePeca'] }}</small></div>
+      <div><label>Código nacional</label><input [(ngModel)]="pecaForm.codigoNacional"></div>
+      <div><label>Marca da peça</label><input [(ngModel)]="pecaForm.marcaPeca" [class.input-error]="errosPeca['marcaPeca']"><small class="field-error" *ngIf="errosPeca['marcaPeca']">{{ errosPeca['marcaPeca'] }}</small></div>
+      <div><label>Modelo aplicável</label><input [(ngModel)]="pecaForm.modeloAplicavel" [class.input-error]="errosPeca['modeloAplicavel']"><small class="field-error" *ngIf="errosPeca['modeloAplicavel']">{{ errosPeca['modeloAplicavel'] }}</small></div>
+      <div><label>Ano veículo</label><input type="number" [(ngModel)]="pecaForm.anoVeiculo" [class.input-error]="errosPeca['anoVeiculo']"><small class="field-error" *ngIf="errosPeca['anoVeiculo']">{{ errosPeca['anoVeiculo'] }}</small></div>
+      <div><label>Ano modelo</label><input type="number" [(ngModel)]="pecaForm.anoModelo" [class.input-error]="errosPeca['anoModelo']"><small class="field-error" *ngIf="errosPeca['anoModelo']">{{ errosPeca['anoModelo'] }}</small></div>
+      <div><label>Garantia em dias</label><input type="number" min="0" [(ngModel)]="pecaForm.prazoGarantiaDias" [class.input-error]="errosPeca['prazoGarantiaDias']"><small class="field-error" *ngIf="errosPeca['prazoGarantiaDias']">{{ errosPeca['prazoGarantiaDias'] }}</small></div>
+    </div>
     <label>Descrição</label><textarea rows="2" [(ngModel)]="pecaForm.descricao"></textarea>
     <div class="actions" style="margin-top: 14px;"><button (click)="salvarPeca()">Salvar peça</button></div>
     <h3>Peças</h3><div class="actions"><input [(ngModel)]="termoPeca" placeholder="Pesquisar peça"><button (click)="pesquisarPecas()">Pesquisar</button><button class="secondary" (click)="listarPecas()">Listar</button></div>

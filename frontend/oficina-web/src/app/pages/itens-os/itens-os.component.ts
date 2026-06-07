@@ -31,6 +31,8 @@ export class ItensOsComponent implements OnInit {
   processando = false;
   mensagem?: string;
   erro?: string;
+  errosServico: Record<string, string> = {};
+  errosPeca: Record<string, string> = {};
 
   itemServicoForm: ItemServico = this.itemServicoInicial();
   itemPecaForm: ItemPeca = this.itemPecaInicial();
@@ -79,49 +81,71 @@ export class ItensOsComponent implements OnInit {
 
   salvarItemServico(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir serviço.'; this.atualizarTela(); return; }
-    const erroValidacao = this.validarItemServico();
-    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    if (!this.validarItemServico()) { this.erro = 'Corrija os campos destacados antes de adicionar o serviço à OS.'; this.atualizarTela(); return; }
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemServicoForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemServicoApi.criar(payload).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: itens => { this.mensagem = 'Serviço incluído na OS. A lista foi atualizada automaticamente.'; this.itensServico = [...itens]; this.itemServicoForm = this.itemServicoInicial(); this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada; this.atualizarTela(); },
+      next: itens => { this.mensagem = 'Serviço incluído na OS. A lista foi atualizada automaticamente.'; this.itensServico = [...itens]; this.itemServicoForm = this.itemServicoInicial(); this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada; this.errosServico = {}; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
 
   salvarItemPeca(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir peça.'; this.atualizarTela(); return; }
-    const erroValidacao = this.validarItemPeca();
-    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    if (!this.validarItemPeca()) { this.erro = 'Corrija os campos destacados antes de adicionar a peça à OS.'; this.atualizarTela(); return; }
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemPecaForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemPecaApi.criar(payload).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: itens => { this.mensagem = 'Peça incluída na OS. A lista foi atualizada automaticamente.'; this.itensPeca = [...itens]; this.itemPecaForm = this.itemPecaInicial(); this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada; this.atualizarTela(); },
+      next: itens => { this.mensagem = 'Peça incluída na OS. A lista foi atualizada automaticamente.'; this.itensPeca = [...itens]; this.itemPecaForm = this.itemPecaInicial(); this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada; this.errosPeca = {}; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
+  }
+
+  servicoSelecionadoTerceirizado(): boolean {
+    const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
+    return servico?.tipoServico === 'TERCEIRIZADO';
+  }
+
+  aoAlterarServico(): void {
+    if (!this.servicoSelecionadoTerceirizado()) {
+      this.itemServicoForm.idEmpresaTerceirizada = undefined;
+      this.itemServicoForm.dataEnvioTerceirizacao = undefined;
+      this.itemServicoForm.dataRetornoTerceirizacao = undefined;
+      this.itemServicoForm.valorCobradoTerceirizacao = undefined;
+      this.itemServicoForm.observacaoTerceirizacao = undefined;
+    }
+    delete this.errosServico['idServico'];
+    this.atualizarTela();
   }
 
   excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   excluirItemPeca(item: ItemPeca): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemPecaApi.excluir(item.id).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensPeca = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
-  private validarItemServico(): string | undefined {
-    if (!this.itemServicoForm.idServico || Number(this.itemServicoForm.idServico) <= 0) return 'Selecione o serviço da OS.';
-    if (!this.itemServicoForm.idColaborador || Number(this.itemServicoForm.idColaborador) <= 0) return 'Selecione o colaborador responsável pelo serviço.';
-    if (!numeroMaiorQueZero(this.itemServicoForm.quantidade)) return 'A quantidade do serviço deve ser maior que zero.';
-    if (!numeroNaoNegativo(this.itemServicoForm.valorUnitario)) return 'O valor unitário do serviço não pode ser negativo.';
-    if (dataHoraFutura(this.itemServicoForm.dataInicio as any)) return 'A data de início do serviço não pode ser futura.';
-    if (dataHoraFutura(this.itemServicoForm.dataFim as any)) return 'A data de fim do serviço não pode ser futura.';
-    if (dataHoraAnterior(this.itemServicoForm.dataFim as any, this.itemServicoForm.dataInicio as any)) return 'A data de fim do serviço não pode ser anterior à data de início.';
-    if (dataHoraAnterior(this.itemServicoForm.dataRetornoTerceirizacao as any, this.itemServicoForm.dataEnvioTerceirizacao as any)) return 'A data de retorno da terceirização não pode ser anterior ao envio.';
-    return undefined;
+  private validarItemServico(): boolean {
+    this.errosServico = {};
+    if (!this.itemServicoForm.idServico || Number(this.itemServicoForm.idServico) <= 0) this.errosServico['idServico'] = 'Selecione o serviço da OS.';
+    if (!this.itemServicoForm.idColaborador || Number(this.itemServicoForm.idColaborador) <= 0) this.errosServico['idColaborador'] = 'Selecione o colaborador responsável pelo serviço.';
+    if (!numeroMaiorQueZero(this.itemServicoForm.quantidade)) this.errosServico['quantidade'] = 'A quantidade do serviço deve ser maior que zero.';
+    if (!numeroNaoNegativo(this.itemServicoForm.valorUnitario)) this.errosServico['valorUnitario'] = 'O valor unitário do serviço não pode ser negativo.';
+    if (dataHoraFutura(this.itemServicoForm.dataInicio as any)) this.errosServico['dataInicio'] = 'A data de início do serviço não pode ser futura.';
+    if (dataHoraFutura(this.itemServicoForm.dataFim as any)) this.errosServico['dataFim'] = 'A data de fim do serviço não pode ser futura.';
+    if (dataHoraAnterior(this.itemServicoForm.dataFim as any, this.itemServicoForm.dataInicio as any)) this.errosServico['dataFim'] = 'A data de fim do serviço não pode ser anterior à data de início.';
+    if (this.servicoSelecionadoTerceirizado() && (!this.itemServicoForm.idEmpresaTerceirizada || Number(this.itemServicoForm.idEmpresaTerceirizada) <= 0)) this.errosServico['idEmpresaTerceirizada'] = 'Serviço terceirizado exige empresa terceirizada executora.';
+    if (!this.servicoSelecionadoTerceirizado() && this.itemServicoForm.idEmpresaTerceirizada) this.errosServico['idEmpresaTerceirizada'] = 'Serviço interno não deve possuir empresa terceirizada.';
+    if (dataHoraFutura(this.itemServicoForm.dataEnvioTerceirizacao as any)) this.errosServico['dataEnvioTerceirizacao'] = 'A data de envio da terceirização não pode ser futura.';
+    if (dataHoraFutura(this.itemServicoForm.dataRetornoTerceirizacao as any)) this.errosServico['dataRetornoTerceirizacao'] = 'A data de retorno da terceirização não pode ser futura.';
+    if (dataHoraAnterior(this.itemServicoForm.dataRetornoTerceirizacao as any, this.itemServicoForm.dataEnvioTerceirizacao as any)) this.errosServico['dataRetornoTerceirizacao'] = 'A data de retorno da terceirização não pode ser anterior ao envio.';
+    if (!numeroNaoNegativo(this.itemServicoForm.valorCobradoTerceirizacao)) this.errosServico['valorCobradoTerceirizacao'] = 'O valor cobrado pela terceirização não pode ser negativo.';
+    return Object.keys(this.errosServico).length === 0;
   }
 
-  private validarItemPeca(): string | undefined {
-    if (!this.itemPecaForm.idPeca || Number(this.itemPecaForm.idPeca) <= 0) return 'Selecione a peça aplicada na OS.';
-    if (!this.itemPecaForm.idFornecedor || Number(this.itemPecaForm.idFornecedor) <= 0) return 'Selecione o fornecedor da peça aplicada.';
-    if (!numeroMaiorQueZero(this.itemPecaForm.quantidade)) return 'A quantidade da peça deve ser maior que zero.';
-    if (!numeroNaoNegativo(this.itemPecaForm.valorUnitario)) return 'O valor unitário da peça não pode ser negativo.';
-    return undefined;
+  private validarItemPeca(): boolean {
+    this.errosPeca = {};
+    if (!this.itemPecaForm.idPeca || Number(this.itemPecaForm.idPeca) <= 0) this.errosPeca['idPeca'] = 'Selecione a peça aplicada na OS.';
+    if (!this.itemPecaForm.idFornecedor || Number(this.itemPecaForm.idFornecedor) <= 0) this.errosPeca['idFornecedor'] = 'Selecione o fornecedor da peça aplicada.';
+    if (!numeroMaiorQueZero(this.itemPecaForm.quantidade)) this.errosPeca['quantidade'] = 'A quantidade da peça deve ser maior que zero.';
+    if (!numeroNaoNegativo(this.itemPecaForm.valorUnitario)) this.errosPeca['valorUnitario'] = 'O valor unitário da peça não pode ser negativo.';
+    return Object.keys(this.errosPeca).length === 0;
   }
 
   private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '' }; }

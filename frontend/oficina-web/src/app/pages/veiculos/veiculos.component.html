@@ -5,16 +5,16 @@
   <section class="card">
     <h2>{{ form.id ? 'Editar veículo' : 'Novo veículo' }}</h2>
     <div class="form-row">
-      <div><label>Marca</label><select [(ngModel)]="form.marcaId"><option [ngValue]="0">Selecione</option><option *ngFor="let marca of marcas" [ngValue]="marca.id">{{ marca.nomeMarca }}</option></select></div>
-      <div><label>Modelo</label><select [(ngModel)]="form.modeloId"><option [ngValue]="0">Selecione</option><option *ngFor="let modelo of modelos" [ngValue]="modelo.id">{{ modelo.nomeModelo }} — {{ modelo.nomeMarca }}</option></select></div>
-      <div><label>Placa</label><input [(ngModel)]="form.placa" placeholder="ABC1D23"></div>
-      <div><label>Chassi</label><input [(ngModel)]="form.chassi"></div>
-      <div><label>Cor</label><input [(ngModel)]="form.cor"></div>
-      <div><label>Ano fabricação</label><input type="number" [(ngModel)]="form.anoVeiculo"></div>
-      <div><label>Ano modelo</label><input type="number" [(ngModel)]="form.anoModelo"></div>
-      <div><label>Quilometragem</label><input type="number" [(ngModel)]="form.quilometragemAtual"></div>
-      <div><label>Proprietário atual</label><select [(ngModel)]="form.proprietarioAtualId"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select></div>
-      <div><label>Início da posse</label><input type="date" [(ngModel)]="form.dataInicioPosse"></div>
+      <div><label>Marca</label><select [(ngModel)]="form.marcaId" [class.input-error]="errosCampo['marcaId']"><option [ngValue]="0">Selecione</option><option *ngFor="let marca of marcas" [ngValue]="marca.id">{{ marca.nomeMarca }}</option></select><small class="field-error" *ngIf="errosCampo['marcaId']">{{ errosCampo['marcaId'] }}</small></div>
+      <div><label>Modelo</label><select [(ngModel)]="form.modeloId" [class.input-error]="errosCampo['modeloId']"><option [ngValue]="0">Selecione</option><option *ngFor="let modelo of modelosDaMarcaSelecionada()" [ngValue]="modelo.id">{{ modelo.nomeModelo }} — {{ modelo.nomeMarca }}</option></select><small class="field-error" *ngIf="errosCampo['modeloId']">{{ errosCampo['modeloId'] }}</small></div>
+      <div><label>Placa</label><input [(ngModel)]="form.placa" placeholder="ABC1D23" maxlength="7" (input)="normalizarPlacaCampo()" [class.input-error]="errosCampo['placa']"><small class="field-error" *ngIf="errosCampo['placa']">{{ errosCampo['placa'] }}</small></div>
+      <div><label>Chassi</label><input [(ngModel)]="form.chassi" maxlength="17" (input)="normalizarChassiCampo()" [class.input-error]="errosCampo['chassi']"><small class="field-error" *ngIf="errosCampo['chassi']">{{ errosCampo['chassi'] }}</small></div>
+      <div><label>Cor</label><input [(ngModel)]="form.cor" [class.input-error]="errosCampo['cor']"><small class="field-error" *ngIf="errosCampo['cor']">{{ errosCampo['cor'] }}</small></div>
+      <div><label>Ano fabricação</label><input type="number" min="1900" [(ngModel)]="form.anoVeiculo" [class.input-error]="errosCampo['anoVeiculo']"><small class="field-error" *ngIf="errosCampo['anoVeiculo']">{{ errosCampo['anoVeiculo'] }}</small></div>
+      <div><label>Ano modelo</label><input type="number" min="1900" [(ngModel)]="form.anoModelo" [class.input-error]="errosCampo['anoModelo']"><small class="field-error" *ngIf="errosCampo['anoModelo']">{{ errosCampo['anoModelo'] }}</small></div>
+      <div><label>Quilometragem</label><input type="number" min="0" [(ngModel)]="form.quilometragemAtual" [class.input-error]="errosCampo['quilometragemAtual']"><small class="field-error" *ngIf="errosCampo['quilometragemAtual']">{{ errosCampo['quilometragemAtual'] }}</small></div>
+      <div><label>Proprietário atual</label><select [(ngModel)]="form.proprietarioAtualId" [class.input-error]="errosCampo['proprietarioAtualId']"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select><small class="field-error" *ngIf="errosCampo['proprietarioAtualId']">{{ errosCampo['proprietarioAtualId'] }}</small></div>
+      <div><label>Início da posse</label><input type="date" [(ngModel)]="form.dataInicioPosse" [class.input-error]="errosCampo['dataInicioPosse']"><small class="field-error" *ngIf="errosCampo['dataInicioPosse']">{{ errosCampo['dataInicioPosse'] }}</small></div>
     </div>
     <label>Observação</label><textarea rows="2" [(ngModel)]="form.observacao"></textarea>
     <label>Observação da posse</label><textarea rows="2" [(ngModel)]="form.observacaoPosse"></textarea>
