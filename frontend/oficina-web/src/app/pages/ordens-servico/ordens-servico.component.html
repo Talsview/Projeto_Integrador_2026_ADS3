@@ -2,20 +2,98 @@
 <p class="page-subtitle">Registro principal do atendimento, com cliente, veículo, prioridade e fluxo: Orçamento, Execução, Pagamento e Finalizado.</p>
 
 <div class="grid two">
-  <section class="card"><h2>{{ form.id ? 'Editar OS' : 'Nova OS' }}</h2>
-    <div class="form-row"><div><label>Cliente</label><select [(ngModel)]="form.idCliente" (change)="aoAlterarCliente()" [class.input-error]="errosCampo['idCliente']"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select><small class="field-error" *ngIf="errosCampo['idCliente']">{{ errosCampo['idCliente'] }}</small></div><div><label>Veículo</label><select [(ngModel)]="form.idVeiculo" [class.input-error]="errosCampo['idVeiculo']"><option [ngValue]="0">Selecione</option><option *ngFor="let veiculo of veiculosDoClienteSelecionado()" [ngValue]="veiculo.id">{{ veiculo.placa }} — {{ veiculo.nomeMarca }} {{ veiculo.nomeModelo }}</option></select><small class="field-error" *ngIf="errosCampo['idVeiculo']">{{ errosCampo['idVeiculo'] }}</small></div><div><label>Número da OS</label><input [value]="form.id ? form.numeroOs : 'Gerado automaticamente ao salvar'" disabled><small class="field-hint">Numeração sequencial gerada pelo sistema. Números de OS inativadas não são reutilizados.</small></div><div><label>Prioridade</label><select [(ngModel)]="form.prioridade" [class.input-error]="errosCampo['prioridade']"><option *ngFor="let prioridade of prioridades" [value]="prioridade">{{ prioridade }}</option></select><small class="field-error" *ngIf="errosCampo['prioridade']">{{ errosCampo['prioridade'] }}</small></div></div>
-    <label>Observação</label><textarea rows="3" [(ngModel)]="form.observacao"></textarea>
-    <div class="actions" style="margin-top: 14px;"><button (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar OS' }}</button><button class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button></div>
-    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>
+  <section class="card">
+    <h2>{{ form.id ? 'Editar OS' : 'Nova OS' }}</h2>
+
+    <div class="os-auto-number-note">
+      <strong>Numeração automática da OS</strong>
+      <span>O número será gerado pelo sistema ao salvar. Números de OS inativadas permanecem reservados e não são reutilizados.</span>
+    </div>
+
+    <div class="os-form-grid">
+      <div class="searchable-select-field os-field-wide">
+        <label>Cliente</label>
+        <div class="searchable-select-search">
+          <input
+            [(ngModel)]="termoClienteOs"
+            placeholder="Pesquisar cliente por nome, CPF/CNPJ, telefone ou e-mail"
+            (keyup.enter)="buscarClientesParaOs()"
+            [disabled]="processando">
+          <button type="button" class="secondary" (click)="buscarClientesParaOs()" [disabled]="processando || carregandoClientesOs">
+            {{ carregandoClientesOs ? 'Buscando...' : 'Buscar' }}
+          </button>
+        </div>
+        <select [(ngModel)]="form.idCliente" (change)="aoAlterarCliente()" [class.input-error]="errosCampo['idCliente']">
+          <option [ngValue]="0">Selecione o cliente</option>
+          <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ rotuloCliente(cliente) }}</option>
+        </select>
+        <small class="field-hint">Digite parte do nome ou documento para localizar clientes rapidamente em bases grandes.</small>
+        <small class="field-error" *ngIf="errosCampo['idCliente']">{{ errosCampo['idCliente'] }}</small>
+      </div>
+
+      <div class="searchable-select-field os-field-wide">
+        <label>Veículo</label>
+        <div class="searchable-select-search">
+          <input
+            [(ngModel)]="termoVeiculoOs"
+            placeholder="Pesquisar veículo por placa, modelo ou proprietário"
+            (keyup.enter)="buscarVeiculosParaOs()"
+            [disabled]="processando">
+          <button type="button" class="secondary" (click)="buscarVeiculosParaOs()" [disabled]="processando || carregandoVeiculosOs">
+            {{ carregandoVeiculosOs ? 'Buscando...' : 'Buscar' }}
+          </button>
+        </div>
+        <select [(ngModel)]="form.idVeiculo" (change)="aoAlterarVeiculo()" [class.input-error]="errosCampo['idVeiculo']">
+          <option [ngValue]="0">Selecione o veículo</option>
+          <option *ngFor="let veiculo of veiculosDoClienteSelecionado()" [ngValue]="veiculo.id">{{ rotuloVeiculo(veiculo) }}</option>
+        </select>
+        <small class="field-hint">Após selecionar o cliente, serão aceitos somente veículos vinculados ao proprietário atual.</small>
+        <small class="field-error" *ngIf="errosCampo['idVeiculo']">{{ errosCampo['idVeiculo'] }}</small>
+      </div>
+
+      <div class="os-field-priority">
+        <label>Prioridade</label>
+        <select [(ngModel)]="form.prioridade" [class.input-error]="errosCampo['prioridade']">
+          <option *ngFor="let prioridade of prioridades" [value]="prioridade">{{ prioridade }}</option>
+        </select>
+        <small class="field-error" *ngIf="errosCampo['prioridade']">{{ errosCampo['prioridade'] }}</small>
+      </div>
+
+      <div class="os-field-observation">
+        <label>Observação</label>
+        <textarea rows="3" [(ngModel)]="form.observacao" placeholder="Descreva a solicitação inicial, sintomas informados pelo cliente ou observações do atendimento."></textarea>
+      </div>
+    </div>
+
+    <div class="actions" style="margin-top: 14px;">
+      <button (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar OS' }}</button>
+      <button class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button>
+    </div>
+
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
   </section>
 
-  <section class="card"><h2>Alterar status</h2>
+  <section class="card">
+    <h2>Alterar status</h2>
     <p *ngIf="!ordemSelecionada" class="page-subtitle">Selecione uma OS na listagem para alterar o status.</p>
-    <div *ngIf="ordemSelecionada"><p><strong>OS selecionada:</strong> {{ ordemSelecionada.numeroOs }} — {{ ordemSelecionada.nomeCliente }}</p><div><label>Novo status</label><select [(ngModel)]="novoStatus"><option *ngFor="let status of statusFluxo" [value]="status">{{ status }}</option></select></div><div><label>Observação</label><textarea rows="4" [(ngModel)]="observacaoStatus"></textarea></div><button type="button" style="margin-top: 12px;" (click)="alterarStatus()" [disabled]="processando">{{ processando ? 'Processando...' : 'Confirmar alteração' }}</button></div>
+    <div *ngIf="ordemSelecionada">
+      <p><strong>OS selecionada:</strong> {{ ordemSelecionada.numeroOs }} — {{ ordemSelecionada.nomeCliente }}</p>
+      <div>
+        <label>Novo status</label>
+        <select [(ngModel)]="novoStatus"><option *ngFor="let status of statusFluxo" [value]="status">{{ status }}</option></select>
+      </div>
+      <div>
+        <label>Observação</label>
+        <textarea rows="4" [(ngModel)]="observacaoStatus"></textarea>
+      </div>
+      <button type="button" style="margin-top: 12px;" (click)="alterarStatus()" [disabled]="processando">{{ processando ? 'Processando...' : 'Confirmar alteração' }}</button>
+    </div>
   </section>
 </div>
 
-<section class="card" style="margin-top: 16px;"><h2>Consulta de OS</h2>
+<section class="card" style="margin-top: 16px;">
+  <h2>Consulta de OS</h2>
   <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar por número, placa ou cliente" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar todos</button></div>
   <p *ngIf="carregando">Carregando ordens de serviço...</p>
   <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>Nº OS</th><th>Cliente</th><th>Placa</th><th>Status</th><th>Prioridade</th><th>Total</th><th class="actions-col">Ações</th></tr></thead><tbody>

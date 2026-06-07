@@ -1,9 +1,73 @@
 <h1 class="page-title">Configurações</h1>
-<p class="page-subtitle">Parâmetros do ambiente local e informações operacionais do sistema.</p>
-<section class="card">
-  <div class="section-heading">
-    <span>Gestão da oficina</span>
-    <h2>Configurações</h2>
-  </div>
-  <p class="muted">Esta área centraliza orientações de execução local, integração com API REST, PostgreSQL e preferências futuras do sistema.</p>
-</section>
+<p class="page-subtitle">Parâmetros úteis para execução local, comunicação com API, preferências visuais e apoio à apresentação do sistema.</p>
+
+<div class="grid two config-grid">
+  <section class="card">
+    <div class="section-heading compact">
+      <span>Ambiente local</span>
+      <h2>Status da API e do banco</h2>
+    </div>
+    <div class="config-status-panel" [class.ok]="statusBanco?.available" [class.fail]="statusBanco && !statusBanco.available">
+      <strong>{{ statusBanco?.available ? 'Conexão disponível' : 'Verificação de conexão' }}</strong>
+      <span>{{ statusBanco?.mensagem || 'Clique para verificar se backend e PostgreSQL estão respondendo.' }}</span>
+      <small *ngIf="statusBanco?.tempoRespostaMs">Tempo de resposta: {{ statusBanco?.tempoRespostaMs }} ms</small>
+    </div>
+    <div class="actions" style="margin-top: 14px;">
+      <button type="button" (click)="verificarBanco()" [disabled]="carregandoStatus">{{ carregandoStatus ? 'Verificando...' : 'Verificar conexão' }}</button>
+      <button type="button" class="secondary" (click)="abrirSwagger()">Abrir Swagger</button>
+    </div>
+    <p class="alert success" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+
+  <section class="card">
+    <div class="section-heading compact">
+      <span>Informações técnicas</span>
+      <h2>Configuração em uso</h2>
+    </div>
+    <div class="config-list">
+      <div><span>Versão funcional</span><strong>{{ versaoSistema }}</strong></div>
+      <div><span>API base</span><strong>{{ apiBaseUrl }}</strong></div>
+      <div><span>Swagger</span><strong>{{ swaggerUrl }}</strong></div>
+      <div><span>Banco</span><strong>PostgreSQL local</strong></div>
+      <div><span>Camada View</span><strong>Angular autorizado</strong></div>
+    </div>
+  </section>
+</div>
+
+<div class="grid two config-grid" style="margin-top: 16px;">
+  <section class="card">
+    <div class="section-heading compact">
+      <span>Preferências do navegador</span>
+      <h2>Experiência de uso</h2>
+    </div>
+    <label class="checkbox-line">
+      <input type="checkbox" [(ngModel)]="preferencias.animacoesSutis">
+      Ativar animações sutis de botões, campos e cartões
+    </label>
+    <label class="checkbox-line">
+      <input type="checkbox" [(ngModel)]="preferencias.modoCompacto">
+      Usar modo compacto para reduzir espaçamentos em telas menores
+    </label>
+    <label class="checkbox-line">
+      <input type="checkbox" [(ngModel)]="preferencias.avisosOperacionais">
+      Exibir dicas e avisos operacionais nos formulários
+    </label>
+    <div class="actions" style="margin-top: 16px;">
+      <button type="button" (click)="salvarPreferencias()">Salvar preferências</button>
+      <button type="button" class="secondary" (click)="restaurarPreferencias()">Restaurar padrão</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-heading compact">
+      <span>Execução local</span>
+      <h2>Comandos principais</h2>
+    </div>
+    <pre class="command-box"><code *ngFor="let comando of comandos">{{ comando }}
+</code></pre>
+    <div class="actions">
+      <button type="button" class="secondary" (click)="copiarComandos()">Copiar comandos</button>
+    </div>
+  </section>
+</div>

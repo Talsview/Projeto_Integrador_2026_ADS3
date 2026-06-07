@@ -1,6 +1,6 @@
 <h1 class="page-title">Pagamentos</h1>
 <p class="page-subtitle">
-  Registro financeiro da OS. Ao salvar um pagamento, o sistema atualiza automaticamente valores, lista de pagamentos e status da Ordem de Serviço.
+  Registro financeiro da OS. Esta tela exibe somente Ordens de Serviço no status PAGAMENTO, etapa correta para quitação financeira.
 </p>
 <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
 <p class="alert error" *ngIf="erro">{{ erro }}</p>
@@ -10,7 +10,7 @@
     <div>
       <label>Ordem de Serviço</label>
       <select [(ngModel)]="idOrdemSelecionada" (ngModelChange)="aoSelecionarOrdem()">
-        <option [ngValue]="0">Selecione</option>
+        <option [ngValue]="0">Selecione uma OS em pagamento</option>
         <option *ngFor="let os of ordens" [ngValue]="os.id">
           {{ os.numeroOs }} — {{ os.nomeCliente }} — {{ os.statusAtual || 'SEM STATUS' }} — Total {{ os.valorTotal | currency:'BRL' }}
         </option>
@@ -26,12 +26,11 @@
   </div>
 
   <div class="alert" *ngIf="idOrdemSelecionada && statusAtualOs !== 'FINALIZADO'" style="margin-top: 14px;">
-    Ao salvar um pagamento, o backend conduz a OS automaticamente para <strong>PAGAMENTO</strong>, respeitando o histórico de status.
-    Se o valor pago quitar a OS, ela será finalizada automaticamente.
+    Ao salvar um pagamento, o backend atualiza o resumo financeiro. Se o valor pago quitar a OS, ela será finalizada automaticamente.
   </div>
 
   <div class="alert error" *ngIf="idOrdemSelecionada && statusAtualOs === 'FINALIZADO'" style="margin-top: 14px;">
-    Esta Ordem de Serviço já está finalizada. Novos pagamentos não devem ser registrados.
+    A OS selecionada não está na etapa de pagamento. Selecione uma Ordem de Serviço com status PAGAMENTO.
   </div>
 
   <p class="page-subtitle" *ngIf="idOrdemSelecionada" style="margin-top: 14px;">

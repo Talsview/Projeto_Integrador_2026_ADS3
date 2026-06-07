@@ -26,5 +26,14 @@ public class GarantiaPecaDTO extends BaseDTO {
     private LocalDate dataFim;
     private ResponsabilidadeGarantiaPeca responsabilidade;
     private StatusGarantia statusGarantia;
+    private LocalDate dataAcionamento;
+    private String motivoAcionamento;
+    private String descricaoDefeito;
+    private String responsavelAnalise;
+    private LocalDate dataEncerramento;
+    private String solucaoAplicada;
+    private String custoAssumidoPor;
+    private Boolean atendimentoRealizado;
     private String observacao;
 }
+

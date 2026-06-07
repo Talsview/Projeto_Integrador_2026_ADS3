@@ -52,6 +52,31 @@ public class GarantiaServicoModel extends BaseModel {
     @Column(name = "status_garantia", nullable = false, length = 30)
     private StatusGarantia statusGarantia = StatusGarantia.AGUARDANDO_FINALIZACAO_OS;
 
+
+    @Column(name = "data_acionamento")
+    private LocalDate dataAcionamento;
+
+    @Column(name = "motivo_acionamento", length = 255)
+    private String motivoAcionamento;
+
+    @Column(name = "descricao_defeito", columnDefinition = "TEXT")
+    private String descricaoDefeito;
+
+    @Column(name = "responsavel_analise", length = 150)
+    private String responsavelAnalise;
+
+    @Column(name = "data_encerramento")
+    private LocalDate dataEncerramento;
+
+    @Column(name = "solucao_aplicada", columnDefinition = "TEXT")
+    private String solucaoAplicada;
+
+    @Column(name = "custo_assumido_por", length = 80)
+    private String custoAssumidoPor;
+
+    @Column(name = "atendimento_realizado")
+    private Boolean atendimentoRealizado;
+
     @Column(name = "observacao", columnDefinition = "TEXT")
     private String observacao;
 }

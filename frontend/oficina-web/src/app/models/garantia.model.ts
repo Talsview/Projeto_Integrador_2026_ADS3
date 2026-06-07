@@ -16,6 +16,14 @@ export interface GarantiaPeca extends BaseDTO {
   dataFim?: string;
   responsabilidade?: ResponsabilidadeGarantiaPeca;
   statusGarantia?: StatusGarantia;
+  dataAcionamento?: string;
+  motivoAcionamento?: string;
+  descricaoDefeito?: string;
+  responsavelAnalise?: string;
+  dataEncerramento?: string;
+  solucaoAplicada?: string;
+  custoAssumidoPor?: string;
+  atendimentoRealizado?: boolean;
   observacao?: string;
 }
 
@@ -30,9 +38,26 @@ export interface GarantiaServico extends BaseDTO {
   dataInicio?: string;
   dataFim?: string;
   statusGarantia?: StatusGarantia;
+  dataAcionamento?: string;
+  motivoAcionamento?: string;
+  descricaoDefeito?: string;
+  responsavelAnalise?: string;
+  dataEncerramento?: string;
+  solucaoAplicada?: string;
+  custoAssumidoPor?: string;
+  atendimentoRealizado?: boolean;
   observacao?: string;
 }
 
 export interface AcionamentoGarantia {
+  dataAcionamento?: string;
+  motivoAcionamento?: string;
+  descricaoDefeito?: string;
+  responsavelAnalise?: string;
+  responsabilidade?: ResponsabilidadeGarantiaPeca;
+  dataEncerramento?: string;
+  solucaoAplicada?: string;
+  custoAssumidoPor?: string;
+  atendimentoRealizado?: boolean;
   observacao?: string;
 }

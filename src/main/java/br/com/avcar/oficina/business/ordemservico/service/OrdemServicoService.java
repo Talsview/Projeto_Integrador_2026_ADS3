@@ -226,6 +226,16 @@ public class OrdemServicoService {
         impedirAlteracaoSeFinalizada(ordemServico);
     }
 
+    public void validarOrdemEmOrcamento(Long idOrdemServico) {
+        OrdemServicoModel ordemServico = buscarModelAtivo(idOrdemServico);
+        HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(ordemServico.getId());
+        if (statusAtual == null
+                || statusAtual.getStatusOrdemServico() == null
+                || !StatusFluxoOrdemServico.ORCAMENTO.name().equals(statusAtual.getStatusOrdemServico().getNomeStatus())) {
+            throw new RuleValidationException("Serviços e peças só podem ser alterados enquanto a Ordem de Serviço está em ORÇAMENTO.");
+        }
+    }
+
     private OrdemServicoDTO montarDetalhe(Long id) {
         OrdemServicoModel ordemServico = buscarModelAtivo(id);
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(id);

@@ -828,3 +828,302 @@ input[type="radio"] {
     font-size: 12px;
   }
 }
+
+/* Etapa 45 — Atendimento operacional de garantias */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(7, 26, 45, .58);
+}
+
+.modal-card {
+  width: min(920px, 96vw);
+  max-height: 92vh;
+  overflow-y: auto;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 24px 70px rgba(7, 26, 45, .32);
+  padding: 24px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+}
+
+.modal-header h2 { margin-bottom: 6px; }
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  margin-top: 18px;
+  padding-top: 16px;
+}
+
+.checkbox-line {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.checkbox-line input {
+  width: auto;
+}
+
+.garantia-modal textarea {
+  min-height: 96px;
+}
+
+@media (max-width: 720px) {
+  .modal-backdrop { padding: 10px; align-items: flex-start; }
+  .modal-card { width: 100%; max-height: 96vh; padding: 16px; }
+  .modal-header, .modal-actions { flex-direction: column; align-items: stretch; }
+}
+
+/* Etapa 47 — Combobox pesquisável em Ordens de Serviço */
+.searchable-select-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.searchable-select-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.searchable-select-search input {
+  min-width: 0;
+}
+
+.searchable-select-search button {
+  min-width: 92px;
+  white-space: nowrap;
+}
+
+.searchable-select-field select {
+  width: 100%;
+}
+
+@media (max-width: 720px) {
+  .searchable-select-search {
+    grid-template-columns: 1fr;
+  }
+
+  .searchable-select-search button {
+    width: 100%;
+  }
+}
+
+
+/* Etapa 48 — reorganização da OS, relatórios/configurações úteis e microinterações */
+.os-auto-number-note {
+  display: grid;
+  gap: 4px;
+  margin: -2px 0 18px;
+  padding: 12px 14px;
+  border: 1px solid #ffd3c4;
+  border-left: 4px solid var(--accent, #f4511e);
+  background: #fff7f3;
+  color: var(--primary-strong, #061729);
+}
+
+.os-auto-number-note strong { font-size: 13px; font-weight: 950; }
+.os-auto-number-note span { color: var(--muted, #64748b); font-size: 12px; line-height: 1.35; }
+
+.os-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px 18px;
+  align-items: start;
+}
+
+.os-field-observation { grid-column: 1 / -1; }
+.os-field-priority { max-width: 420px; }
+
+.searchable-select-field input::placeholder { text-overflow: ellipsis; }
+
+.report-toolbar { margin-bottom: 16px; }
+.report-filter-grid { max-width: 760px; }
+.report-grid { margin-top: 16px; }
+
+.section-heading.compact { margin-bottom: 14px; padding-bottom: 12px; }
+
+.report-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 14px;
+  margin: 16px 0;
+}
+
+.report-kpi-card {
+  min-height: 118px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px;
+  border: 1px solid var(--border, #d8e0ea);
+  background: #fff;
+  box-shadow: var(--shadow-soft);
+}
+
+.report-kpi-card span { color: var(--muted); font-size: 12px; font-weight: 850; }
+.report-kpi-card strong { color: var(--primary-strong); font-size: 24px; letter-spacing: -.03em; }
+.report-kpi-card small { color: var(--muted); line-height: 1.35; }
+.report-kpi-card.success { border-left: 4px solid var(--success); }
+.report-kpi-card.warning { border-left: 4px solid var(--warning); }
+.report-kpi-card.danger { border-left: 4px solid var(--danger); }
+.report-kpi-card.info { border-left: 4px solid var(--primary); }
+
+.status-report-list { display: grid; gap: 13px; }
+.status-report-item {
+  display: grid;
+  grid-template-columns: minmax(120px, 170px) minmax(0, 1fr) 52px;
+  gap: 12px;
+  align-items: center;
+}
+.status-report-item strong { display: block; color: var(--primary-strong); }
+.status-report-item small { display: block; color: var(--muted); margin-top: 2px; }
+.status-report-item em { color: var(--muted); font-style: normal; font-weight: 850; text-align: right; }
+.progress-line { height: 9px; background: #e8eef6; overflow: hidden; }
+.progress-line span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--primary)); transition: width .45s ease; }
+
+.config-grid { align-items: stretch; }
+.config-status-panel {
+  display: grid;
+  gap: 7px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--warning);
+  background: #fffaf0;
+}
+.config-status-panel.ok { border-left-color: var(--success); background: #f0fbf5; }
+.config-status-panel.fail { border-left-color: var(--danger); background: #fff1f2; }
+.config-status-panel strong { color: var(--primary-strong); }
+.config-status-panel span, .config-status-panel small { color: var(--muted); }
+
+.config-list { display: grid; gap: 10px; }
+.config-list div {
+  display: grid;
+  grid-template-columns: minmax(120px, 180px) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+}
+.config-list div:last-child { border-bottom: 0; }
+.config-list span { color: var(--muted); font-size: 12px; font-weight: 850; }
+.config-list strong { color: var(--primary-strong); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.command-box {
+  margin: 0 0 14px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  background: #0b253f;
+  color: #e5eef8;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+.command-box code { display: block; font-family: Consolas, Monaco, 'Courier New', monospace; font-size: 13px; }
+
+/* Microinterações profissionais e discretas */
+.card,
+.table-wrap,
+.report-kpi-card,
+.alert,
+.config-status-panel,
+.modal-card {
+  animation: avcar-soft-enter .28s ease both;
+}
+
+@keyframes avcar-soft-enter {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+button,
+.primary-shortcut,
+.api-link,
+.dropdown-item,
+input,
+select,
+textarea {
+  transition: border-color .16s ease, box-shadow .16s ease, background-color .16s ease, transform .16s ease, filter .16s ease;
+}
+
+button,
+.primary-shortcut,
+.api-link {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled),
+.primary-shortcut:hover,
+.api-link:hover,
+.dropdown-item:hover {
+  transform: translateY(-1px);
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+select,
+textarea {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.text-overflow-animating {
+  box-shadow: 0 0 0 3px rgba(244,81,30,.16) !important;
+}
+
+body.compact-mode .card { padding: 18px; }
+body.compact-mode .page-subtitle { margin-bottom: 12px; }
+body.compact-mode th,
+body.compact-mode td { padding: 11px 13px; }
+body.hide-operational-hints .field-hint { display: none !important; }
+
+body.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+@media (max-width: 1380px) {
+  .report-kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@media (max-width: 840px) {
+  .os-form-grid,
+  .report-kpi-grid,
+  .status-report-item,
+  .config-list div { grid-template-columns: 1fr; }
+  .os-field-priority { max-width: none; }
+  .status-report-item em { text-align: left; }
+}

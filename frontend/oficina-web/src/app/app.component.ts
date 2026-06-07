@@ -25,14 +25,82 @@ export class AppComponent {
     this.menuAberto = undefined;
   }
 
-  @HostListener('document:click')
-  protected fecharMenuAoClicarFora(): void {
+  @HostListener('document:click', ['$event'])
+  protected aoClicarNoDocumento(event: MouseEvent): void {
     this.fecharMenu();
+    this.animarConteudoLongo(event.target as HTMLElement);
+  }
+
+  @HostListener('document:focusin', ['$event'])
+  protected aoFocarNoDocumento(event: FocusEvent): void {
+    this.animarConteudoLongo(event.target as HTMLElement);
   }
 
   @HostListener('document:keydown.escape')
   protected fecharMenuAoPressionarEscape(): void {
     this.fecharMenu();
+  }
+
+  private animarConteudoLongo(elemento: HTMLElement | null): void {
+    const alvo = this.encontrarElementoAnimavel(elemento);
+    if (!alvo || document.body.classList.contains('reduce-motion')) return;
+
+    const excesso = alvo.scrollWidth - alvo.clientWidth;
+    if (excesso <= 12) return;
+
+    const texto = this.obterTextoDoElemento(alvo);
+    if (texto) alvo.setAttribute('title', texto);
+
+    alvo.classList.remove('text-overflow-animating');
+    alvo.scrollLeft = 0;
+
+    window.requestAnimationFrame(() => {
+      alvo.classList.add('text-overflow-animating');
+      this.animarScrollHorizontal(alvo, excesso);
+    });
+  }
+
+  private encontrarElementoAnimavel(elemento: HTMLElement | null): HTMLElement | null {
+    if (!elemento) return null;
+    const seletor = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, button, .dropdown-item, .primary-shortcut, .api-link';
+    if (elemento.matches(seletor)) return elemento;
+    const encontrado = elemento.closest(seletor);
+    return encontrado instanceof HTMLElement ? encontrado : null;
+  }
+
+  private obterTextoDoElemento(elemento: HTMLElement): string {
+    if (elemento instanceof HTMLInputElement || elemento instanceof HTMLTextAreaElement) {
+      return elemento.value || elemento.placeholder || '';
+    }
+    if (elemento instanceof HTMLSelectElement) {
+      return elemento.selectedOptions?.[0]?.textContent?.trim() ?? '';
+    }
+    return elemento.textContent?.trim() ?? '';
+  }
+
+  private animarScrollHorizontal(elemento: HTMLElement, excesso: number): void {
+    const duracao = Math.min(2800, Math.max(1200, excesso * 28));
+    const inicio = performance.now();
+
+    const executar = (agora: number) => {
+      const progresso = Math.min(1, (agora - inicio) / duracao);
+      const suavizado = progresso < .5
+        ? 2 * progresso * progresso
+        : 1 - Math.pow(-2 * progresso + 2, 2) / 2;
+      elemento.scrollLeft = excesso * suavizado;
+
+      if (progresso < 1) {
+        window.requestAnimationFrame(executar);
+        return;
+      }
+
+      window.setTimeout(() => {
+        elemento.scrollLeft = 0;
+        elemento.classList.remove('text-overflow-animating');
+      }, 450);
+    };
+
+    window.requestAnimationFrame(executar);
   }
 
   protected readonly swaggerUrl = environment.swaggerUrl;

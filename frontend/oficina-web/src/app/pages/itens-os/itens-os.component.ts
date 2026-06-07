@@ -14,7 +14,7 @@ import { dataHoraAnterior, dataHoraFutura, numeroMaiorQueZero, numeroNaoNegativo
 import { ColaboradorResumo } from '../../models/pessoa.model';
 import { Fornecedor, ItemPeca, Peca } from '../../models/peca.model';
 import { EmpresaTerceirizada, Servico } from '../../models/servico.model';
-import { ItemServico, OrdemServicoResumo } from '../../models/ordem-servico.model';
+import { ItemServico, OrdemServicoResumo, StatusFluxoOrdemServico } from '../../models/ordem-servico.model';
 
 @Component({ selector: 'app-itens-os', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './itens-os.component.html' })
 export class ItensOsComponent implements OnInit {
@@ -26,6 +26,7 @@ export class ItensOsComponent implements OnInit {
   fornecedores: Fornecedor[] = [];
   itensServico: ItemServico[] = [];
   itensPeca: ItemPeca[] = [];
+  readonly statusPermitido: StatusFluxoOrdemServico = 'ORCAMENTO';
   idOrdemSelecionada = 0;
   carregando = false;
   processando = false;
@@ -61,7 +62,7 @@ export class ItensOsComponent implements OnInit {
       pecas: this.pecaApi.listar(),
       fornecedores: this.fornecedorApi.listar()
     }).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
-      next: r => { this.ordens = [...r.ordens]; this.servicos = [...r.servicos]; this.colaboradores = [...r.colaboradores]; this.empresas = [...r.empresas]; this.pecas = [...r.pecas]; this.fornecedores = [...r.fornecedores]; this.atualizarTela(); },
+      next: r => { this.ordens = this.filtrarOrdensPorStatus(r.ordens, this.statusPermitido); this.servicos = [...r.servicos]; this.colaboradores = [...r.colaboradores]; this.empresas = [...r.empresas]; this.pecas = [...r.pecas]; this.fornecedores = [...r.fornecedores]; if (this.idOrdemSelecionada && !this.ordemSelecionadaEhStatusPermitido()) { this.limparSelecaoOrdem(); } this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -69,6 +70,7 @@ export class ItensOsComponent implements OnInit {
   carregarItens(): void {
     this.mensagem = undefined; this.erro = undefined;
     if (!this.idOrdemSelecionada) { this.itensServico = []; this.itensPeca = []; this.atualizarTela(); return; }
+    if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Nesta tela aparecem apenas Ordens de Serviço em ORÇAMENTO. Para incluir serviços e peças, selecione uma OS nessa etapa do fluxo.'; this.itensServico = []; this.itensPeca = []; this.atualizarTela(); return; }
     this.carregando = true; this.atualizarTela();
     forkJoin({
       servicos: this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada),
@@ -81,6 +83,7 @@ export class ItensOsComponent implements OnInit {
 
   salvarItemServico(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir serviço.'; this.atualizarTela(); return; }
+    if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Serviços só podem ser incluídos enquanto a OS está em ORÇAMENTO.'; this.atualizarTela(); return; }
     if (!this.validarItemServico()) { this.erro = 'Corrija os campos destacados antes de adicionar o serviço à OS.'; this.atualizarTela(); return; }
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemServicoForm, idOrdemServico: this.idOrdemSelecionada };
@@ -92,6 +95,7 @@ export class ItensOsComponent implements OnInit {
 
   salvarItemPeca(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir peça.'; this.atualizarTela(); return; }
+    if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Peças só podem ser incluídas enquanto a OS está em ORÇAMENTO.'; this.atualizarTela(); return; }
     if (!this.validarItemPeca()) { this.erro = 'Corrija os campos destacados antes de adicionar a peça à OS.'; this.atualizarTela(); return; }
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemPecaForm, idOrdemServico: this.idOrdemSelecionada };
@@ -128,7 +132,6 @@ export class ItensOsComponent implements OnInit {
     if (!numeroMaiorQueZero(this.itemServicoForm.quantidade)) this.errosServico['quantidade'] = 'A quantidade do serviço deve ser maior que zero.';
     if (!numeroNaoNegativo(this.itemServicoForm.valorUnitario)) this.errosServico['valorUnitario'] = 'O valor unitário do serviço não pode ser negativo.';
     if (dataHoraFutura(this.itemServicoForm.dataInicio as any)) this.errosServico['dataInicio'] = 'A data de início do serviço não pode ser futura.';
-    if (dataHoraFutura(this.itemServicoForm.dataFim as any)) this.errosServico['dataFim'] = 'A data de fim do serviço não pode ser futura.';
     if (dataHoraAnterior(this.itemServicoForm.dataFim as any, this.itemServicoForm.dataInicio as any)) this.errosServico['dataFim'] = 'A data de fim do serviço não pode ser anterior à data de início.';
     if (this.servicoSelecionadoTerceirizado() && (!this.itemServicoForm.idEmpresaTerceirizada || Number(this.itemServicoForm.idEmpresaTerceirizada) <= 0)) this.errosServico['idEmpresaTerceirizada'] = 'Serviço terceirizado exige empresa terceirizada executora.';
     if (!this.servicoSelecionadoTerceirizado() && this.itemServicoForm.idEmpresaTerceirizada) this.errosServico['idEmpresaTerceirizada'] = 'Serviço interno não deve possuir empresa terceirizada.';
@@ -146,6 +149,32 @@ export class ItensOsComponent implements OnInit {
     if (!numeroMaiorQueZero(this.itemPecaForm.quantidade)) this.errosPeca['quantidade'] = 'A quantidade da peça deve ser maior que zero.';
     if (!numeroNaoNegativo(this.itemPecaForm.valorUnitario)) this.errosPeca['valorUnitario'] = 'O valor unitário da peça não pode ser negativo.';
     return Object.keys(this.errosPeca).length === 0;
+  }
+
+  private ordemSelecionadaEhStatusPermitido(): boolean {
+    const ordem = this.ordens.find(os => Number(os.id) === Number(this.idOrdemSelecionada));
+    return !!ordem && this.normalizarStatus(ordem.statusAtual) === this.statusPermitido;
+  }
+
+  private filtrarOrdensPorStatus(ordens: OrdemServicoResumo[], status: StatusFluxoOrdemServico): OrdemServicoResumo[] {
+    return [...(ordens ?? [])].filter(os => this.normalizarStatus(os.statusAtual) === status);
+  }
+
+  private normalizarStatus(status?: string): StatusFluxoOrdemServico | '' {
+    return (status ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '_') as StatusFluxoOrdemServico | '';
+  }
+
+  private limparSelecaoOrdem(): void {
+    this.idOrdemSelecionada = 0;
+    this.itensServico = [];
+    this.itensPeca = [];
+    this.itemServicoForm = this.itemServicoInicial();
+    this.itemPecaForm = this.itemPecaInicial();
   }
 
   private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '' }; }

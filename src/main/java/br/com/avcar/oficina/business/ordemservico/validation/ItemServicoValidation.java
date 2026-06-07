@@ -56,7 +56,6 @@ public class ItemServicoValidation {
             throw new RuleValidationException("O valor total do Item de Serviço não pode ser negativo.");
         }
         ValidationUtils.notFuture(dto.getDataInicio(), "data de início do serviço");
-        ValidationUtils.notFuture(dto.getDataFim(), "data de fim do serviço");
         ValidationUtils.dateNotBefore(dto.getDataFim(), dto.getDataInicio(), "data de fim do serviço", "data de início do serviço");
         ValidationUtils.maxLength(dto.getDescricaoExecucao(), 2000, "descrição da execução");
         ValidationUtils.maxLength(dto.getObservacaoTerceirizacao(), 2000, "observação da terceirização");

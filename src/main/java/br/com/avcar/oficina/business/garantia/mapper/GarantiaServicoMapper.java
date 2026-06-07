@@ -32,6 +32,14 @@ public class GarantiaServicoMapper {
         dto.setDataInicio(model.getDataInicio());
         dto.setDataFim(model.getDataFim());
         dto.setStatusGarantia(model.getStatusGarantia());
+        dto.setDataAcionamento(model.getDataAcionamento());
+        dto.setMotivoAcionamento(model.getMotivoAcionamento());
+        dto.setDescricaoDefeito(model.getDescricaoDefeito());
+        dto.setResponsavelAnalise(model.getResponsavelAnalise());
+        dto.setDataEncerramento(model.getDataEncerramento());
+        dto.setSolucaoAplicada(model.getSolucaoAplicada());
+        dto.setCustoAssumidoPor(model.getCustoAssumidoPor());
+        dto.setAtendimentoRealizado(model.getAtendimentoRealizado());
         dto.setObservacao(model.getObservacao());
 
         if (model.getItemServico() != null) {

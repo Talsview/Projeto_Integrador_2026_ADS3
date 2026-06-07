@@ -5,7 +5,7 @@ import { finalize, forkJoin } from 'rxjs';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
 import { dataHoraAnterior, dataHoraFutura, numeroMaiorQueZero } from '../../core/validation/field-validation';
 import { PagamentoApiService } from '../../core/services/pagamento-api.service';
-import { OrdemServicoResumo } from '../../models/ordem-servico.model';
+import { OrdemServicoResumo, StatusFluxoOrdemServico } from '../../models/ordem-servico.model';
 import { FormaPagamento, Pagamento, ResumoPagamentoOrdemServico, StatusPagamento } from '../../models/pagamento.model';
 
 @Component({
@@ -23,6 +23,7 @@ export class PagamentosComponent implements OnInit {
   carregando = false;
   processando = false;
   idOrdemSelecionada = 0;
+  readonly statusPermitido: StatusFluxoOrdemServico = 'PAGAMENTO';
 
   formas: FormaPagamento[] = ['DINHEIRO', 'PIX', 'CARTAO_DEBITO', 'CARTAO_CREDITO', 'TRANSFERENCIA', 'BOLETO', 'OUTRO'];
   status: StatusPagamento[] = ['PENDENTE', 'PAGO', 'CANCELADO', 'ESTORNADO'];
@@ -48,7 +49,7 @@ export class PagamentosComponent implements OnInit {
   }
 
   get statusPermiteNovoPagamento(): boolean {
-    return this.statusAtualOs !== 'FINALIZADO';
+    return this.normalizarStatus(this.statusAtualOs) === this.statusPermitido;
   }
 
   carregarOrdens(): void {
@@ -62,7 +63,7 @@ export class PagamentosComponent implements OnInit {
       }))
       .subscribe({
         next: ordens => {
-          this.ordens = [...ordens];
+          this.ordens = this.filtrarOrdensPorStatus(ordens, this.statusPermitido);
           if (this.idOrdemSelecionada && !this.ordemSelecionada) {
             this.idOrdemSelecionada = 0;
             this.pagamentos = [];
@@ -107,7 +108,7 @@ export class PagamentosComponent implements OnInit {
       }))
       .subscribe({
         next: resultado => {
-          this.ordens = [...resultado.ordens];
+          this.ordens = this.filtrarOrdensPorStatus(resultado.ordens, this.statusPermitido);
           this.pagamentos = [...resultado.pagamentos];
           this.resumo = { ...resultado.resumo };
           this.atualizarValorAutomaticoDoFormulario();
@@ -127,7 +128,7 @@ export class PagamentosComponent implements OnInit {
     }
 
     if (!this.statusPermiteNovoPagamento && !this.form.id) {
-      this.erro = 'Ordem de Serviço finalizada não permite novo pagamento.';
+      this.erro = 'Nesta tela só é possível registrar pagamento de OS no status PAGAMENTO.';
       return;
     }
 
@@ -239,6 +240,19 @@ export class PagamentosComponent implements OnInit {
     if (ordem?.dataAbertura && dataHoraAnterior(this.form.dataPagamento as any, ordem.dataAbertura)) return 'A data de pagamento não pode ser anterior à data de abertura da OS.';
     if ((this.form.statusPagamento === 'CANCELADO' || this.form.statusPagamento === 'ESTORNADO') && this.form.dataPagamento) return 'Pagamento cancelado ou estornado não deve possuir data de pagamento efetivo.';
     return undefined;
+  }
+
+  private filtrarOrdensPorStatus(ordens: OrdemServicoResumo[], status: StatusFluxoOrdemServico): OrdemServicoResumo[] {
+    return [...(ordens ?? [])].filter(os => this.normalizarStatus(os.statusAtual) === status);
+  }
+
+  private normalizarStatus(status?: string): StatusFluxoOrdemServico | '' {
+    return (status ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '_') as StatusFluxoOrdemServico | '';
   }
 
   private criarFormularioInicial(): Pagamento {

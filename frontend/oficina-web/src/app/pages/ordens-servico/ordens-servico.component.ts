@@ -16,6 +16,10 @@ export class OrdensServicoComponent implements OnInit {
   clientes: ClienteResumo[] = [];
   veiculos: VeiculoResumo[] = [];
   termo = '';
+  termoClienteOs = '';
+  termoVeiculoOs = '';
+  carregandoClientesOs = false;
+  carregandoVeiculosOs = false;
   mensagem?: string;
   erro?: string;
   carregando = false;
@@ -54,6 +58,36 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
+  buscarClientesParaOs(): void {
+    const termo = this.termoClienteOs.trim();
+    this.carregandoClientesOs = true;
+    this.erro = undefined;
+    this.atualizarTela();
+
+    const consulta = termo ? this.clienteApi.pesquisar(termo) : this.clienteApi.listar();
+    consulta
+      .pipe(finalize(() => { this.carregandoClientesOs = false; this.atualizarTela(); }))
+      .subscribe({
+        next: clientes => { this.clientes = this.mesclarClienteSelecionado(clientes); this.atualizarTela(); },
+        error: e => { this.erro = e.message ?? 'Não foi possível pesquisar clientes.'; this.atualizarTela(); }
+      });
+  }
+
+  buscarVeiculosParaOs(): void {
+    const termo = this.termoVeiculoOs.trim();
+    this.carregandoVeiculosOs = true;
+    this.erro = undefined;
+    this.atualizarTela();
+
+    const consulta = termo ? this.veiculoApi.pesquisar(termo) : this.veiculoApi.listar();
+    consulta
+      .pipe(finalize(() => { this.carregandoVeiculosOs = false; this.atualizarTela(); }))
+      .subscribe({
+        next: veiculos => { this.veiculos = this.mesclarVeiculoSelecionado(veiculos); this.atualizarTela(); },
+        error: e => { this.erro = e.message ?? 'Não foi possível pesquisar veículos.'; this.atualizarTela(); }
+      });
+  }
+
   listar(): void { this.carregando = true; this.erro = undefined; this.atualizarTela(); this.ordemApi.listar().pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   pesquisar(): void { const c = this.termo.trim(); if (!c) { this.listar(); return; } this.carregando = true; this.erro = undefined; this.atualizarTela(); this.ordemApi.pesquisar(c).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
@@ -68,7 +102,13 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
-  editar(ordem: OrdemServicoResumo): void { this.form = { ...ordem }; this.ordemSelecionada = ordem; this.atualizarTela(); }
+  editar(ordem: OrdemServicoResumo): void {
+    this.form = { ...ordem };
+    this.ordemSelecionada = ordem;
+    this.termoClienteOs = ordem.nomeCliente ?? '';
+    this.termoVeiculoOs = ordem.placaVeiculo ?? '';
+    this.atualizarTela();
+  }
   selecionarParaStatus(ordem: OrdemServicoResumo): void { this.ordemSelecionada = ordem; this.observacaoStatus = ''; this.atualizarTela(); }
 
   excluir(ordem: OrdemServicoResumo): void {
@@ -118,22 +158,68 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
-  limpar(): void { this.form = this.formularioInicial(); this.errosCampo = {}; this.atualizarTela(); }
+  limpar(): void {
+    this.form = this.formularioInicial();
+    this.errosCampo = {};
+    this.termoClienteOs = '';
+    this.termoVeiculoOs = '';
+    this.atualizarTela();
+  }
 
   aoAlterarCliente(): void {
+    const clienteSelecionado = this.clientes.find(c => Number(c.id) === Number(this.form.idCliente));
+    if (clienteSelecionado) {
+      this.termoClienteOs = this.rotuloCliente(clienteSelecionado);
+    }
+
     const veiculoSelecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
     if (veiculoSelecionado && Number(veiculoSelecionado.proprietarioAtualId ?? 0) !== Number(this.form.idCliente ?? 0)) {
       this.form.idVeiculo = 0;
+      this.termoVeiculoOs = '';
     }
     delete this.errosCampo['idCliente'];
     delete this.errosCampo['idVeiculo'];
     this.atualizarTela();
   }
 
+  aoAlterarVeiculo(): void {
+    const veiculoSelecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
+    if (veiculoSelecionado) {
+      this.termoVeiculoOs = this.rotuloVeiculo(veiculoSelecionado);
+    }
+    delete this.errosCampo['idVeiculo'];
+    this.atualizarTela();
+  }
+
+  rotuloCliente(cliente: ClienteResumo): string {
+    return [cliente.nome, cliente.documento].filter(Boolean).join(' — ');
+  }
+
+  rotuloVeiculo(veiculo: VeiculoResumo): string {
+    const modelo = [veiculo.nomeMarca, veiculo.nomeModelo].filter(Boolean).join(' ');
+    return [veiculo.placa, modelo].filter(Boolean).join(' — ');
+  }
+
   veiculosDoClienteSelecionado(): VeiculoResumo[] {
     const idCliente = Number(this.form.idCliente ?? 0);
     if (!idCliente) return this.veiculos;
     return this.veiculos.filter(v => Number(v.proprietarioAtualId ?? 0) === idCliente);
+  }
+
+  private mesclarClienteSelecionado(clientes: ClienteResumo[]): ClienteResumo[] {
+    const selecionado = this.clientes.find(c => Number(c.id) === Number(this.form.idCliente));
+    if (!selecionado || clientes.some(c => Number(c.id) === Number(selecionado.id))) {
+      return [...clientes];
+    }
+    return [selecionado, ...clientes];
+  }
+
+  private mesclarVeiculoSelecionado(veiculos: VeiculoResumo[]): VeiculoResumo[] {
+    const selecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
+    if (!selecionado || veiculos.some(v => Number(v.id) === Number(selecionado.id))) {
+      return [...veiculos];
+    }
+    return [selecionado, ...veiculos];
   }
 
   private validarFormulario(): boolean {

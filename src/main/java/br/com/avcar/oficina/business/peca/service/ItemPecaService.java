@@ -51,7 +51,7 @@ public class ItemPecaService {
     @Transactional
     public ItemPecaDTO cadastrar(ItemPecaDTO dto) {
         validation.validateInsert(dto);
-        ordemServicoService.validarOrdemNaoFinalizada(dto.getIdOrdemServico());
+        ordemServicoService.validarOrdemEmOrcamento(dto.getIdOrdemServico());
         PecaModel peca = pecaService.buscarModelAtivo(dto.getIdPeca());
         FornecedorModel fornecedor = fornecedorService.buscarModelAtivo(dto.getIdFornecedor());
         ItemPecaModel saved = itemPecaRepository.save(mapper.toModel(dto, peca, fornecedor));
@@ -65,8 +65,8 @@ public class ItemPecaService {
         validation.validateUpdate(id, dto);
         ItemPecaModel itemPeca = buscarModelAtivo(id);
         Long idOrdemServicoAnterior = itemPeca.getIdOrdemServico();
-        ordemServicoService.validarOrdemNaoFinalizada(idOrdemServicoAnterior);
-        ordemServicoService.validarOrdemNaoFinalizada(dto.getIdOrdemServico());
+        ordemServicoService.validarOrdemEmOrcamento(idOrdemServicoAnterior);
+        ordemServicoService.validarOrdemEmOrcamento(dto.getIdOrdemServico());
         PecaModel peca = pecaService.buscarModelAtivo(dto.getIdPeca());
         FornecedorModel fornecedor = fornecedorService.buscarModelAtivo(dto.getIdFornecedor());
         mapper.atualizarModel(itemPeca, dto, peca, fornecedor);
@@ -109,7 +109,7 @@ public class ItemPecaService {
     public void inativar(Long id) {
         validation.validateId(id);
         ItemPecaModel itemPeca = buscarModelAtivo(id);
-        ordemServicoService.validarOrdemNaoFinalizada(itemPeca.getIdOrdemServico());
+        ordemServicoService.validarOrdemEmOrcamento(itemPeca.getIdOrdemServico());
         garantiaService.inativarGarantiaPorItemPeca(itemPeca.getId());
         itemPeca.setAtivo(Boolean.FALSE);
         itemPecaRepository.save(itemPeca);

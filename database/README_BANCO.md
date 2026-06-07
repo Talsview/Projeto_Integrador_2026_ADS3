@@ -220,3 +220,80 @@ A Etapa 33 alterou somente a identidade visual do frontend Angular, com implemen
 ## Etapa 34 - Nota Fiscal / Recibo em PDF
 
 Esta etapa não altera a estrutura física do banco de dados. A geração do PDF utiliza dados já existentes nas tabelas de Ordem de Serviço, Cliente, Veículo, ItemServico, ItemPeca, Fornecedor e Pagamento.
+
+---
+
+## Etapa 44 — Seeds completas e verificação SQL unificada
+
+A partir desta etapa, a seed inicial foi ampliada para conter dados mais completos para uso acadêmico, teste do frontend Angular e demonstração do sistema funcionando.
+
+Arquivo atualizado:
+
+```text
+database/02_seed/02_seed_inicial.sql
+```
+
+A seed agora inclui:
+
+```text
+- clientes pessoa física e pessoa jurídica com CPF/CNPJ válidos;
+- colaboradores com funções vinculadas;
+- marcas e modelos variados;
+- veículos com histórico de proprietário;
+- serviços internos e terceirizados;
+- empresas terceirizadas;
+- fornecedores e peças;
+- ordens de serviço em orçamento, execução, pagamento e finalizado;
+- itens de serviço com colaborador responsável;
+- itens de peça com fornecedor identificado;
+- garantias de peças e serviços;
+- pagamentos parciais e quitados;
+- OS apta para teste de PDF/recibo interno.
+```
+
+Os scripts antigos de verificação foram unificados em um único arquivo:
+
+```text
+database/03_verificacoes/03_verificacao_geral_sistema.sql
+```
+
+Esse script substitui os arquivos antigos de verificação e deve ser usado no pgAdmin para conferir:
+
+```text
+- conexão com o banco;
+- quantidade de registros por tabela;
+- dados disponíveis para o Angular;
+- clientes PF/PJ;
+- colaboradores e funções;
+- veículos e proprietários;
+- ordens de serviço e status;
+- resumo financeiro;
+- serviços, peças, fornecedores;
+- garantias;
+- dados para geração de PDF;
+- inconsistências de rastreabilidade.
+```
+
+O script completo também foi atualizado:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```
+
+Ele contém a criação da estrutura física e a seed completa em um único arquivo.
+
+## Etapa 45 — Atualização para atendimento de garantia
+
+Se o banco já foi criado antes da Etapa 45, execute o script incremental abaixo antes de iniciar o backend com `spring.jpa.hibernate.ddl-auto=validate`:
+
+```text
+database/01_schema/02_alter_garantia_atendimento.sql
+```
+
+Esse script adiciona às tabelas `garantia_peca` e `garantia_servico` os campos de acionamento e encerramento da garantia.
+
+Para recriação completa do banco, utilize diretamente:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```

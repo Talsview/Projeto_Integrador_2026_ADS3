@@ -16,7 +16,9 @@ import br.com.avcar.oficina.business.ordemservico.repository.IItemServicoReposit
 import br.com.avcar.oficina.business.peca.model.ItemPecaModel;
 import br.com.avcar.oficina.business.peca.repository.IItemPecaRepository;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.exception.FieldValidationException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -180,8 +182,17 @@ public class GarantiaService {
     public GarantiaPecaDTO acionarGarantiaPeca(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaPecaModel garantia = buscarGarantiaPecaModel(id);
         validarGarantiaPodeSerAcionada(garantia.getStatusGarantia(), garantia.getDataFim());
+        validarDadosAcionamento(dto, garantia.getDataInicio());
+
         garantia.setStatusGarantia(StatusGarantia.ACIONADA);
-        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de peça acionada."));
+        garantia.setDataAcionamento(resolverDataAcionamento(dto));
+        garantia.setMotivoAcionamento(limpar(dto.getMotivoAcionamento()));
+        garantia.setDescricaoDefeito(limpar(dto.getDescricaoDefeito()));
+        garantia.setResponsavelAnalise(limpar(dto.getResponsavelAnalise()));
+        if (dto.getResponsabilidade() != null) {
+            garantia.setResponsabilidade(dto.getResponsabilidade());
+        }
+        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), montarObservacaoAcionamento(dto, "Garantia de peça acionada.")));
         return garantiaPecaMapper.toDto(garantiaPecaRepository.save(garantia));
     }
 
@@ -189,8 +200,14 @@ public class GarantiaService {
     public GarantiaServicoDTO acionarGarantiaServico(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaServicoModel garantia = buscarGarantiaServicoModel(id);
         validarGarantiaPodeSerAcionada(garantia.getStatusGarantia(), garantia.getDataFim());
+        validarDadosAcionamento(dto, garantia.getDataInicio());
+
         garantia.setStatusGarantia(StatusGarantia.ACIONADA);
-        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de serviço acionada."));
+        garantia.setDataAcionamento(resolverDataAcionamento(dto));
+        garantia.setMotivoAcionamento(limpar(dto.getMotivoAcionamento()));
+        garantia.setDescricaoDefeito(limpar(dto.getDescricaoDefeito()));
+        garantia.setResponsavelAnalise(limpar(dto.getResponsavelAnalise()));
+        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), montarObservacaoAcionamento(dto, "Garantia de serviço acionada.")));
         return garantiaServicoMapper.toDto(garantiaServicoRepository.save(garantia));
     }
 
@@ -198,8 +215,14 @@ public class GarantiaService {
     public GarantiaPecaDTO encerrarGarantiaPeca(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaPecaModel garantia = buscarGarantiaPecaModel(id);
         validarGarantiaPodeSerEncerrada(garantia.getStatusGarantia());
+        validarDadosEncerramento(dto, garantia.getDataAcionamento());
+
         garantia.setStatusGarantia(StatusGarantia.ENCERRADA);
-        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de peça encerrada."));
+        garantia.setDataEncerramento(resolverDataEncerramento(dto));
+        garantia.setSolucaoAplicada(limpar(dto.getSolucaoAplicada()));
+        garantia.setCustoAssumidoPor(limpar(dto.getCustoAssumidoPor()));
+        garantia.setAtendimentoRealizado(dto.getAtendimentoRealizado() == null ? Boolean.TRUE : dto.getAtendimentoRealizado());
+        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), montarObservacaoEncerramento(dto, "Garantia de peça encerrada.")));
         return garantiaPecaMapper.toDto(garantiaPecaRepository.save(garantia));
     }
 
@@ -207,8 +230,14 @@ public class GarantiaService {
     public GarantiaServicoDTO encerrarGarantiaServico(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaServicoModel garantia = buscarGarantiaServicoModel(id);
         validarGarantiaPodeSerEncerrada(garantia.getStatusGarantia());
+        validarDadosEncerramento(dto, garantia.getDataAcionamento());
+
         garantia.setStatusGarantia(StatusGarantia.ENCERRADA);
-        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de serviço encerrada."));
+        garantia.setDataEncerramento(resolverDataEncerramento(dto));
+        garantia.setSolucaoAplicada(limpar(dto.getSolucaoAplicada()));
+        garantia.setCustoAssumidoPor(limpar(dto.getCustoAssumidoPor()));
+        garantia.setAtendimentoRealizado(dto.getAtendimentoRealizado() == null ? Boolean.TRUE : dto.getAtendimentoRealizado());
+        garantia.setObservacao(combinarObservacao(garantia.getObservacao(), montarObservacaoEncerramento(dto, "Garantia de serviço encerrada.")));
         return garantiaServicoMapper.toDto(garantiaServicoRepository.save(garantia));
     }
 
@@ -267,16 +296,79 @@ public class GarantiaService {
         if (StatusGarantia.ENCERRADA.equals(status)) {
             throw new RuleValidationException("Garantia já está encerrada.");
         }
-        if (StatusGarantia.AGUARDANDO_FINALIZACAO_OS.equals(status)) {
-            throw new RuleValidationException("Garantia ainda não iniciada não pode ser encerrada manualmente.");
+        if (!StatusGarantia.ACIONADA.equals(status)) {
+            throw new RuleValidationException("Somente garantias acionadas podem ser encerradas.");
         }
     }
 
-    private String combinarObservacao(String atual, AcionamentoGarantiaDTO dto, String mensagemPadrao) {
-        String nova = dto == null || dto.getObservacao() == null || dto.getObservacao().trim().isEmpty()
-                ? mensagemPadrao
-                : dto.getObservacao().trim();
-        return combinarObservacao(atual, nova);
+    private void validarDadosAcionamento(AcionamentoGarantiaDTO dto, LocalDate dataInicioGarantia) {
+        if (dto == null) {
+            throw new FieldValidationException("Informe os dados do acionamento da garantia.");
+        }
+        ValidationUtils.requireText(dto.getMotivoAcionamento(), "motivo do acionamento");
+        ValidationUtils.requireText(dto.getDescricaoDefeito(), "defeito relatado");
+        ValidationUtils.requireText(dto.getResponsavelAnalise(), "responsável pela análise");
+        ValidationUtils.maxLength(dto.getMotivoAcionamento(), 255, "motivo do acionamento");
+        ValidationUtils.maxLength(dto.getResponsavelAnalise(), 150, "responsável pela análise");
+        ValidationUtils.maxLength(dto.getObservacao(), 1000, "observação");
+
+        LocalDate dataAcionamento = resolverDataAcionamento(dto);
+        ValidationUtils.notFuture(dataAcionamento, "data do acionamento");
+        ValidationUtils.dateNotBefore(dataAcionamento, dataInicioGarantia, "data do acionamento", "data de início da garantia");
+    }
+
+    private void validarDadosEncerramento(AcionamentoGarantiaDTO dto, LocalDate dataAcionamento) {
+        if (dto == null) {
+            throw new FieldValidationException("Informe os dados do encerramento da garantia.");
+        }
+        ValidationUtils.requireText(dto.getSolucaoAplicada(), "solução aplicada");
+        ValidationUtils.maxLength(dto.getCustoAssumidoPor(), 80, "custo assumido por");
+        ValidationUtils.maxLength(dto.getObservacao(), 1000, "observação final");
+
+        LocalDate dataEncerramento = resolverDataEncerramento(dto);
+        ValidationUtils.notFuture(dataEncerramento, "data do encerramento");
+        ValidationUtils.dateNotBefore(dataEncerramento, dataAcionamento, "data do encerramento", "data do acionamento");
+    }
+
+    private LocalDate resolverDataAcionamento(AcionamentoGarantiaDTO dto) {
+        return dto != null && dto.getDataAcionamento() != null ? dto.getDataAcionamento() : LocalDate.now();
+    }
+
+    private LocalDate resolverDataEncerramento(AcionamentoGarantiaDTO dto) {
+        return dto != null && dto.getDataEncerramento() != null ? dto.getDataEncerramento() : LocalDate.now();
+    }
+
+    private String montarObservacaoAcionamento(AcionamentoGarantiaDTO dto, String titulo) {
+        StringBuilder sb = new StringBuilder(titulo);
+        sb.append(" Motivo: ").append(limpar(dto.getMotivoAcionamento()));
+        sb.append(" Defeito relatado: ").append(limpar(dto.getDescricaoDefeito()));
+        sb.append(" Responsável pela análise: ").append(limpar(dto.getResponsavelAnalise()));
+        if (dto.getResponsabilidade() != null) {
+            sb.append(" Responsabilidade inicial: ").append(dto.getResponsabilidade()).append(".");
+        }
+        if (limpar(dto.getObservacao()) != null) {
+            sb.append(" Observação: ").append(limpar(dto.getObservacao()));
+        }
+        return sb.toString();
+    }
+
+    private String montarObservacaoEncerramento(AcionamentoGarantiaDTO dto, String titulo) {
+        StringBuilder sb = new StringBuilder(titulo);
+        sb.append(" Solução aplicada: ").append(limpar(dto.getSolucaoAplicada()));
+        if (limpar(dto.getCustoAssumidoPor()) != null) {
+            sb.append(" Custo assumido por: ").append(limpar(dto.getCustoAssumidoPor())).append(".");
+        }
+        if (dto.getAtendimentoRealizado() != null) {
+            sb.append(" Atendimento realizado: ").append(dto.getAtendimentoRealizado() ? "sim" : "não").append(".");
+        }
+        if (limpar(dto.getObservacao()) != null) {
+            sb.append(" Observação final: ").append(limpar(dto.getObservacao()));
+        }
+        return sb.toString();
+    }
+
+    private String limpar(String valor) {
+        return ValidationUtils.trimToNull(valor);
     }
 
     private String combinarObservacao(String atual, String nova) {

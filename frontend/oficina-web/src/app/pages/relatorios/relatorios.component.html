@@ -1,9 +1,100 @@
 <h1 class="page-title">Relatórios</h1>
-<p class="page-subtitle">Consultas gerenciais para apoiar o acompanhamento operacional da oficina.</p>
-<section class="card">
-  <div class="section-heading">
+<p class="page-subtitle">Consultas gerenciais com dados reais do backend para acompanhar ordens de serviço, pagamentos, garantias e cadastros da oficina.</p>
+
+<section class="card report-toolbar">
+  <div class="section-heading compact">
     <span>Gestão da oficina</span>
-    <h2>Relatórios</h2>
+    <h2>Filtros do relatório</h2>
   </div>
-  <p class="muted">Esta área está reservada para relatórios de OS, faturamento, garantias, peças e produtividade. Os dados devem ser consumidos dos endpoints existentes ou de endpoints agregados futuros.</p>
+  <div class="form-row report-filter-grid">
+    <div>
+      <label>Data inicial</label>
+      <input type="date" [(ngModel)]="dataInicio">
+    </div>
+    <div>
+      <label>Data final</label>
+      <input type="date" [(ngModel)]="dataFim">
+    </div>
+  </div>
+  <div class="actions">
+    <button type="button" (click)="carregarRelatorio()" [disabled]="carregando">{{ carregando ? 'Atualizando...' : 'Atualizar relatório' }}</button>
+    <button type="button" class="secondary" (click)="exportarPlanilhaExcel()" [disabled]="carregando || !indicadores.length">Exportar planilha Excel</button>
+  </div>
+  <p class="alert success" *ngIf="mensagem">{{ mensagem }}</p>
+  <p class="alert error" *ngIf="erro">{{ erro }}</p>
+</section>
+
+<div class="report-kpi-grid">
+  <section class="report-kpi-card" *ngFor="let indicador of indicadores" [ngClass]="indicador.classe">
+    <span>{{ indicador.titulo }}</span>
+    <strong>{{ indicador.valor }}</strong>
+    <small>{{ indicador.detalhe }}</small>
+  </section>
+</div>
+
+<div class="grid two report-grid">
+  <section class="card">
+    <div class="section-heading compact">
+      <span>Ordens de Serviço</span>
+      <h2>Resumo por status</h2>
+    </div>
+    <div class="status-report-list">
+      <div class="status-report-item" *ngFor="let item of resumoStatus">
+        <div>
+          <strong>{{ item.status }}</strong>
+          <small>{{ item.quantidade }} OS</small>
+        </div>
+        <div class="progress-line"><span [style.width.%]="item.percentual"></span></div>
+        <em>{{ item.percentual }}%</em>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="section-heading compact">
+      <span>Garantias</span>
+      <h2>Garantias ativas ou acionadas</h2>
+    </div>
+    <div class="table-wrap cadastro-table-wrap">
+      <table class="cadastro-table">
+        <thead>
+          <tr><th>ID</th><th>Item</th><th>Status</th><th>Data fim</th></tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let garantia of garantiasAtivas">
+            <td>{{ garantia.id }}</td>
+            <td>{{ garantia.nomePeca || garantia.nomeServico || 'Item não informado' }}</td>
+            <td><span class="badge info">{{ garantia.statusGarantia }}</span></td>
+            <td>{{ garantia.dataFim | date:'dd/MM/yyyy' }}</td>
+          </tr>
+          <tr *ngIf="!garantiasAtivas.length && !carregando"><td colspan="4">Nenhuma garantia ativa encontrada.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<section class="card" style="margin-top: 16px;">
+  <div class="section-heading compact">
+    <span>Operação</span>
+    <h2>Últimas Ordens de Serviço do período</h2>
+  </div>
+  <div class="table-wrap cadastro-table-wrap">
+    <table class="cadastro-table">
+      <thead>
+        <tr><th>Nº OS</th><th>Cliente</th><th>Veículo</th><th>Status</th><th>Total</th><th>Abertura</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let ordem of ultimasOrdens">
+          <td>{{ ordem.numeroOs }}</td>
+          <td>{{ ordem.nomeCliente }}</td>
+          <td>{{ ordem.placaVeiculo }}</td>
+          <td><span class="badge">{{ ordem.statusAtual }}</span></td>
+          <td>{{ ordem.valorTotal | currency:'BRL' }}</td>
+          <td>{{ ordem.dataAbertura | date:'dd/MM/yyyy HH:mm' }}</td>
+        </tr>
+        <tr *ngIf="!ultimasOrdens.length && !carregando"><td colspan="6">Nenhuma OS encontrada para o período.</td></tr>
+      </tbody>
+    </table>
+  </div>
 </section>

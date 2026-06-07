@@ -70,7 +70,7 @@ public class ItemServicoService {
     @Transactional
     public ItemServicoDTO cadastrar(ItemServicoDTO dto) {
         validation.validateInsert(dto);
-        ordemServicoService.validarOrdemNaoFinalizada(dto.getIdOrdemServico());
+        ordemServicoService.validarOrdemEmOrcamento(dto.getIdOrdemServico());
 
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
         ServicoModel servico = servicoService.buscarModelAtivo(dto.getIdServico());
@@ -90,10 +90,10 @@ public class ItemServicoService {
         validation.validateUpdate(id, dto);
         ItemServicoModel itemServico = buscarModelAtivo(id);
         Long idOrdemServicoAnterior = itemServico.getOrdemServico().getId();
-        ordemServicoService.validarOrdemNaoFinalizada(idOrdemServicoAnterior);
+        ordemServicoService.validarOrdemEmOrcamento(idOrdemServicoAnterior);
 
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
-        ordemServicoService.validarOrdemNaoFinalizada(ordemServico.getId());
+        ordemServicoService.validarOrdemEmOrcamento(ordemServico.getId());
         ServicoModel servico = servicoService.buscarModelAtivo(dto.getIdServico());
         ColaboradorModel colaborador = buscarColaboradorAtivo(dto.getIdColaborador());
 
@@ -144,7 +144,7 @@ public class ItemServicoService {
     public void inativar(Long id) {
         validation.validateId(id);
         ItemServicoModel itemServico = buscarModelAtivo(id);
-        ordemServicoService.validarOrdemNaoFinalizada(itemServico.getOrdemServico().getId());
+        ordemServicoService.validarOrdemEmOrcamento(itemServico.getOrdemServico().getId());
 
         execucaoRepository.findByItemServicoIdAndAtivoTrue(id).ifPresent(execucao -> {
             execucao.setAtivo(Boolean.FALSE);
