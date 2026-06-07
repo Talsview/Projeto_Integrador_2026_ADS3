@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.pessoa.validation;
 import br.com.avcar.oficina.business.pessoa.dto.FuncaoDTO;
 import br.com.avcar.oficina.business.pessoa.repository.IFuncaoRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,8 +43,7 @@ public class FuncaoValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados da função são obrigatórios.");
         }
-        if (dto.getNomeFuncao() == null || dto.getNomeFuncao().trim().isEmpty()) {
-            throw new FieldValidationException("O nome da função é obrigatório.");
-        }
+        ValidationUtils.validateBusinessText(dto.getNomeFuncao(), "nome da função", true);
+        ValidationUtils.maxLength(dto.getDescricao(), 255, "descrição da função");
     }
 }

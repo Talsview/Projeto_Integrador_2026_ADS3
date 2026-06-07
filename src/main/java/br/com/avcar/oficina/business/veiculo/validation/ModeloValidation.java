@@ -4,6 +4,7 @@ import br.com.avcar.oficina.business.veiculo.dto.ModeloDTO;
 import br.com.avcar.oficina.business.veiculo.repository.IMarcaRepository;
 import br.com.avcar.oficina.business.veiculo.repository.IModeloRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -56,8 +57,6 @@ public class ModeloValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados do modelo são obrigatórios.");
         }
-        if (dto.getNomeModelo() == null || dto.getNomeModelo().trim().isEmpty()) {
-            throw new FieldValidationException("O nome do modelo é obrigatório.");
-        }
+        ValidationUtils.validateBusinessText(dto.getNomeModelo(), "nome do modelo", true);
     }
 }

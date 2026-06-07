@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { MarcaApiService } from '../../core/services/marca-api.service';
 import { ModeloApiService } from '../../core/services/modelo-api.service';
+import { textoCadastroValido } from '../../core/validation/field-validation';
 import { Marca, Modelo } from '../../models/veiculo.model';
 
 @Component({ selector: 'app-marcas-modelos', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './marcas-modelos.component.html' })
@@ -76,7 +77,9 @@ export class MarcasModelosComponent implements OnInit {
   }
 
   salvarMarca(): void {
-    this.mensagem = undefined; this.erro = undefined; this.processando = true; this.atualizarTela();
+    this.mensagem = undefined; this.erro = undefined;
+    if (!textoCadastroValido(this.marcaForm.nomeMarca, true)) { this.erro = 'Informe um nome de marca válido.'; this.atualizarTela(); return; }
+    this.processando = true; this.atualizarTela();
     const acao = this.marcaForm.id ? this.marcaApi.atualizar(this.marcaForm.id, this.marcaForm) : this.marcaApi.criar(this.marcaForm);
     acao.pipe(switchMap(() => this.marcaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
       next: marcas => { this.mensagem = 'Marca salva com sucesso. A lista foi atualizada automaticamente.'; this.marcas = [...marcas]; this.marcaForm = { nomeMarca: '' }; this.atualizarTela(); },
@@ -85,7 +88,10 @@ export class MarcasModelosComponent implements OnInit {
   }
 
   salvarModelo(): void {
-    this.mensagem = undefined; this.erro = undefined; this.processando = true; this.atualizarTela();
+    this.mensagem = undefined; this.erro = undefined;
+    if (!this.modeloForm.marcaId || Number(this.modeloForm.marcaId) <= 0) { this.erro = 'Selecione a marca do modelo.'; this.atualizarTela(); return; }
+    if (!textoCadastroValido(this.modeloForm.nomeModelo, true)) { this.erro = 'Informe um nome de modelo válido.'; this.atualizarTela(); return; }
+    this.processando = true; this.atualizarTela();
     const acao = this.modeloForm.id ? this.modeloApi.atualizar(this.modeloForm.id, this.modeloForm) : this.modeloApi.criar(this.modeloForm);
     acao.pipe(switchMap(() => this.modeloApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
       next: modelos => { this.mensagem = 'Modelo salvo com sucesso. A lista foi atualizada automaticamente.'; this.modelos = [...modelos]; this.modeloForm = { marcaId: 0, nomeModelo: '' }; this.atualizarTela(); },

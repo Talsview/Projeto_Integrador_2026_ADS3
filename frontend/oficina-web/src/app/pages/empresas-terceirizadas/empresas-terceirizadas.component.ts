@@ -3,6 +3,8 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, switchMap } from 'rxjs';
 import { EmpresaTerceirizadaApiService } from '../../core/services/empresa-terceirizada-api.service';
+import { cnpjValido, somenteDigitos } from '../../core/validation/documento-validation';
+import { emailValido, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
 import { EmpresaTerceirizada } from '../../models/servico.model';
 
 @Component({ selector: 'app-empresas-terceirizadas', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './empresas-terceirizadas.component.html' })
@@ -38,7 +40,10 @@ export class EmpresasTerceirizadasComponent implements OnInit {
   }
 
   salvar(): void {
-    this.mensagem = undefined; this.erro = undefined; this.processando = true; this.atualizarTela();
+    this.mensagem = undefined; this.erro = undefined;
+    const erroValidacao = this.validarFormulario();
+    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.empresaApi.atualizar(this.form.id, this.form) : this.empresaApi.criar(this.form);
     acao.pipe(switchMap(() => this.empresaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
       next: empresas => { this.mensagem = 'Empresa terceirizada salva. A tabela foi atualizada automaticamente.'; this.empresas = [...empresas]; this.limpar(); this.atualizarTela(); },
@@ -58,6 +63,15 @@ export class EmpresasTerceirizadasComponent implements OnInit {
   }
 
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+  private validarFormulario(): string | undefined {
+    if (!textoCadastroValido(this.form.nomeEmpresa, true)) return 'Informe um nome de empresa terceirizada válido.';
+    const cnpj = somenteDigitos(this.form.cnpj);
+    if (cnpj && !cnpjValido(cnpj)) return 'Informe um CNPJ válido ou deixe o campo vazio.';
+    if (!telefoneValido(this.form.telefone)) return 'Informe um telefone válido com DDD.';
+    if (!emailValido(this.form.email)) return 'Informe um e-mail válido.';
+    return undefined;
+  }
+
   private formularioInicial(): EmpresaTerceirizada { return { nomeEmpresa: '', cnpj: '', telefone: '', email: '', endereco: '' }; }
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

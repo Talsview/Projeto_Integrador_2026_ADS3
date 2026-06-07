@@ -10,6 +10,7 @@ import { ItemServicoApiService } from '../../core/services/item-servico-api.serv
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
 import { PecaApiService } from '../../core/services/peca-api.service';
 import { ServicoApiService } from '../../core/services/servico-api.service';
+import { dataHoraAnterior, dataHoraFutura, numeroMaiorQueZero, numeroNaoNegativo } from '../../core/validation/field-validation';
 import { ColaboradorResumo } from '../../models/pessoa.model';
 import { Fornecedor, ItemPeca, Peca } from '../../models/peca.model';
 import { EmpresaTerceirizada, Servico } from '../../models/servico.model';
@@ -78,6 +79,8 @@ export class ItensOsComponent implements OnInit {
 
   salvarItemServico(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir serviço.'; this.atualizarTela(); return; }
+    const erroValidacao = this.validarItemServico();
+    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemServicoForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemServicoApi.criar(payload).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
@@ -88,6 +91,8 @@ export class ItensOsComponent implements OnInit {
 
   salvarItemPeca(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir peça.'; this.atualizarTela(); return; }
+    const erroValidacao = this.validarItemPeca();
+    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemPecaForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemPecaApi.criar(payload).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
@@ -98,6 +103,26 @@ export class ItensOsComponent implements OnInit {
 
   excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   excluirItemPeca(item: ItemPeca): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemPecaApi.excluir(item.id).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensPeca = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
+
+  private validarItemServico(): string | undefined {
+    if (!this.itemServicoForm.idServico || Number(this.itemServicoForm.idServico) <= 0) return 'Selecione o serviço da OS.';
+    if (!this.itemServicoForm.idColaborador || Number(this.itemServicoForm.idColaborador) <= 0) return 'Selecione o colaborador responsável pelo serviço.';
+    if (!numeroMaiorQueZero(this.itemServicoForm.quantidade)) return 'A quantidade do serviço deve ser maior que zero.';
+    if (!numeroNaoNegativo(this.itemServicoForm.valorUnitario)) return 'O valor unitário do serviço não pode ser negativo.';
+    if (dataHoraFutura(this.itemServicoForm.dataInicio as any)) return 'A data de início do serviço não pode ser futura.';
+    if (dataHoraFutura(this.itemServicoForm.dataFim as any)) return 'A data de fim do serviço não pode ser futura.';
+    if (dataHoraAnterior(this.itemServicoForm.dataFim as any, this.itemServicoForm.dataInicio as any)) return 'A data de fim do serviço não pode ser anterior à data de início.';
+    if (dataHoraAnterior(this.itemServicoForm.dataRetornoTerceirizacao as any, this.itemServicoForm.dataEnvioTerceirizacao as any)) return 'A data de retorno da terceirização não pode ser anterior ao envio.';
+    return undefined;
+  }
+
+  private validarItemPeca(): string | undefined {
+    if (!this.itemPecaForm.idPeca || Number(this.itemPecaForm.idPeca) <= 0) return 'Selecione a peça aplicada na OS.';
+    if (!this.itemPecaForm.idFornecedor || Number(this.itemPecaForm.idFornecedor) <= 0) return 'Selecione o fornecedor da peça aplicada.';
+    if (!numeroMaiorQueZero(this.itemPecaForm.quantidade)) return 'A quantidade da peça deve ser maior que zero.';
+    if (!numeroNaoNegativo(this.itemPecaForm.valorUnitario)) return 'O valor unitário da peça não pode ser negativo.';
+    return undefined;
+  }
 
   private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '' }; }
   private itemPecaInicial(): ItemPeca { return { idOrdemServico: this.idOrdemSelecionada, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, observacao: '' }; }

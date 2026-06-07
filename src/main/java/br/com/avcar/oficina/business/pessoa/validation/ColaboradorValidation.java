@@ -6,6 +6,7 @@ import br.com.avcar.oficina.business.pessoa.repository.IColaboradorRepository;
 import br.com.avcar.oficina.business.pessoa.repository.IFuncaoRepository;
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -69,8 +70,13 @@ public class ColaboradorValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados do colaborador são obrigatórios.");
         }
-        if (dto.getNome() == null || dto.getNome().trim().isEmpty()) {
-            throw new FieldValidationException("O nome do colaborador é obrigatório.");
+        ValidationUtils.validatePersonName(dto.getNome(), "nome do colaborador");
+        ValidationUtils.validatePhone(dto.getTelefone(), false);
+        ValidationUtils.validateEmail(dto.getEmail(), false);
+        ValidationUtils.maxLength(dto.getEndereco(), 255, "endereço");
+        ValidationUtils.notFuture(dto.getDataAdmissao(), "data de admissão");
+        if (dto.getStatusColaborador() == null) {
+            throw new FieldValidationException("O status do colaborador é obrigatório.");
         }
     }
 

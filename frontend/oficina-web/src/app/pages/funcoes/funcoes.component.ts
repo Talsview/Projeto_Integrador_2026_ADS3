@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { FuncaoApiService } from '../../core/services/funcao-api.service';
+import { textoCadastroValido } from '../../core/validation/field-validation';
 import { Funcao } from '../../models/pessoa.model';
 
 @Component({
@@ -78,6 +79,12 @@ export class FuncoesComponent implements OnInit {
   salvar(): void {
     this.mensagem = undefined;
     this.erro = undefined;
+    const erroValidacao = this.validarFormulario();
+    if (erroValidacao) {
+      this.erro = erroValidacao;
+      this.atualizarTela();
+      return;
+    }
     this.processando = true;
     this.sincronizandoTabela = true;
     this.atualizarTela();
@@ -137,6 +144,12 @@ export class FuncoesComponent implements OnInit {
   limpar(): void {
     this.form = { nomeFuncao: '', descricao: '' };
     this.atualizarTela();
+  }
+
+  private validarFormulario(): string | undefined {
+    if (!textoCadastroValido(this.form.nomeFuncao, true)) return 'Informe um nome de função válido.';
+    if ((this.form.descricao ?? '').length > 255) return 'A descrição da função deve possuir no máximo 255 caracteres.';
+    return undefined;
   }
 
   private atualizarTela(): void {

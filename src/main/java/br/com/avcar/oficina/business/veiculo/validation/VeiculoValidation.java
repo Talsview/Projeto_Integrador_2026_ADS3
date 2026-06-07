@@ -8,6 +8,7 @@ import br.com.avcar.oficina.business.veiculo.model.HistoricoProprietarioModel;
 import br.com.avcar.oficina.business.veiculo.repository.IModeloRepository;
 import br.com.avcar.oficina.business.veiculo.repository.IVeiculoRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.time.LocalDate;
 import org.springframework.stereotype.Component;
 
@@ -74,6 +75,7 @@ public class VeiculoValidation {
         validateCliente(dto.getNovoClienteId(), "O novo proprietário do veículo é obrigatório.");
 
         LocalDate dataInicio = dto.getDataInicioPosse() == null ? LocalDate.now() : dto.getDataInicioPosse();
+        ValidationUtils.notFuture(dataInicio, "data de início da nova posse");
         if (proprietarioAtual != null) {
             if (proprietarioAtual.getCliente().getId().equals(dto.getNovoClienteId())) {
                 throw new FieldValidationException("O novo proprietário informado já é o proprietário atual do veículo.");
@@ -97,22 +99,15 @@ public class VeiculoValidation {
         if (dto.getModeloId() == null || dto.getModeloId() <= 0) {
             throw new FieldValidationException("O modelo do veículo é obrigatório.");
         }
-        if (dto.getPlaca() == null || dto.getPlaca().trim().isEmpty()) {
-            throw new FieldValidationException("A placa do veículo é obrigatória.");
-        }
-        String placa = veiculoMapper.normalizePlaca(dto.getPlaca());
-        if (placa.length() < 7 || placa.length() > 8) {
-            throw new FieldValidationException("A placa do veículo deve possuir formato válido.");
-        }
-        if (dto.getAnoVeiculo() == null || dto.getAnoVeiculo() < 1900) {
-            throw new FieldValidationException("O ano de fabricação do veículo é obrigatório e deve ser válido.");
-        }
-        if (dto.getAnoModelo() == null || dto.getAnoModelo() < 1900) {
-            throw new FieldValidationException("O ano do modelo do veículo é obrigatório e deve ser válido.");
-        }
-        if (dto.getQuilometragemAtual() != null && dto.getQuilometragemAtual() < 0) {
-            throw new FieldValidationException("A quilometragem do veículo não pode ser negativa.");
-        }
+        ValidationUtils.validatePlaca(dto.getPlaca());
+        ValidationUtils.validateChassi(dto.getChassi());
+        ValidationUtils.validateBusinessText(dto.getCor(), "cor", false);
+        ValidationUtils.validateYear(dto.getAnoVeiculo(), "ano de fabricação", true);
+        ValidationUtils.validateModelYear(dto.getAnoVeiculo(), dto.getAnoModelo());
+        ValidationUtils.nonNegative(dto.getQuilometragemAtual(), "quilometragem");
+        ValidationUtils.notFuture(dto.getDataInicioPosse(), "data de início da posse");
+        ValidationUtils.maxLength(dto.getObservacao(), 2000, "observação do veículo");
+        ValidationUtils.maxLength(dto.getObservacaoPosse(), 2000, "observação da posse");
         if (validarProprietario && (dto.getProprietarioAtualId() == null || dto.getProprietarioAtualId() <= 0)) {
             throw new FieldValidationException("O proprietário atual do veículo é obrigatório.");
         }

@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.peca.validation;
 import br.com.avcar.oficina.business.peca.dto.PecaDTO;
 import br.com.avcar.oficina.business.peca.repository.IPecaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,14 +45,19 @@ public class PecaValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados da peça são obrigatórios.");
         }
-        if (dto.getNomePeca() == null || dto.getNomePeca().trim().isEmpty()) {
-            throw new FieldValidationException("O nome da peça é obrigatório.");
+        ValidationUtils.validateBusinessText(dto.getNomePeca(), "nome da peça", true);
+        ValidationUtils.validateBusinessText(dto.getMarcaPeca(), "marca da peça", false);
+        ValidationUtils.validateBusinessText(dto.getModeloAplicavel(), "modelo aplicável", false);
+        ValidationUtils.maxLength(dto.getCodigoNacional(), 60, "código nacional");
+        ValidationUtils.validateYear(dto.getAnoVeiculo(), "ano do veículo", false);
+        ValidationUtils.validateYear(dto.getAnoModelo(), "ano do modelo", false);
+        if (dto.getAnoVeiculo() != null && dto.getAnoModelo() != null) {
+            ValidationUtils.validateModelYear(dto.getAnoVeiculo(), dto.getAnoModelo());
         }
-        validateAno(dto.getAnoVeiculo(), "ano do veículo");
-        validateAno(dto.getAnoModelo(), "ano do modelo");
         if (dto.getPrazoGarantiaDias() != null && dto.getPrazoGarantiaDias() < 0) {
             throw new FieldValidationException("O prazo de garantia da peça deve ser maior ou igual a zero.");
         }
+        ValidationUtils.maxLength(dto.getDescricao(), 2000, "descrição da peça");
     }
 
     private void validateAno(Integer ano, String campo) {

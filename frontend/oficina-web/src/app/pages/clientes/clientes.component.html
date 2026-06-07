@@ -9,14 +9,15 @@
     <div class="form-row">
       <div>
         <label>Tipo de cliente</label>
-        <select [(ngModel)]="tipoCliente" [disabled]="salvando">
+        <select [(ngModel)]="tipoCliente" (ngModelChange)="aoAlterarTipoCliente()" [disabled]="salvando">
           <option value="PESSOA_FISICA">Pessoa Física</option>
           <option value="PESSOA_JURIDICA">Pessoa Jurídica</option>
         </select>
       </div>
       <div>
         <label>Nome</label>
-        <input [(ngModel)]="form.nome" placeholder="Nome do cliente" [disabled]="salvando">
+        <input [(ngModel)]="form.nome" placeholder="Nome do cliente" [class.input-invalid]="!!errosCampo['nome']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['nome']">{{ errosCampo['nome'] }}</p>
       </div>
     </div>
 
@@ -27,7 +28,8 @@
       </div>
       <div>
         <label>E-mail</label>
-        <input [(ngModel)]="form.email" placeholder="cliente@email.com" [disabled]="salvando">
+        <input [(ngModel)]="form.email" placeholder="cliente@email.com" [class.input-invalid]="!!errosCampo['email']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['email']">{{ errosCampo['email'] }}</p>
       </div>
     </div>
 
@@ -39,7 +41,8 @@
     <div class="form-row" *ngIf="tipoCliente === 'PESSOA_FISICA'">
       <div>
         <label>CPF</label>
-        <input [(ngModel)]="form.cpf" placeholder="000.000.000-00" [disabled]="salvando">
+        <input [(ngModel)]="form.cpf" placeholder="000.000.000-00" inputmode="numeric" maxlength="14" (input)="formatarCpfCampo()" (blur)="validarCpfSePreenchido()" [class.input-invalid]="!!errosCampo['cpf']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['cpf']">{{ errosCampo['cpf'] }}</p>
       </div>
       <div>
         <label>RG</label>
@@ -47,18 +50,21 @@
       </div>
       <div>
         <label>Data de nascimento</label>
-        <input type="date" [(ngModel)]="form.dataNascimento" [disabled]="salvando">
+        <input type="date" [(ngModel)]="form.dataNascimento" [class.input-invalid]="!!errosCampo['dataNascimento']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['dataNascimento']">{{ errosCampo['dataNascimento'] }}</p>
       </div>
     </div>
 
     <div class="form-row" *ngIf="tipoCliente === 'PESSOA_JURIDICA'">
       <div>
         <label>CNPJ</label>
-        <input [(ngModel)]="form.cnpj" placeholder="00.000.000/0000-00" [disabled]="salvando">
+        <input [(ngModel)]="form.cnpj" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" (input)="formatarCnpjCampo()" (blur)="validarCnpjSePreenchido()" [class.input-invalid]="!!errosCampo['cnpj']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['cnpj']">{{ errosCampo['cnpj'] }}</p>
       </div>
       <div>
         <label>Razão social</label>
-        <input [(ngModel)]="form.razaoSocial" [disabled]="salvando">
+        <input [(ngModel)]="form.razaoSocial" [class.input-invalid]="!!errosCampo['razaoSocial']" [disabled]="salvando">
+        <p class="field-error" *ngIf="errosCampo['razaoSocial']">{{ errosCampo['razaoSocial'] }}</p>
       </div>
       <div>
         <label>Nome fantasia</label>

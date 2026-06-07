@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.servico.validation;
 import br.com.avcar.oficina.business.servico.dto.ServicoDTO;
 import br.com.avcar.oficina.business.servico.repository.IServicoRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
@@ -43,9 +44,10 @@ public class ServicoValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados do serviço são obrigatórios.");
         }
-        if (dto.getNomeServico() == null || dto.getNomeServico().trim().isEmpty()) {
-            throw new FieldValidationException("O nome do serviço é obrigatório.");
-        }
+        ValidationUtils.validateBusinessText(dto.getNomeServico(), "nome do serviço", true);
+        ValidationUtils.maxLength(dto.getDescricao(), 2000, "descrição do serviço");
+        ValidationUtils.maxLength(dto.getObservacaoInterna(), 2000, "observação interna");
+        ValidationUtils.maxLength(dto.getObservacaoTerceirizacao(), 2000, "observação de terceirização");
         if (dto.getTipoServico() == null) {
             throw new FieldValidationException("O tipo do serviço é obrigatório: INTERNO ou TERCEIRIZADO.");
         }

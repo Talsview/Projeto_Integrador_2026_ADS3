@@ -2,6 +2,7 @@ package br.com.avcar.oficina.business.peca.validation;
 
 import br.com.avcar.oficina.business.peca.dto.ItemPecaDTO;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
@@ -49,5 +50,9 @@ public class ItemPecaValidation {
         if (dto.getValorUnitario() == null || dto.getValorUnitario().compareTo(BigDecimal.ZERO) < 0) {
             throw new FieldValidationException("O valor unitário da peça não pode ser negativo.");
         }
+        if (dto.getValorTotal() != null && dto.getValorTotal().compareTo(BigDecimal.ZERO) < 0) {
+            throw new FieldValidationException("O valor total da peça não pode ser negativo.");
+        }
+        ValidationUtils.maxLength(dto.getObservacao(), 2000, "observação do item de peça");
     }
 }

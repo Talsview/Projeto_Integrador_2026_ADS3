@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, switchMap } from 'rxjs';
 import { ServicoApiService } from '../../core/services/servico-api.service';
+import { numeroNaoNegativo, textoCadastroValido } from '../../core/validation/field-validation';
 import { Servico, TipoServico } from '../../models/servico.model';
 
 @Component({ selector: 'app-servicos', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './servicos.component.html' })
@@ -38,7 +39,10 @@ export class ServicosComponent implements OnInit {
   }
 
   salvar(): void {
-    this.mensagem = undefined; this.erro = undefined; this.processando = true; this.atualizarTela();
+    this.mensagem = undefined; this.erro = undefined;
+    const erroValidacao = this.validarFormulario();
+    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.servicoApi.atualizar(this.form.id, this.form) : this.servicoApi.criar(this.form);
     acao.pipe(switchMap(() => this.servicoApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
       next: servicos => { this.mensagem = 'Serviço salvo com sucesso. A tabela foi atualizada automaticamente.'; this.servicos = [...servicos]; this.limpar(); this.atualizarTela(); },
@@ -58,6 +62,14 @@ export class ServicosComponent implements OnInit {
   }
 
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+  private validarFormulario(): string | undefined {
+    if (!textoCadastroValido(this.form.nomeServico, true)) return 'Informe um nome de serviço válido.';
+    if (!this.form.tipoServico) return 'Selecione o tipo do serviço.';
+    if (!numeroNaoNegativo(this.form.valorBase)) return 'O valor base do serviço não pode ser negativo.';
+    if (!numeroNaoNegativo(this.form.prazoGarantiaDias)) return 'O prazo de garantia não pode ser negativo.';
+    return undefined;
+  }
+
   private formularioInicial(): Servico { return { nomeServico: '', descricao: '', prazoGarantiaDias: 90, valorBase: 0, tipoServico: 'INTERNO', observacaoInterna: '', observacaoTerceirizacao: '' }; }
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

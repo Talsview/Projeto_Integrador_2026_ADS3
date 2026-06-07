@@ -64,6 +64,7 @@ public class PagamentoService {
         ordemServico = prepararOrdemParaReceberPagamento(ordemServico);
 
         prepararDataPagamento(dto);
+        validarPagamentoContraOrdem(dto, ordemServico, null);
         PagamentoModel saved = pagamentoRepository.save(mapper.toModel(dto, ordemServico));
 
         finalizarOrdemAutomaticamenteSeQuitada(ordemServico.getId());
@@ -79,6 +80,7 @@ public class PagamentoService {
         validarOrdemPermitePagamento(pagamento.getOrdemServico());
         validarOrdemPermitePagamento(ordemServico);
         prepararDataPagamento(dto);
+        validarPagamentoContraOrdem(dto, ordemServico, pagamento);
         mapper.atualizarModel(pagamento, dto, ordemServico);
         PagamentoModel saved = pagamentoRepository.save(pagamento);
         finalizarOrdemAutomaticamenteSeQuitada(ordemServico.getId());
@@ -218,6 +220,39 @@ public class PagamentoService {
         }
 
         return ordemServico;
+    }
+
+    private void validarPagamentoContraOrdem(PagamentoDTO dto, OrdemServicoModel ordemServico, PagamentoModel pagamentoAtual) {
+        if (dto.getDataPagamento() != null && ordemServico.getDataAbertura() != null
+                && dto.getDataPagamento().isBefore(ordemServico.getDataAbertura())) {
+            throw new RuleValidationException("A data de pagamento não pode ser anterior à data de abertura da OS.");
+        }
+
+        if (dto.getStatusPagamento() != StatusPagamento.PAGO) {
+            return;
+        }
+
+        BigDecimal valorTotal = zeroIfNull(ordemServico.getValorTotal());
+        if (valorTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuleValidationException("A Ordem de Serviço deve possuir valor total maior que zero para receber pagamento.");
+        }
+
+        BigDecimal valorJaPago = calcularValorPago(ordemServico.getId());
+        if (pagamentoAtual != null
+                && pagamentoAtual.getStatusPagamento() == StatusPagamento.PAGO
+                && pagamentoAtual.getOrdemServico() != null
+                && pagamentoAtual.getOrdemServico().getId().equals(ordemServico.getId())) {
+            valorJaPago = valorJaPago.subtract(zeroIfNull(pagamentoAtual.getValorPago()));
+        }
+
+        BigDecimal saldoPendente = valorTotal.subtract(valorJaPago);
+        if (saldoPendente.compareTo(BigDecimal.ZERO) < 0) {
+            saldoPendente = BigDecimal.ZERO;
+        }
+
+        if (zeroIfNull(dto.getValorPago()).compareTo(saldoPendente) > 0) {
+            throw new RuleValidationException("O valor pago não pode ser maior que o saldo pendente da OS. Saldo pendente: R$ " + saldoPendente + ".");
+        }
     }
 
     private void finalizarOrdemAutomaticamenteSeQuitada(Long idOrdemServico) {

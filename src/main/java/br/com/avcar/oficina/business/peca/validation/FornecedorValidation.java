@@ -3,6 +3,8 @@ package br.com.avcar.oficina.business.peca.validation;
 import br.com.avcar.oficina.business.peca.dto.FornecedorDTO;
 import br.com.avcar.oficina.business.peca.repository.IFornecedorRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.DocumentoValidationUtils;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,8 +46,13 @@ public class FornecedorValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados do fornecedor são obrigatórios.");
         }
-        if (dto.getNomeFornecedor() == null || dto.getNomeFornecedor().trim().isEmpty()) {
-            throw new FieldValidationException("O nome do fornecedor é obrigatório.");
+        ValidationUtils.validateBusinessText(dto.getNomeFornecedor(), "nome do fornecedor", true);
+        ValidationUtils.validatePhone(dto.getTelefone(), false);
+        ValidationUtils.validateEmail(dto.getEmail(), false);
+        ValidationUtils.maxLength(dto.getEndereco(), 255, "endereço");
+        String cnpj = onlyDigits(dto.getCnpj());
+        if (cnpj != null && !DocumentoValidationUtils.cnpjValido(cnpj)) {
+            throw new FieldValidationException("CNPJ do fornecedor inválido. Informe um CNPJ real ou deixe o campo vazio.");
         }
     }
 

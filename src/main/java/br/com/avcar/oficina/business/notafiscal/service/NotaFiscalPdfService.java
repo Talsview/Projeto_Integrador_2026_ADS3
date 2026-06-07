@@ -106,6 +106,7 @@ public class NotaFiscalPdfService {
         List<PagamentoModel> pagamentos = pagamentoRepository.findByOrdemServicoIdAndAtivoTrue(ordem.getId());
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtual(ordem.getId()).orElse(null);
 
+        validarDadosParaEmissao(ordem, servicos, pecas, statusAtual);
         recalcularEmMemoria(ordem, servicos, pecas);
 
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -125,6 +126,27 @@ public class NotaFiscalPdfService {
             return outputStream.toByteArray();
         } catch (DocumentException | IOException ex) {
             throw new BusinessException("Não foi possível gerar o PDF da nota fiscal da Ordem de Serviço.");
+        }
+    }
+
+    private void validarDadosParaEmissao(OrdemServicoModel ordem,
+                                         List<ItemServicoModel> servicos,
+                                         List<ItemPecaModel> pecas,
+                                         HistoricoStatusOrdemModel statusAtual) {
+        if (ordem.getCliente() == null || ordem.getCliente().getPessoa() == null) {
+            throw new BusinessException("Não é possível gerar a nota/recibo interno: a OS não possui cliente válido.");
+        }
+        if (ordem.getVeiculo() == null) {
+            throw new BusinessException("Não é possível gerar a nota/recibo interno: a OS não possui veículo válido.");
+        }
+        if ((servicos == null || servicos.isEmpty()) && (pecas == null || pecas.isEmpty())) {
+            throw new BusinessException("Não é possível gerar a nota/recibo interno para uma OS sem serviços ou peças registrados.");
+        }
+        if (statusAtual == null) {
+            throw new BusinessException("Não é possível gerar a nota/recibo interno: a OS não possui histórico de status.");
+        }
+        if (ordem.getDataAbertura() != null && ordem.getDataAbertura().isAfter(LocalDateTime.now())) {
+            throw new BusinessException("Não é possível gerar a nota/recibo interno para OS com data de abertura futura.");
         }
     }
 

@@ -5,6 +5,7 @@ import { finalize, forkJoin, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
 import { VeiculoApiService } from '../../core/services/veiculo-api.service';
+import { dataHoraFutura } from '../../core/validation/field-validation';
 import { ClienteResumo } from '../../models/cliente.model';
 import { AlterarStatusOrdemServico, OrdemServicoResumo, PrioridadeOrdemServico, StatusFluxoOrdemServico } from '../../models/ordem-servico.model';
 import { VeiculoResumo } from '../../models/veiculo.model';
@@ -56,7 +57,10 @@ export class OrdensServicoComponent implements OnInit {
   pesquisar(): void { const c = this.termo.trim(); if (!c) { this.listar(); return; } this.carregando = true; this.erro = undefined; this.atualizarTela(); this.ordemApi.pesquisar(c).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
   salvar(): void {
-    this.mensagem = undefined; this.erro = undefined; this.processando = true; this.atualizarTela();
+    this.mensagem = undefined; this.erro = undefined;
+    const erroValidacao = this.validarFormulario();
+    if (erroValidacao) { this.erro = erroValidacao; this.atualizarTela(); return; }
+    this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.ordemApi.atualizar(this.form.id, this.form) : this.ordemApi.criar(this.form);
     acao.pipe(switchMap(() => this.ordemApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
       next: ordens => { this.mensagem = 'Ordem de Serviço salva com sucesso. A tabela foi atualizada automaticamente.'; this.ordens = [...ordens]; this.limpar(); this.atualizarTela(); },
@@ -115,6 +119,14 @@ export class OrdensServicoComponent implements OnInit {
   }
 
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+
+  private validarFormulario(): string | undefined {
+    if (!this.form.idCliente || Number(this.form.idCliente) <= 0) return 'Selecione o cliente da Ordem de Serviço.';
+    if (!this.form.idVeiculo || Number(this.form.idVeiculo) <= 0) return 'Selecione o veículo da Ordem de Serviço.';
+    if (this.form.dataAbertura && dataHoraFutura(this.form.dataAbertura)) return 'A data de abertura da OS não pode ser futura.';
+    if (!this.form.prioridade) return 'Selecione a prioridade da OS.';
+    return undefined;
+  }
 
   private salvarArquivo(blob: Blob, nomeArquivo: string): void {
     const url = window.URL.createObjectURL(blob);

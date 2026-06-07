@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.veiculo.validation;
 import br.com.avcar.oficina.business.veiculo.dto.MarcaDTO;
 import br.com.avcar.oficina.business.veiculo.repository.IMarcaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -42,8 +43,6 @@ public class MarcaValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados da marca são obrigatórios.");
         }
-        if (dto.getNomeMarca() == null || dto.getNomeMarca().trim().isEmpty()) {
-            throw new FieldValidationException("O nome da marca é obrigatório.");
-        }
+        ValidationUtils.validateBusinessText(dto.getNomeMarca(), "nome da marca", true);
     }
 }

@@ -6,6 +6,8 @@ import br.com.avcar.oficina.business.ordemservico.model.HistoricoStatusOrdemMode
 import br.com.avcar.oficina.business.ordemservico.model.StatusOrdemServicoModel;
 import br.com.avcar.oficina.business.ordemservico.repository.IOrdemServicoRepository;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
 /**
@@ -80,5 +82,22 @@ public class OrdemServicoValidation {
         if (dto.getIdVeiculo() == null || dto.getIdVeiculo() <= 0) {
             throw new RuleValidationException("O veículo da Ordem de Serviço é obrigatório.");
         }
+        ValidationUtils.notFuture(dto.getDataAbertura(), "data de abertura da OS");
+        ValidationUtils.notFuture(dto.getDataAprovacao(), "data de aprovação da OS");
+        ValidationUtils.notFuture(dto.getDataFinalizacao(), "data de finalização da OS");
+        ValidationUtils.dateNotBefore(dto.getDataAprovacao(), dto.getDataAbertura(), "data de aprovação", "data de abertura");
+        ValidationUtils.dateNotBefore(dto.getDataFinalizacao(), dto.getDataAbertura(), "data de finalização", "data de abertura");
+        ValidationUtils.dateNotBefore(dto.getDataFinalizacao(), dto.getDataAprovacao(), "data de finalização", "data de aprovação");
+        if (dto.getPrioridade() == null) {
+            dto.setPrioridade(br.com.avcar.oficina.business.ordemservico.enums.PrioridadeOrdemServico.NORMAL);
+        }
+        if (dto.getValorTotal() != null && dto.getValorTotal().compareTo(BigDecimal.ZERO) < 0) {
+            throw new RuleValidationException("O valor total da OS não pode ser negativo.");
+        }
+        if (dto.getNumeroOs() != null && !dto.getNumeroOs().isBlank()
+                && !dto.getNumeroOs().trim().matches("^[A-Za-z0-9_/-]{1,30}$")) {
+            throw new RuleValidationException("O número da OS contém caracteres inválidos.");
+        }
+        ValidationUtils.maxLength(dto.getObservacao(), 2000, "observação da OS");
     }
 }

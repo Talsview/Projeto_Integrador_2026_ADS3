@@ -3,6 +3,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { finalize, forkJoin } from 'rxjs';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
+import { dataHoraAnterior, dataHoraFutura, numeroMaiorQueZero } from '../../core/validation/field-validation';
 import { PagamentoApiService } from '../../core/services/pagamento-api.service';
 import { OrdemServicoResumo } from '../../models/ordem-servico.model';
 import { FormaPagamento, Pagamento, ResumoPagamentoOrdemServico, StatusPagamento } from '../../models/pagamento.model';
@@ -130,6 +131,13 @@ export class PagamentosComponent implements OnInit {
       return;
     }
 
+    const erroValidacao = this.validarFormularioPagamento();
+    if (erroValidacao) {
+      this.erro = erroValidacao;
+      this.cdr.detectChanges();
+      return;
+    }
+
     const valorPendente = Number(this.resumo?.valorPendente ?? 0);
     const valorInformado = Number(this.form.valorPago ?? 0);
 
@@ -217,6 +225,20 @@ export class PagamentosComponent implements OnInit {
     if (status === 'FINALIZADO') return 'success';
     if (status === 'EXECUCAO') return 'warning';
     return '';
+  }
+
+  private validarFormularioPagamento(): string | undefined {
+    if (!this.form.formaPagamento) return 'Selecione a forma de pagamento.';
+    if (!this.form.statusPagamento) return 'Selecione o status do pagamento.';
+    if (!numeroMaiorQueZero(this.form.valorPago)) return 'O valor do pagamento deve ser maior que zero.';
+    const valorPendente = Number(this.resumo?.valorPendente ?? 0);
+    const valorInformado = Number(this.form.valorPago ?? 0);
+    if (!this.form.id && valorPendente >= 0 && valorInformado > valorPendente) return 'O valor pago não pode ser maior que o saldo pendente da OS.';
+    if (dataHoraFutura(this.form.dataPagamento as any)) return 'A data de pagamento não pode ser futura.';
+    const ordem = this.ordemSelecionada as any;
+    if (ordem?.dataAbertura && dataHoraAnterior(this.form.dataPagamento as any, ordem.dataAbertura)) return 'A data de pagamento não pode ser anterior à data de abertura da OS.';
+    if ((this.form.statusPagamento === 'CANCELADO' || this.form.statusPagamento === 'ESTORNADO') && this.form.dataPagamento) return 'Pagamento cancelado ou estornado não deve possuir data de pagamento efetivo.';
+    return undefined;
   }
 
   private criarFormularioInicial(): Pagamento {

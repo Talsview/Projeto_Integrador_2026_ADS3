@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.pagamento.validation;
 import br.com.avcar.oficina.business.pagamento.dto.PagamentoDTO;
 import br.com.avcar.oficina.business.pagamento.enums.StatusPagamento;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
@@ -50,8 +51,13 @@ public class PagamentoValidation {
         if (dto.getValorPago() == null || dto.getValorPago().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuleValidationException("O valor do pagamento deve ser maior que zero.");
         }
+        ValidationUtils.notFuture(dto.getDataPagamento(), "data de pagamento");
+        ValidationUtils.maxLength(dto.getObservacao(), 2000, "observação do pagamento");
         if (dto.getStatusPagamento() == StatusPagamento.CANCELADO && dto.getDataPagamento() != null) {
             throw new RuleValidationException("Pagamento cancelado não deve possuir data de pagamento efetivo.");
+        }
+        if (dto.getStatusPagamento() == StatusPagamento.ESTORNADO && dto.getDataPagamento() != null) {
+            throw new RuleValidationException("Pagamento estornado não deve possuir data de pagamento efetivo.");
         }
     }
 }

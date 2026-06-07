@@ -3,6 +3,8 @@ package br.com.avcar.oficina.business.servico.validation;
 import br.com.avcar.oficina.business.servico.dto.EmpresaTerceirizadaDTO;
 import br.com.avcar.oficina.business.servico.repository.IEmpresaTerceirizadaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
+import br.com.avcar.oficina.core.validation.DocumentoValidationUtils;
+import br.com.avcar.oficina.core.validation.ValidationUtils;
 import org.springframework.stereotype.Component;
 
 /**
@@ -44,8 +46,13 @@ public class EmpresaTerceirizadaValidation {
         if (dto == null) {
             throw new FieldValidationException("Os dados da empresa terceirizada são obrigatórios.");
         }
-        if (dto.getNomeEmpresa() == null || dto.getNomeEmpresa().trim().isEmpty()) {
-            throw new FieldValidationException("O nome da empresa terceirizada é obrigatório.");
+        ValidationUtils.validateBusinessText(dto.getNomeEmpresa(), "nome da empresa terceirizada", true);
+        ValidationUtils.validatePhone(dto.getTelefone(), false);
+        ValidationUtils.validateEmail(dto.getEmail(), false);
+        ValidationUtils.maxLength(dto.getEndereco(), 255, "endereço");
+        String cnpj = onlyDigits(dto.getCnpj());
+        if (cnpj != null && !DocumentoValidationUtils.cnpjValido(cnpj)) {
+            throw new FieldValidationException("CNPJ da empresa terceirizada inválido. Informe um CNPJ real ou deixe o campo vazio.");
         }
     }
 

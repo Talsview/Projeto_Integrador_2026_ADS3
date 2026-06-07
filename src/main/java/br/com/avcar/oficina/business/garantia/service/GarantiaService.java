@@ -179,7 +179,7 @@ public class GarantiaService {
     @Transactional
     public GarantiaPecaDTO acionarGarantiaPeca(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaPecaModel garantia = buscarGarantiaPecaModel(id);
-        validarGarantiaPodeSerAcionada(garantia.getStatusGarantia());
+        validarGarantiaPodeSerAcionada(garantia.getStatusGarantia(), garantia.getDataFim());
         garantia.setStatusGarantia(StatusGarantia.ACIONADA);
         garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de peça acionada."));
         return garantiaPecaMapper.toDto(garantiaPecaRepository.save(garantia));
@@ -188,7 +188,7 @@ public class GarantiaService {
     @Transactional
     public GarantiaServicoDTO acionarGarantiaServico(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaServicoModel garantia = buscarGarantiaServicoModel(id);
-        validarGarantiaPodeSerAcionada(garantia.getStatusGarantia());
+        validarGarantiaPodeSerAcionada(garantia.getStatusGarantia(), garantia.getDataFim());
         garantia.setStatusGarantia(StatusGarantia.ACIONADA);
         garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de serviço acionada."));
         return garantiaServicoMapper.toDto(garantiaServicoRepository.save(garantia));
@@ -197,6 +197,7 @@ public class GarantiaService {
     @Transactional
     public GarantiaPecaDTO encerrarGarantiaPeca(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaPecaModel garantia = buscarGarantiaPecaModel(id);
+        validarGarantiaPodeSerEncerrada(garantia.getStatusGarantia());
         garantia.setStatusGarantia(StatusGarantia.ENCERRADA);
         garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de peça encerrada."));
         return garantiaPecaMapper.toDto(garantiaPecaRepository.save(garantia));
@@ -205,6 +206,7 @@ public class GarantiaService {
     @Transactional
     public GarantiaServicoDTO encerrarGarantiaServico(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaServicoModel garantia = buscarGarantiaServicoModel(id);
+        validarGarantiaPodeSerEncerrada(garantia.getStatusGarantia());
         garantia.setStatusGarantia(StatusGarantia.ENCERRADA);
         garantia.setObservacao(combinarObservacao(garantia.getObservacao(), dto, "Garantia de serviço encerrada."));
         return garantiaServicoMapper.toDto(garantiaServicoRepository.save(garantia));
@@ -246,12 +248,27 @@ public class GarantiaService {
                 .orElseThrow(() -> new BusinessException("Garantia de serviço não encontrada ou inativa."));
     }
 
-    private void validarGarantiaPodeSerAcionada(StatusGarantia status) {
+    private void validarGarantiaPodeSerAcionada(StatusGarantia status, LocalDate dataFim) {
         if (StatusGarantia.AGUARDANDO_FINALIZACAO_OS.equals(status)) {
             throw new RuleValidationException("A garantia ainda não pode ser acionada, pois a OS não foi finalizada.");
         }
         if (StatusGarantia.ENCERRADA.equals(status)) {
             throw new RuleValidationException("Garantia encerrada não pode ser acionada.");
+        }
+        if (StatusGarantia.EXPIRADA.equals(status) || (dataFim != null && dataFim.isBefore(LocalDate.now()))) {
+            throw new RuleValidationException("Garantia expirada não pode ser acionada.");
+        }
+        if (StatusGarantia.ACIONADA.equals(status)) {
+            throw new RuleValidationException("Garantia já está acionada.");
+        }
+    }
+
+    private void validarGarantiaPodeSerEncerrada(StatusGarantia status) {
+        if (StatusGarantia.ENCERRADA.equals(status)) {
+            throw new RuleValidationException("Garantia já está encerrada.");
+        }
+        if (StatusGarantia.AGUARDANDO_FINALIZACAO_OS.equals(status)) {
+            throw new RuleValidationException("Garantia ainda não iniciada não pode ser encerrada manualmente.");
         }
     }
 

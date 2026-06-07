@@ -6,6 +6,7 @@ import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { MarcaApiService } from '../../core/services/marca-api.service';
 import { ModeloApiService } from '../../core/services/modelo-api.service';
 import { VeiculoApiService } from '../../core/services/veiculo-api.service';
+import { chassiValido, dataFutura, anoVeiculoValido, numeroNaoNegativo, placaValida, textoCadastroValido } from '../../core/validation/field-validation';
 import { ClienteResumo } from '../../models/cliente.model';
 import { Marca, Modelo, VeiculoResumo } from '../../models/veiculo.model';
 
@@ -127,6 +128,12 @@ export class VeiculosComponent implements OnInit {
   salvar(): void {
     this.mensagem = undefined;
     this.erro = undefined;
+    const erroValidacao = this.validarFormulario();
+    if (erroValidacao) {
+      this.erro = erroValidacao;
+      this.atualizarTela();
+      return;
+    }
     this.processando = true;
     this.atualizarTela();
     this.veiculoApi.salvarEListar(this.form.id, this.form).pipe(
@@ -180,6 +187,21 @@ export class VeiculosComponent implements OnInit {
   limpar(): void {
     this.form = this.formularioInicial();
     this.atualizarTela();
+  }
+
+  private validarFormulario(): string | undefined {
+    if (!this.form.marcaId || Number(this.form.marcaId) <= 0) return 'Selecione a marca do veículo.';
+    if (!this.form.modeloId || Number(this.form.modeloId) <= 0) return 'Selecione o modelo do veículo.';
+    if (!placaValida(this.form.placa)) return 'Informe uma placa válida no formato ABC1234 ou ABC1D23.';
+    if (!chassiValido(this.form.chassi)) return 'O chassi deve possuir 17 caracteres válidos, sem I, O e Q.';
+    if (this.form.cor && !textoCadastroValido(this.form.cor, false)) return 'A cor do veículo contém caracteres inválidos.';
+    if (!anoVeiculoValido(this.form.anoVeiculo, true)) return 'Informe um ano de fabricação válido.';
+    if (!anoVeiculoValido(this.form.anoModelo, true)) return 'Informe um ano modelo válido.';
+    if (Number(this.form.anoModelo) < Number(this.form.anoVeiculo) - 1 || Number(this.form.anoModelo) > Number(this.form.anoVeiculo) + 1) return 'O ano modelo deve ser coerente com o ano de fabricação.';
+    if (!numeroNaoNegativo(this.form.quilometragemAtual)) return 'A quilometragem não pode ser negativa.';
+    if (!this.form.proprietarioAtualId || Number(this.form.proprietarioAtualId) <= 0) return 'Selecione o proprietário atual do veículo.';
+    if (dataFutura(this.form.dataInicioPosse)) return 'A data de início da posse não pode ser futura.';
+    return undefined;
   }
 
   private formularioInicial(): any {
