@@ -1163,3 +1163,40 @@ body.reduce-motion * {
     grid-template-columns: 1fr;
   }
 }
+
+/* Etapa 53 — Orçamento enviado para pagamento pela tela Itens da OS */
+.orçamento-card .form-row,
+.orcamento-card .form-row {
+  align-items: stretch;
+}
+
+.budget-action-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 280px;
+  padding: 12px;
+  border: 1px solid #d7e0ea;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #ffffff 0%, #f6f9fc 100%);
+}
+
+.budget-action-panel strong {
+  color: #0b2239;
+  font-size: 0.98rem;
+}
+
+.budget-action-panel button {
+  width: 100%;
+  justify-content: center;
+}
+
+.os-form-card {
+  max-width: 1180px;
+}
+
+@media (max-width: 900px) {
+  .budget-action-panel {
+    min-width: 100%;
+  }
+}

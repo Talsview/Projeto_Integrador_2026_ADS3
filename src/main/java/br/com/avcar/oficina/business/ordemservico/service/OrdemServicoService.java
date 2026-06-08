@@ -171,6 +171,60 @@ public class OrdemServicoService {
         return alterarStatus(id, dto);
     }
 
+    /**
+     * Conclui o orçamento operacional e encaminha a OS para PAGAMENTO.
+     *
+     * A tela de Itens da OS é responsável por montar o orçamento com serviços
+     * e peças. Quando o orçamento estiver preenchido e aprovado, a OS pode ser
+     * enviada ao financeiro sem depender do botão genérico de fluxo da tela
+     * principal de Ordens de Serviço.
+     */
+    @Transactional
+    public OrdemServicoDTO enviarOrcamentoParaPagamento(Long id) {
+        validation.validateId(id);
+        OrdemServicoModel ordemServico = buscarModelAtivo(id);
+        HistoricoStatusOrdemModel statusAtual = buscarStatusAtual(ordemServico.getId());
+
+        if (statusAtual == null || statusAtual.getStatusOrdemServico() == null) {
+            throw new RuleValidationException("A Ordem de Serviço não possui histórico de status inicial.");
+        }
+
+        String statusAtualNome = statusAtual.getStatusOrdemServico().getNomeStatus();
+        if (!StatusFluxoOrdemServico.ORCAMENTO.name().equals(statusAtualNome)) {
+            throw new RuleValidationException("Somente Ordens de Serviço em ORÇAMENTO podem ser enviadas para PAGAMENTO por esta tela.");
+        }
+
+        if (!itemServicoRepository.existsByOrdemServicoIdAndAtivoTrue(ordemServico.getId())) {
+            throw new RuleValidationException("Inclua pelo menos um serviço no orçamento antes de enviar a OS para pagamento.");
+        }
+
+        recalcularValorTotal(ordemServico.getId());
+        ordemServico = buscarModelAtivo(id);
+        BigDecimal valorTotal = ordemServico.getValorTotal() == null ? BigDecimal.ZERO : ordemServico.getValorTotal();
+        if (valorTotal.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuleValidationException("O orçamento deve possuir valor total maior que zero antes de ser enviado para pagamento.");
+        }
+
+        if (ordemServico.getDataAprovacao() == null) {
+            ordemServico.setDataAprovacao(LocalDateTime.now());
+            ordemServicoRepository.save(ordemServico);
+        }
+
+        StatusOrdemServicoModel statusPagamento = statusService.buscarPorFluxo(StatusFluxoOrdemServico.PAGAMENTO);
+        OrdemServicoModel atualizada = buscarModelAtivo(id);
+        historicoStatusRepository.save(historicoStatusMapper.criarHistorico(
+                atualizada,
+                statusPagamento,
+                "Orçamento concluído e enviado para pagamento pelo módulo de Itens da OS."));
+
+        notificacaoService.notificarMudancaStatusOrdemServico(
+                atualizada.getNumeroOs(),
+                statusPagamento.getNomeStatus(),
+                "Orçamento concluído e enviado para pagamento.");
+
+        return montarDetalhe(id);
+    }
+
     @Transactional
     public OrdemServicoDTO alterarStatus(Long id, AlterarStatusOrdemServicoDTO dto) {
         validation.validateId(id);
