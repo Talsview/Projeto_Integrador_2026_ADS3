@@ -133,7 +133,8 @@ export class AppComponent {
       title: 'Gestão',
       items: [
         { label: 'Relatórios', route: '/relatorios', icon: 'RL', description: 'Consultas gerenciais' },
-        { label: 'Configurações', route: '/configuracoes', icon: 'CF', description: 'Ambiente local' }
+        { label: 'Configurações', route: '/configuracoes', icon: 'CF', description: 'Ambiente local' },
+        { label: 'Padrões de Projeto', route: '/padroes-projeto', icon: 'PP', description: 'Evidência acadêmica' }
       ]
     }
   ];

@@ -5,20 +5,20 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Resultado padronizado do envio de uma notificação interna.
+ * DTO de consulta dos registros persistidos pelo Decorator de auditoria.
  */
 @Getter
 @Setter
-public class NotificacaoResultadoDTO {
+public class NotificacaoAuditoriaDTO {
 
-    private Long idAuditoria;
-    private Boolean entregue;
-    private Boolean auditoriaRegistrada;
-    private String canal;
+    private Long id;
     private String modulo;
     private String referencia;
+    private String canal;
     private String mensagemOriginal;
     private String mensagemProcessada;
+    private Boolean entregue;
+    private Boolean auditoriaRegistrada;
     private LocalDateTime dataHoraEnvio;
     private LocalDateTime dataHoraAuditoria;
     private String observacaoAuditoria;

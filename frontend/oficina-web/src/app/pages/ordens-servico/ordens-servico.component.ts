@@ -100,8 +100,7 @@ export class OrdensServicoComponent implements OnInit {
 
   editar(ordem: OrdemServicoResumo): void {
     this.form = { ...ordem };
-    this.termoClienteOs = ordem.nomeCliente ?? '';
-    this.termoVeiculoOs = ordem.placaVeiculo ?? '';
+    this.limparCamposDePesquisaDaOs();
     this.atualizarTela();
   }
   baixarNotaFiscal(ordem: OrdemServicoResumo): void {
@@ -132,24 +131,68 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
+  excluir(ordem: OrdemServicoResumo): void {
+    if (!ordem.id) return;
+
+    const identificacao = ordem.numeroOs ? `nº ${ordem.numeroOs}` : `ID ${ordem.id}`;
+    const confirmou = window.confirm(`Deseja realmente inativar a Ordem de Serviço ${identificacao}?`);
+    if (!confirmou) return;
+
+    this.processando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
+    this.atualizarTela();
+
+    this.ordemApi.excluirEListar(ordem.id)
+      .pipe(finalize(() => { this.processando = false; this.atualizarTela(); }))
+      .subscribe({
+        next: ordens => {
+          this.ordens = [...ordens];
+          this.mensagem = 'Ordem de Serviço inativada. A tabela foi atualizada automaticamente.';
+          this.limpar();
+          this.atualizarTela();
+        },
+        error: error => {
+          this.erro = error.message ?? 'Não foi possível inativar a Ordem de Serviço.';
+          this.atualizarTela();
+        }
+      });
+  }
+
   limpar(): void {
     this.form = this.formularioInicial();
     this.errosCampo = {};
-    this.termoClienteOs = '';
-    this.termoVeiculoOs = '';
+    this.limparCamposDePesquisaDaOs();
     this.atualizarTela();
   }
 
+  selecionarClienteDaOs(idCliente: number | string): void {
+    this.form.idCliente = Number(idCliente ?? 0);
+    this.aoAlterarCliente();
+  }
+
+  limparCampoBuscaClienteDaOs(): void {
+    this.limparPesquisaClienteOs();
+    this.atualizarTela();
+  }
+
+  limparCampoBuscaVeiculoDaOs(): void {
+    this.limparPesquisaVeiculoOs();
+    this.atualizarTela();
+  }
+
+  selecionarVeiculoDaOs(idVeiculo: number | string): void {
+    this.form.idVeiculo = Number(idVeiculo ?? 0);
+    this.aoAlterarVeiculo();
+  }
+
   aoAlterarCliente(): void {
-    const clienteSelecionado = this.clientes.find(c => Number(c.id) === Number(this.form.idCliente));
-    if (clienteSelecionado) {
-      this.termoClienteOs = this.rotuloCliente(clienteSelecionado);
-    }
+    this.limparPesquisaClienteOs();
 
     const veiculoSelecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
     if (veiculoSelecionado && Number(veiculoSelecionado.proprietarioAtualId ?? 0) !== Number(this.form.idCliente ?? 0)) {
       this.form.idVeiculo = 0;
-      this.termoVeiculoOs = '';
+      this.limparPesquisaVeiculoOs();
     }
     delete this.errosCampo['idCliente'];
     delete this.errosCampo['idVeiculo'];
@@ -157,10 +200,7 @@ export class OrdensServicoComponent implements OnInit {
   }
 
   aoAlterarVeiculo(): void {
-    const veiculoSelecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
-    if (veiculoSelecionado) {
-      this.termoVeiculoOs = this.rotuloVeiculo(veiculoSelecionado);
-    }
+    this.limparPesquisaVeiculoOs();
     delete this.errosCampo['idVeiculo'];
     this.atualizarTela();
   }
@@ -194,6 +234,31 @@ export class OrdensServicoComponent implements OnInit {
       return [...veiculos];
     }
     return [selecionado, ...veiculos];
+  }
+
+  private limparCamposDePesquisaDaOs(): void {
+    this.limparPesquisaClienteOs();
+    this.limparPesquisaVeiculoOs();
+  }
+
+  private limparPesquisaClienteOs(): void {
+    this.termoClienteOs = '';
+    setTimeout(() => {
+      if (this.termoClienteOs) {
+        this.termoClienteOs = '';
+        this.atualizarTela();
+      }
+    });
+  }
+
+  private limparPesquisaVeiculoOs(): void {
+    this.termoVeiculoOs = '';
+    setTimeout(() => {
+      if (this.termoVeiculoOs) {
+        this.termoVeiculoOs = '';
+        this.atualizarTela();
+      }
+    });
   }
 
   private validarFormulario(): boolean {

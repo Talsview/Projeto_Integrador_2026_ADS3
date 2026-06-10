@@ -22,7 +22,7 @@
             {{ carregandoClientesOs ? 'Buscando...' : 'Buscar' }}
           </button>
         </div>
-        <select [(ngModel)]="form.idCliente" (change)="aoAlterarCliente()" [class.input-error]="errosCampo['idCliente']">
+        <select [ngModel]="form.idCliente" (ngModelChange)="selecionarClienteDaOs($event)" (focus)="limparCampoBuscaClienteDaOs()" (click)="limparCampoBuscaClienteDaOs()" [class.input-error]="errosCampo['idCliente']">
           <option [ngValue]="0">Selecione o cliente</option>
           <option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ rotuloCliente(cliente) }}</option>
         </select>
@@ -42,7 +42,7 @@
             {{ carregandoVeiculosOs ? 'Buscando...' : 'Buscar' }}
           </button>
         </div>
-        <select [(ngModel)]="form.idVeiculo" (change)="aoAlterarVeiculo()" [class.input-error]="errosCampo['idVeiculo']">
+        <select [ngModel]="form.idVeiculo" (ngModelChange)="selecionarVeiculoDaOs($event)" (focus)="limparCampoBuscaVeiculoDaOs()" (click)="limparCampoBuscaVeiculoDaOs()" [class.input-error]="errosCampo['idVeiculo']">
           <option [ngValue]="0">Selecione o veículo</option>
           <option *ngFor="let veiculo of veiculosDoClienteSelecionado()" [ngValue]="veiculo.id">{{ rotuloVeiculo(veiculo) }}</option>
         </select>

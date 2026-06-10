@@ -1,5 +1,5 @@
 <h1 class="page-title">Itens da Ordem de Serviço</h1>
-<p class="page-subtitle">Inclusão de serviços e peças no orçamento da OS, garantindo colaborador responsável e fornecedor identificado. Após concluir o orçamento, envie a OS para PAGAMENTO por esta própria tela.</p>
+<p class="page-subtitle">Inclusão de serviços e peças no orçamento da OS, garantindo colaborador responsável e fornecedor identificado. Após concluir o orçamento, envie a OS para EXECUÇÃO, mantendo o fluxo correto antes do pagamento.</p>
 
 <section class="card orcamento-card">
   <div class="form-row">
@@ -14,9 +14,9 @@
     <div class="budget-action-panel">
       <span class="badge warning">ORÇAMENTO</span>
       <strong>Total atual: {{ totalOrcamentoSelecionado() | currency:'BRL' }}</strong>
-      <small class="field-hint">Depois de adicionar os serviços e peças, envie a OS para pagamento.</small>
-      <button type="button" (click)="enviarOrcamentoParaPagamento()" [disabled]="!podeEnviarOrcamentoParaPagamento()">
-        {{ processando ? 'Processando...' : 'Enviar orçamento para pagamento' }}
+      <small class="field-hint">Depois de adicionar os serviços e peças, envie a OS para execução.</small>
+      <button type="button" (click)="enviarOrcamentoParaExecucao()" [disabled]="!podeEnviarOrcamentoParaExecucao()">
+        {{ processando ? 'Processando...' : 'Enviar orçamento para execução' }}
       </button>
     </div>
   </div>

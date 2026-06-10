@@ -20,7 +20,7 @@ interface PreferenciasSistema {
 export class ConfiguracoesComponent implements OnInit {
   readonly apiBaseUrl = environment.apiBaseUrl;
   readonly swaggerUrl = environment.swaggerUrl;
-  readonly versaoSistema = 'Etapa 48';
+  readonly versaoSistema = 'Etapa 57';
   readonly comandos = [
     String.raw`cd C:\Users\Davi\Documents\NetBeansProjects\car-repair`,
     'mvn.cmd spring-boot:run',

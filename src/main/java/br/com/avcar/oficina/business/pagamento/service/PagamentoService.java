@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
  * Regras atendidas:
  * - OrdemServico pode gerar nenhum, um ou vários pagamentos.
  * - Apenas pagamentos com status PAGO abatem o saldo financeiro da OS.
- * - Ao salvar um pagamento, a OS é conduzida automaticamente até PAGAMENTO,
- *   respeitando o fluxo Orçamento -> Execução -> Pagamento.
+ * - O pagamento somente pode ser registrado quando a OS já chegou à etapa PAGAMENTO,
+ *   respeitando o fluxo Orçamento -> Execução -> Pagamento -> Finalizado.
  * - Quando o valor pago quita a OS, o sistema finaliza automaticamente a OS
  *   e inicia as garantias de peças e serviços.
  * - OS finalizada não permite alteração de pagamentos.

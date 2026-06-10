@@ -14,4 +14,5 @@ public class PadraoProjetoDTO {
     private String localAplicacao;
     private String classePrincipal;
     private String justificativa;
+    private String evidenciaFuncional;
 }

@@ -1,38 +1,74 @@
 <h1 class="page-title">Fila de Atendimento</h1>
 <p class="page-subtitle">
-  Controle operacional da fila de atendimento, exibindo Ordens de Serviço em EXECUÇÃO, com recursos de busca, ordenação e cálculo de totais.
+  Controle operacional das Ordens de Serviço em EXECUÇÃO. A fila mostra apenas os orçamentos já montados e aprovados para execução do serviço, antes da etapa de pagamento.
 </p>
 
 <section class="card">
+  <div class="alert" style="margin-bottom: 14px;">
+    Fluxo correto da OS: <strong>ORÇAMENTO → EXECUÇÃO → PAGAMENTO → FINALIZADO</strong>. Ao concluir o orçamento na tela Itens da OS, a ordem entra nesta fila. Após a execução do serviço, ela deve ser enviada para pagamento.
+  </div>
+
   <div class="actions">
-    <button type="button" (click)="carregarFila()">Fila de atendimento</button>
-    <button type="button" class="secondary" (click)="ordenar('DATA_ABERTURA')">Ordenar por data</button>
-    <button type="button" class="secondary" (click)="ordenar('VALOR_TOTAL')">Ordenar por valor</button>
-    <button type="button" class="secondary" (click)="ordenar('PRIORIDADE')">Ordenar por prioridade</button>
+    <button type="button" (click)="carregarFila()" [disabled]="carregando || processando">Fila de atendimento</button>
+    <button type="button" class="secondary" (click)="ordenar('DATA_ABERTURA')" [disabled]="carregando || processando">Ordenar por data</button>
+    <button type="button" class="secondary" (click)="ordenar('VALOR_TOTAL')" [disabled]="carregando || processando">Ordenar por valor</button>
+    <button type="button" class="secondary" (click)="ordenar('PRIORIDADE')" [disabled]="carregando || processando">Ordenar por prioridade</button>
   </div>
 
   <div class="form-row" style="margin-top: 14px;">
     <div>
-      <label>Pesquisa linear</label>
-      <input [(ngModel)]="termo" placeholder="Número da OS, placa ou cliente">
+      <label>Pesquisa linear na fila</label>
+      <input [(ngModel)]="termo" placeholder="Número da OS, placa, cliente, veículo, prioridade ou status">
+      <small class="muted">A pesquisa considera somente as OS em EXECUÇÃO exibidas na fila.</small>
     </div>
     <div class="actions" style="align-items: end;">
-      <button type="button" (click)="pesquisarLinear()">Pesquisar linearmente</button>
+      <button type="button" (click)="pesquisarLinear()" [disabled]="carregando || processando">Pesquisar linearmente</button>
     </div>
   </div>
 
   <div class="form-row" style="margin-top: 14px;">
     <div>
       <label>ID da OS para total recursivo</label>
-      <input type="number" [(ngModel)]="idTotal">
+      <input type="number" [(ngModel)]="idTotal" placeholder="Ex.: 2">
+      <small class="muted">Também é possível calcular pelo botão da linha da tabela.</small>
     </div>
     <div class="actions" style="align-items: end;">
-      <button type="button" (click)="calcularTotalRecursivo()">Calcular total recursivo</button>
+      <button type="button" (click)="calcularTotalRecursivo()" [disabled]="carregando || processando">Calcular total recursivo</button>
     </div>
   </div>
 
-  <p class="alert" *ngIf="totalRecursivo">Resultado recursivo: {{ totalRecursivo }}</p>
+  <p class="alert success" *ngIf="mensagem">{{ mensagem }}</p>
   <p class="alert error" *ngIf="erro">{{ erro }}</p>
+
+  <section class="card recursive-result-card" *ngIf="totalRecursivo" style="margin-top: 14px;">
+    <div class="section-heading">
+      <span>Resultado recursivo</span>
+      <h2>OS {{ totalRecursivo.numeroOs || totalRecursivo.idOrdemServico }}</h2>
+    </div>
+
+    <div class="grid three">
+      <div class="mini-panel">
+        <span>Serviços</span>
+        <strong>{{ totalRecursivo.totalServicos | currency:'BRL' }}</strong>
+        <small>{{ totalRecursivo.quantidadeItensServico || 0 }} item(ns) de serviço</small>
+      </div>
+      <div class="mini-panel">
+        <span>Peças</span>
+        <strong>{{ totalRecursivo.totalPecas | currency:'BRL' }}</strong>
+        <small>{{ totalRecursivo.quantidadeItensPeca || 0 }} item(ns) de peça</small>
+      </div>
+      <div class="mini-panel emphasis">
+        <span>Total geral</span>
+        <strong>{{ totalRecursivo.totalGeral | currency:'BRL' }}</strong>
+        <small>Soma final da OS</small>
+      </div>
+    </div>
+
+    <div class="alert" style="margin-top: 14px;">
+      <strong>Função utilizada:</strong> {{ totalRecursivo.funcaoUtilizada }}<br>
+      <strong>Justificativa:</strong> {{ totalRecursivo.justificativa }}
+    </div>
+  </section>
 
   <div class="table-wrap" style="margin-top: 14px;">
     <table>
@@ -44,6 +80,7 @@
           <th>Status</th>
           <th>Prioridade</th>
           <th>Total</th>
+          <th class="actions-col">Ações</th>
         </tr>
       </thead>
       <tbody>
@@ -51,9 +88,16 @@
           <td>{{ ordem.numeroOs }}</td>
           <td>{{ ordem.nomeCliente }}</td>
           <td>{{ ordem.placaVeiculo }}</td>
-          <td>{{ ordem.statusAtual }}</td>
-          <td>{{ ordem.prioridade }}</td>
+          <td><span class="badge warning">{{ ordem.statusAtual }}</span></td>
+          <td><span class="badge" [ngClass]="classePrioridade(ordem.prioridade)">{{ ordem.prioridade }}</span></td>
           <td>{{ ordem.valorTotal | currency:'BRL' }}</td>
+          <td class="actions row-actions">
+            <button type="button" class="secondary" (click)="calcularTotalDaLinha(ordem)" [disabled]="carregando || processando">Total recursivo</button>
+            <button type="button" (click)="enviarParaPagamento(ordem)" [disabled]="carregando || processando">Enviar para pagamento</button>
+          </td>
+        </tr>
+        <tr *ngIf="!ordens.length">
+          <td colspan="7">Nenhuma Ordem de Serviço em EXECUÇÃO no momento. Conclua um orçamento na tela Itens da OS para que ele entre na fila.</td>
         </tr>
       </tbody>
     </table>

@@ -125,19 +125,19 @@ export class ItensOsComponent implements OnInit {
   excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   excluirItemPeca(item: ItemPeca): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemPecaApi.excluir(item.id).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensPeca = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
-  enviarOrcamentoParaPagamento(): void {
+  enviarOrcamentoParaExecucao(): void {
     if (!this.idOrdemSelecionada) {
-      this.erro = 'Selecione uma OS em orçamento antes de enviar para pagamento.';
+      this.erro = 'Selecione uma OS em orçamento antes de enviar para execução.';
       this.atualizarTela();
       return;
     }
     if (!this.ordemSelecionadaEhStatusPermitido()) {
-      this.erro = 'Somente Ordens de Serviço em ORÇAMENTO podem ser enviadas para pagamento por esta tela.';
+      this.erro = 'Somente Ordens de Serviço em ORÇAMENTO podem ser enviadas para execução por esta tela.';
       this.atualizarTela();
       return;
     }
     if (!this.itensServico.length) {
-      this.erro = 'Inclua pelo menos um serviço no orçamento antes de enviar a OS para pagamento.';
+      this.erro = 'Inclua pelo menos um serviço no orçamento antes de enviar a OS para execução.';
       this.atualizarTela();
       return;
     }
@@ -147,7 +147,7 @@ export class ItensOsComponent implements OnInit {
     this.mensagem = undefined;
     this.atualizarTela();
 
-    this.ordemApi.enviarOrcamentoParaPagamento(this.idOrdemSelecionada)
+    this.ordemApi.enviarOrcamentoParaExecucao(this.idOrdemSelecionada)
       .pipe(
         switchMap(() => this.ordemApi.listar()),
         finalize(() => { this.processando = false; this.atualizarTela(); })
@@ -155,15 +155,15 @@ export class ItensOsComponent implements OnInit {
       .subscribe({
         next: ordens => {
           this.ordens = this.filtrarOrdensPorStatus(ordens, this.statusPermitido);
-          this.mensagem = 'Orçamento enviado para PAGAMENTO. A OS agora deve ser tratada no módulo Pagamentos.';
+          this.mensagem = 'Orçamento enviado para EXECUÇÃO. A OS agora aparece na Fila de Atendimento para execução do serviço.';
           this.limparSelecaoOrdem();
           this.atualizarTela();
         },
-        error: e => { this.erro = e.message ?? 'Não foi possível enviar o orçamento para pagamento.'; this.atualizarTela(); }
+        error: e => { this.erro = e.message ?? 'Não foi possível enviar o orçamento para execução.'; this.atualizarTela(); }
       });
   }
 
-  podeEnviarOrcamentoParaPagamento(): boolean {
+  podeEnviarOrcamentoParaExecucao(): boolean {
     return !!this.idOrdemSelecionada
       && this.ordemSelecionadaEhStatusPermitido()
       && this.itensServico.length > 0

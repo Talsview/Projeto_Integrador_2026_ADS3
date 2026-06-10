@@ -3,4 +3,5 @@ export interface PadraoProjeto {
   localAplicacao?: string;
   classePrincipal?: string;
   justificativa?: string;
+  evidenciaFuncional?: string;
 }

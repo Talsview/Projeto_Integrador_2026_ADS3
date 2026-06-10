@@ -4,6 +4,7 @@ import { Observable, catchError, map, of, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { DatabaseStatus } from '../models/database-status.model';
+import { PadraoProjeto } from '../../models/padrao-projeto.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -23,7 +24,13 @@ export class DashboardService {
         return {
           available,
           tempoRespostaMs,
-          mensagem: response.message ?? response.mensagem ?? this.criarMensagemBanco(available, tempoRespostaMs)
+          mensagem: response.message ?? response.mensagem ?? this.criarMensagemBanco(available, tempoRespostaMs),
+          dataHoraVerificacao: String(dados['dataHoraVerificacao'] ?? ''),
+          dataHoraUltimaMudancaStatus: String(dados['dataHoraUltimaMudancaStatus'] ?? ''),
+          verificacoesRealizadas: Number(dados['verificacoesRealizadas'] ?? 0),
+          falhasConsecutivas: Number(dados['falhasConsecutivas'] ?? 0),
+          ultimoErro: String(dados['ultimoErro'] ?? ''),
+          cacheUtilizado: Boolean(dados['cacheUtilizado'])
         };
       }),
       catchError((error: Error) => of({
@@ -31,6 +38,14 @@ export class DashboardService {
         mensagem: this.tratarErroDeComunicacao(error),
         tempoRespostaMs: 0
       }))
+    );
+  }
+
+
+  listarPadroesProjeto(): Observable<PadraoProjeto[]> {
+    return this.http.get<ApiResponse<PadraoProjeto[]>>(`${this.apiBaseUrl}/padroes-projeto`).pipe(
+      map(response => response.data ?? response.dados ?? []),
+      catchError(() => of([]))
     );
   }
 

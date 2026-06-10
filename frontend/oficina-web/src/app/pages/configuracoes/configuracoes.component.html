@@ -11,6 +11,10 @@
       <strong>{{ statusBanco?.available ? 'Conexão disponível' : 'Verificação de conexão' }}</strong>
       <span>{{ statusBanco?.mensagem || 'Clique para verificar se backend e PostgreSQL estão respondendo.' }}</span>
       <small *ngIf="statusBanco?.tempoRespostaMs">Tempo de resposta: {{ statusBanco?.tempoRespostaMs }} ms</small>
+      <small *ngIf="statusBanco?.verificacoesRealizadas">Verificações realizadas: {{ statusBanco?.verificacoesRealizadas }}</small>
+      <small *ngIf="statusBanco?.falhasConsecutivas">Falhas consecutivas: {{ statusBanco?.falhasConsecutivas }}</small>
+      <small *ngIf="statusBanco?.cacheUtilizado">Resultado obtido do cache operacional do Singleton.</small>
+      <small *ngIf="statusBanco?.ultimoErro">Último erro: {{ statusBanco?.ultimoErro }}</small>
     </div>
     <div class="actions" style="margin-top: 14px;">
       <button type="button" (click)="verificarBanco()" [disabled]="carregandoStatus">{{ carregandoStatus ? 'Verificando...' : 'Verificar conexão' }}</button>

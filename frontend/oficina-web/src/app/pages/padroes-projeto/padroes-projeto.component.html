@@ -1,6 +1,6 @@
 <h1 class="page-title">Padrões de Projeto</h1>
 <p class="page-subtitle">
-  Consulta dos padrões aplicados no backend para apoiar a apresentação acadêmica e a avaliação da disciplina.
+  Consulta dos padrões aplicados no backend para apoiar a apresentação acadêmica e comprovar que os padrões agregam funcionalidade real ao sistema.
 </p>
 
 <p class="alert error" *ngIf="erro">{{ erro }}</p>
@@ -11,5 +11,6 @@
     <p><strong>Classe principal:</strong> {{ padrao.classePrincipal }}</p>
     <p><strong>Aplicação:</strong> {{ padrao.localAplicacao }}</p>
     <p><strong>Justificativa:</strong> {{ padrao.justificativa }}</p>
+    <p><strong>Evidência funcional:</strong> {{ padrao.evidenciaFuncional }}</p>
   </article>
 </div>

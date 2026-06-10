@@ -24,18 +24,8 @@ public class DatabaseConnectionChecker {
     }
 
     public DatabaseStatusResult checkStatus() {
-        long inicio = System.currentTimeMillis();
-
         DatabaseConnectionSingleton singleton = DatabaseConnectionSingleton.getInstance();
         singleton.configure(jdbcUrl, username, password);
-
-        boolean available = singleton.isConnected();
-        long tempoRespostaMs = System.currentTimeMillis() - inicio;
-
-        String mensagem = available
-                ? "Backend e PostgreSQL local disponíveis."
-                : "Backend disponível, porém a conexão com o PostgreSQL local falhou.";
-
-        return new DatabaseStatusResult(available, tempoRespostaMs, mensagem);
+        return singleton.checkStatus();
     }
 }

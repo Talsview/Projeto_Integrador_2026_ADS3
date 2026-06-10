@@ -172,15 +172,14 @@ public class OrdemServicoService {
     }
 
     /**
-     * Conclui o orçamento operacional e encaminha a OS para PAGAMENTO.
+     * Conclui o orçamento operacional e encaminha a OS para EXECUÇÃO.
      *
      * A tela de Itens da OS é responsável por montar o orçamento com serviços
-     * e peças. Quando o orçamento estiver preenchido e aprovado, a OS pode ser
-     * enviada ao financeiro sem depender do botão genérico de fluxo da tela
-     * principal de Ordens de Serviço.
+     * e peças. Quando o orçamento estiver preenchido e aprovado, a OS deve
+     * seguir para a fila de execução, e não diretamente para pagamento.
      */
     @Transactional
-    public OrdemServicoDTO enviarOrcamentoParaPagamento(Long id) {
+    public OrdemServicoDTO enviarOrcamentoParaExecucao(Long id) {
         validation.validateId(id);
         OrdemServicoModel ordemServico = buscarModelAtivo(id);
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtual(ordemServico.getId());
@@ -191,38 +190,44 @@ public class OrdemServicoService {
 
         String statusAtualNome = statusAtual.getStatusOrdemServico().getNomeStatus();
         if (!StatusFluxoOrdemServico.ORCAMENTO.name().equals(statusAtualNome)) {
-            throw new RuleValidationException("Somente Ordens de Serviço em ORÇAMENTO podem ser enviadas para PAGAMENTO por esta tela.");
+            throw new RuleValidationException("Somente Ordens de Serviço em ORÇAMENTO podem ser enviadas para EXECUÇÃO por esta tela.");
         }
 
         if (!itemServicoRepository.existsByOrdemServicoIdAndAtivoTrue(ordemServico.getId())) {
-            throw new RuleValidationException("Inclua pelo menos um serviço no orçamento antes de enviar a OS para pagamento.");
+            throw new RuleValidationException("Inclua pelo menos um serviço no orçamento antes de enviar a OS para execução.");
         }
 
         recalcularValorTotal(ordemServico.getId());
         ordemServico = buscarModelAtivo(id);
         BigDecimal valorTotal = ordemServico.getValorTotal() == null ? BigDecimal.ZERO : ordemServico.getValorTotal();
         if (valorTotal.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuleValidationException("O orçamento deve possuir valor total maior que zero antes de ser enviado para pagamento.");
+            throw new RuleValidationException("O orçamento deve possuir valor total maior que zero antes de ser enviado para execução.");
         }
 
-        if (ordemServico.getDataAprovacao() == null) {
-            ordemServico.setDataAprovacao(LocalDateTime.now());
-            ordemServicoRepository.save(ordemServico);
-        }
+        StatusOrdemServicoModel statusExecucao = statusService.buscarPorFluxo(StatusFluxoOrdemServico.EXECUCAO);
+        aplicarEfeitosDoStatus(ordemServico, statusExecucao);
 
-        StatusOrdemServicoModel statusPagamento = statusService.buscarPorFluxo(StatusFluxoOrdemServico.PAGAMENTO);
         OrdemServicoModel atualizada = buscarModelAtivo(id);
         historicoStatusRepository.save(historicoStatusMapper.criarHistorico(
                 atualizada,
-                statusPagamento,
-                "Orçamento concluído e enviado para pagamento pelo módulo de Itens da OS."));
+                statusExecucao,
+                "Orçamento concluído e enviado para execução pelo módulo de Itens da OS."));
 
         notificacaoService.notificarMudancaStatusOrdemServico(
                 atualizada.getNumeroOs(),
-                statusPagamento.getNomeStatus(),
-                "Orçamento concluído e enviado para pagamento.");
+                statusExecucao.getNomeStatus(),
+                "Orçamento concluído e enviado para execução.");
 
         return montarDetalhe(id);
+    }
+
+    /**
+     * Mantido por compatibilidade com chamadas antigas do frontend. A regra
+     * correta é enviar o orçamento para EXECUÇÃO antes de PAGAMENTO.
+     */
+    @Transactional
+    public OrdemServicoDTO enviarOrcamentoParaPagamento(Long id) {
+        return enviarOrcamentoParaExecucao(id);
     }
 
     @Transactional

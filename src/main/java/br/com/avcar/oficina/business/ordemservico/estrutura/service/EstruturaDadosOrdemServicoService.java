@@ -60,8 +60,9 @@ public class EstruturaDadosOrdemServicoService {
     /**
      * Estrutura de Dados Linear: Fila.
      *
-     * Regra aplicada: Ordens de Serviço em ORCAMENTO ficam aguardando
-     * atendimento/aprovação e são enfileiradas por ordem de abertura.
+     * Regra aplicada: Ordens de Serviço em EXECUCAO ficam na fila de
+     * atendimento operacional. Elas representam orçamentos já montados e
+     * aprovados para execução, antes da etapa financeira de pagamento.
      */
     @Transactional(readOnly = true)
     public FilaAtendimentoOrdemServicoDTO montarFilaAtendimento() {
@@ -71,7 +72,7 @@ public class EstruturaDadosOrdemServicoService {
 
         FilaAtendimento<OrdemServicoResumoDTO> fila = new FilaAtendimento<>();
         for (OrdemServicoResumoDTO resumo : ordenadasPorChegada) {
-            if (StatusFluxoOrdemServico.ORCAMENTO.name().equals(normalizarStatus(resumo.getStatusAtual()))) {
+            if (StatusFluxoOrdemServico.EXECUCAO.name().equals(normalizarStatus(resumo.getStatusAtual()))) {
                 fila.enfileirar(resumo);
             }
         }
@@ -84,7 +85,7 @@ public class EstruturaDadosOrdemServicoService {
 
         FilaAtendimentoOrdemServicoDTO dto = new FilaAtendimentoOrdemServicoDTO();
         dto.setEstruturaUtilizada("Fila encadeada de atendimento de Ordens de Serviço");
-        dto.setJustificativa("A fila preserva a ordem de chegada das OS em orçamento, permitindo atendimento operacional justo e organizado.");
+        dto.setJustificativa("A fila exibe apenas OS em EXECUÇÃO, ou seja, orçamentos já definidos que aguardam execução do serviço antes de seguir para pagamento.");
         dto.setQuantidadeNaFila(fila.tamanho());
         dto.setOrdens(saida);
         return dto;

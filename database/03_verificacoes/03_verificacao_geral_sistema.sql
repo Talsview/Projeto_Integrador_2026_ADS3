@@ -340,3 +340,6 @@ SELECT ip.id_item_peca, os.numero_os
 FROM item_peca ip
 JOIN ordem_servico os ON os.id_ordem_servico = ip.id_ordem_servico
 WHERE ip.id_fornecedor IS NULL;
+
+-- Verificação Etapa 57: auditoria persistente das notificações do Decorator.
+SELECT 'notificacao_auditoria' AS tabela, COUNT(*) AS total_registros FROM notificacao_auditoria;

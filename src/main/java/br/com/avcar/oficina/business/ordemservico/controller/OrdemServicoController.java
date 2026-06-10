@@ -55,10 +55,10 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ApiResponse.success("Status da Ordem de Serviço alterado com sucesso.", updated));
     }
 
-    @PatchMapping("/{id}/enviar-para-pagamento")
-    public ResponseEntity<ApiResponse<OrdemServicoDTO>> enviarOrcamentoParaPagamento(@PathVariable Long id) {
-        OrdemServicoDTO updated = ordemServicoService.enviarOrcamentoParaPagamento(id);
-        return ResponseEntity.ok(ApiResponse.success("Orçamento enviado para pagamento com sucesso.", updated));
+    @PatchMapping({"/{id}/enviar-para-execucao", "/{id}/enviar-para-pagamento"})
+    public ResponseEntity<ApiResponse<OrdemServicoDTO>> enviarOrcamentoParaExecucao(@PathVariable Long id) {
+        OrdemServicoDTO updated = ordemServicoService.enviarOrcamentoParaExecucao(id);
+        return ResponseEntity.ok(ApiResponse.success("Orçamento enviado para execução com sucesso.", updated));
     }
 
     @GetMapping("/{id}")

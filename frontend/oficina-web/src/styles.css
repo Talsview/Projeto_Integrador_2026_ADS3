@@ -1200,3 +1200,53 @@ body.reduce-motion * {
     min-width: 100%;
   }
 }
+
+/* Etapa 56 — apresentação da fila de atendimento e resultado recursivo */
+.recursive-result-card {
+  background: #ffffff;
+}
+
+.mini-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--primary);
+  background: var(--surface-soft);
+  border-radius: 6px;
+  min-height: 120px;
+}
+
+.mini-panel span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.mini-panel strong {
+  color: var(--primary-strong);
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.mini-panel small {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  white-space: normal;
+}
+
+.mini-panel.emphasis {
+  border-left-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.row-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-width: 290px;
+}

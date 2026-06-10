@@ -297,3 +297,15 @@ Para recriação completa do banco, utilize diretamente:
 ```text
 database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
 ```
+
+## Etapa 57 — Tabela de auditoria de notificações
+
+A partir da Etapa 57, o padrão Decorator passou a persistir auditorias operacionais na tabela `notificacao_auditoria`.
+
+Para bancos já existentes, execute:
+
+```text
+database/01_schema/03_create_notificacao_auditoria.sql
+```
+
+Essa tabela é necessária porque o projeto utiliza `spring.jpa.hibernate.ddl-auto=validate`, ou seja, o backend valida se todas as tabelas mapeadas existem no banco físico.

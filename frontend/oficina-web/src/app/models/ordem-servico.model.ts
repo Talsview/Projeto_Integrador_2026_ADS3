@@ -68,5 +68,12 @@ export interface ItemServico extends BaseDTO {
 
 export interface TotalRecursivoOrdemServico {
   idOrdemServico?: number;
-  total?: number;
+  numeroOs?: string;
+  quantidadeItensServico?: number;
+  quantidadeItensPeca?: number;
+  totalServicos?: number;
+  totalPecas?: number;
+  totalGeral?: number;
+  funcaoUtilizada?: string;
+  justificativa?: string;
 }

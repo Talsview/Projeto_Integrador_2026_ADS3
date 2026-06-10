@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, map, timeout } from 'rxjs';
 import { ApiResponse } from '../models/api-response.model';
 import { BaseApiService } from './base-api.service';
-import { AlterarStatusOrdemServico, OrdemServicoResumo } from '../../models/ordem-servico.model';
+import { AlterarStatusOrdemServico, OrdemServicoResumo, TotalRecursivoOrdemServico } from '../../models/ordem-servico.model';
 
 @Injectable({ providedIn: 'root' })
 export class OrdemServicoApiService extends BaseApiService<OrdemServicoResumo> {
@@ -16,11 +16,15 @@ export class OrdemServicoApiService extends BaseApiService<OrdemServicoResumo> {
       .pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as OrdemServicoResumo));
   }
 
-  enviarOrcamentoParaPagamento(id: number): Observable<OrdemServicoResumo> {
+  enviarOrcamentoParaExecucao(id: number): Observable<OrdemServicoResumo> {
     return this.http.patch<ApiResponse<OrdemServicoResumo> | OrdemServicoResumo>(
-      `${this.apiBaseUrl}/ordens-servico/${id}/enviar-para-pagamento`,
+      `${this.apiBaseUrl}/ordens-servico/${id}/enviar-para-execucao`,
       null
     ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as OrdemServicoResumo));
+  }
+
+  enviarOrcamentoParaPagamento(id: number): Observable<OrdemServicoResumo> {
+    return this.enviarOrcamentoParaExecucao(id);
   }
 
   baixarNotaFiscalPdf(id: number): Observable<Blob> {
@@ -54,11 +58,11 @@ export class OrdemServicoApiService extends BaseApiService<OrdemServicoResumo> {
     ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairOrdensEstruturaDados(this.extrairDados(response))));
   }
 
-  totalRecursivo(id: number): Observable<unknown> {
-    return this.http.get<ApiResponse<unknown> | unknown>(
+  totalRecursivo(id: number): Observable<TotalRecursivoOrdemServico> {
+    return this.http.get<ApiResponse<TotalRecursivoOrdemServico> | TotalRecursivoOrdemServico>(
       `${this.apiBaseUrl}/estrutura-dados/ordens-servico/${id}/total-recursivo`,
       this.opcoesSemCache()
-    ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response)));
+    ).pipe(timeout(this.tempoLimiteMs), map(response => this.extrairDados(response) as TotalRecursivoOrdemServico));
   }
 
   private extrairOrdensEstruturaDados(data: any): OrdemServicoResumo[] {

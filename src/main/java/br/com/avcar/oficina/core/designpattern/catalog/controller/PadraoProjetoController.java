@@ -25,33 +25,39 @@ public class PadraoProjetoController {
         return List.of(
                 new PadraoProjetoDTO(
                         "Singleton",
-                        "Verificação local da conexão com o banco PostgreSQL.",
+                        "Monitoramento local da conexão com o PostgreSQL.",
                         "DatabaseConnectionSingleton",
-                        "Centraliza a checagem técnica da conexão local sem espalhar criação de conexão pelo sistema."),
+                        "Centraliza o diagnóstico do banco local, armazena o último estado verificado, controla falhas consecutivas e evita conexões repetidas em curto intervalo.",
+                        "Tela Configurações e endpoint /api/database/status exibem tempo de resposta, quantidade de verificações, falhas consecutivas e último erro sanitizado."),
                 new PadraoProjetoDTO(
                         "Factory Method",
                         "Cadastro de cliente Pessoa Física e Pessoa Jurídica.",
                         "ClienteCadastroFactory / ClienteFactoryMethod",
-                        "Seleciona a fábrica correta para criar cliente PF ou PJ, respeitando a especialização exclusiva e total."),
+                        "Seleciona a fábrica correta para criar cliente PF ou PJ, respeitando a especialização exclusiva e total.",
+                        "Ao cadastrar cliente, o sistema cria a estrutura correta de Pessoa, Cliente e especialização PF/PJ sem duplicar regras na service."),
                 new PadraoProjetoDTO(
                         "Adapter",
                         "Montagem da resposta de veículo para o Angular.",
                         "VeiculoResponseAdapter",
-                        "Adapta entidades internas de Veículo, Modelo, Marca e Histórico de Proprietário para DTOs de resposta."),
+                        "Adapta entidades internas de Veículo, Modelo, Marca e Histórico de Proprietário para DTOs de resposta.",
+                        "A tela de Veículos recebe proprietário atual, marca, modelo e histórico em formato adequado à interface."),
                 new PadraoProjetoDTO(
                         "Iterator",
                         "Percurso da Fila de Atendimento e da Lista Linear de busca.",
                         "OficinaIterator / FilaAtendimentoIterator / ListaLinearIterator",
-                        "Permite percorrer estruturas lineares próprias sem expor sua implementação interna."),
+                        "Permite percorrer estruturas lineares próprias sem expor sua implementação interna.",
+                        "A tela Fila de Atendimento percorre a fila de OS em execução e a pesquisa linear sem usar diretamente os nós internos da estrutura."),
                 new PadraoProjetoDTO(
                         "Template Method",
                         "Ordenação manual de Ordens de Serviço.",
                         "OrdenadorTemplate",
-                        "Define o esqueleto do algoritmo de ordenação e permite variar o critério por data, valor ou prioridade."),
+                        "Define o esqueleto do algoritmo de ordenação e permite variar o critério por data, valor ou prioridade.",
+                        "A Fila de Atendimento reutiliza o mesmo algoritmo base para ordenar por data, valor e prioridade."),
                 new PadraoProjetoDTO(
                         "Decorator",
-                        "Notificação interna com auditoria operacional.",
+                        "Notificação interna com auditoria operacional persistente.",
                         "NotificadorAuditoriaDecorator",
-                        "Adiciona auditoria à notificação sem alterar o componente base responsável pelo envio."));
+                        "Adiciona auditoria persistente à notificação sem alterar o componente base responsável pelo envio.",
+                        "Mudanças de status da OS geram registros na tabela notificacao_auditoria e podem ser consultadas por /api/notificacoes/auditoria."));
     }
 }
