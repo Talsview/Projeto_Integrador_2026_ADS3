@@ -294,12 +294,16 @@ CREATE TABLE IF NOT EXISTS peca (
     modelo_aplicavel VARCHAR(100),
     ano_veiculo INTEGER,
     ano_modelo INTEGER,
+    id_fornecedor_padrao BIGINT,
+    valor_unitario_padrao NUMERIC(12,2) NOT NULL DEFAULT 0,
     prazo_garantia_dias INTEGER NOT NULL DEFAULT 90,
     descricao TEXT,
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_hora_atualizacao TIMESTAMP,
+    CONSTRAINT fk_peca_fornecedor_padrao FOREIGN KEY (id_fornecedor_padrao) REFERENCES fornecedor(id_fornecedor),
     CONSTRAINT ck_peca_anos CHECK ((ano_veiculo IS NULL OR ano_veiculo >= 1900) AND (ano_modelo IS NULL OR ano_modelo >= 1900)),
+    CONSTRAINT ck_peca_valor_padrao CHECK (valor_unitario_padrao >= 0),
     CONSTRAINT ck_peca_garantia CHECK (prazo_garantia_dias >= 0)
 );
 

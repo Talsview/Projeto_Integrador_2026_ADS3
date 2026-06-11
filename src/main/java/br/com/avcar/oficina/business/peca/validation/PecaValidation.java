@@ -54,6 +54,12 @@ public class PecaValidation {
         if (dto.getAnoVeiculo() != null && dto.getAnoModelo() != null) {
             ValidationUtils.validateModelYear(dto.getAnoVeiculo(), dto.getAnoModelo());
         }
+        if (dto.getIdFornecedorPadrao() != null && dto.getIdFornecedorPadrao() <= 0) {
+            throw new FieldValidationException("O fornecedor padrão da peça deve ser válido.");
+        }
+        if (dto.getValorUnitarioPadrao() != null && dto.getValorUnitarioPadrao().compareTo(java.math.BigDecimal.ZERO) < 0) {
+            throw new FieldValidationException("O valor unitário padrão da peça não pode ser negativo.");
+        }
         if (dto.getPrazoGarantiaDias() != null && dto.getPrazoGarantiaDias() < 0) {
             throw new FieldValidationException("O prazo de garantia da peça deve ser maior ou igual a zero.");
         }

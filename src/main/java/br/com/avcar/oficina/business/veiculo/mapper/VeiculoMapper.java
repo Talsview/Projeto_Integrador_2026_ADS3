@@ -28,7 +28,7 @@ public class VeiculoMapper {
         model.setCor(normalizeNullable(dto.getCor()));
         model.setAnoVeiculo(dto.getAnoVeiculo());
         model.setAnoModelo(dto.getAnoModelo());
-        model.setQuilometragemAtual(dto.getQuilometragemAtual() == null ? 0 : dto.getQuilometragemAtual());
+        model.setQuilometragemAtual(dto.getQuilometragemAtual());
         model.setObservacao(dto.getObservacao());
     }
 

@@ -51,7 +51,7 @@ public class VeiculoModel extends BaseModel {
     private Integer anoModelo;
 
     @Column(name = "quilometragem_atual")
-    private Integer quilometragemAtual = 0;
+    private Integer quilometragemAtual;
 
     @Column(name = "observacao", columnDefinition = "TEXT")
     private String observacao;

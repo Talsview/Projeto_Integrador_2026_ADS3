@@ -1,7 +1,9 @@
 package br.com.avcar.oficina.business.peca.mapper;
 
 import br.com.avcar.oficina.business.peca.dto.PecaDTO;
+import br.com.avcar.oficina.business.peca.model.FornecedorModel;
 import br.com.avcar.oficina.business.peca.model.PecaModel;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,12 +12,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class PecaMapper {
 
-    public PecaModel toModel(PecaDTO dto) {
+    public PecaModel toModel(PecaDTO dto, FornecedorModel fornecedorPadrao) {
         if (dto == null) {
             return null;
         }
         PecaModel model = new PecaModel();
-        atualizarModel(model, dto);
+        atualizarModel(model, dto, fornecedorPadrao);
         return model;
     }
 
@@ -32,18 +34,25 @@ public class PecaMapper {
         dto.setModeloAplicavel(model.getModeloAplicavel());
         dto.setAnoVeiculo(model.getAnoVeiculo());
         dto.setAnoModelo(model.getAnoModelo());
+        if (model.getFornecedorPadrao() != null) {
+            dto.setIdFornecedorPadrao(model.getFornecedorPadrao().getId());
+            dto.setNomeFornecedorPadrao(model.getFornecedorPadrao().getNomeFornecedor());
+        }
+        dto.setValorUnitarioPadrao(model.getValorUnitarioPadrao());
         dto.setPrazoGarantiaDias(model.getPrazoGarantiaDias());
         dto.setDescricao(model.getDescricao());
         return dto;
     }
 
-    public void atualizarModel(PecaModel model, PecaDTO dto) {
+    public void atualizarModel(PecaModel model, PecaDTO dto, FornecedorModel fornecedorPadrao) {
         model.setNomePeca(normalize(dto.getNomePeca()));
         model.setCodigoNacional(normalizeUpper(dto.getCodigoNacional()));
         model.setMarcaPeca(normalize(dto.getMarcaPeca()));
         model.setModeloAplicavel(normalize(dto.getModeloAplicavel()));
         model.setAnoVeiculo(dto.getAnoVeiculo());
         model.setAnoModelo(dto.getAnoModelo());
+        model.setFornecedorPadrao(fornecedorPadrao);
+        model.setValorUnitarioPadrao(dto.getValorUnitarioPadrao() == null ? BigDecimal.ZERO : dto.getValorUnitarioPadrao());
         model.setPrazoGarantiaDias(dto.getPrazoGarantiaDias() == null ? 90 : dto.getPrazoGarantiaDias());
         model.setDescricao(normalize(dto.getDescricao()));
     }

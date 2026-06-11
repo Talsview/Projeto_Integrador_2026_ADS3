@@ -121,11 +121,13 @@ export class PecasFornecedoresComponent implements OnInit {
     if (!anoVeiculoValido(this.pecaForm.anoVeiculo, false)) this.errosPeca['anoVeiculo'] = 'Informe um ano de veículo válido para a peça.';
     if (!anoVeiculoValido(this.pecaForm.anoModelo, false)) this.errosPeca['anoModelo'] = 'Informe um ano modelo válido para a peça.';
     if (this.pecaForm.anoVeiculo && this.pecaForm.anoModelo && (Number(this.pecaForm.anoModelo) < Number(this.pecaForm.anoVeiculo) - 1 || Number(this.pecaForm.anoModelo) > Number(this.pecaForm.anoVeiculo) + 1)) this.errosPeca['anoModelo'] = 'O ano modelo da peça deve ser coerente com o ano do veículo.';
+    if (!this.pecaForm.idFornecedorPadrao || Number(this.pecaForm.idFornecedorPadrao) <= 0) this.errosPeca['idFornecedorPadrao'] = 'Selecione o fornecedor padrão da peça.';
+    if (!numeroNaoNegativo(this.pecaForm.valorUnitarioPadrao)) this.errosPeca['valorUnitarioPadrao'] = 'O valor unitário padrão da peça não pode ser negativo.';
     if (!numeroNaoNegativo(this.pecaForm.prazoGarantiaDias)) this.errosPeca['prazoGarantiaDias'] = 'O prazo de garantia da peça não pode ser negativo.';
     return Object.keys(this.errosPeca).length === 0;
   }
 
   private fornecedorInicial(): Fornecedor { return { nomeFornecedor: '', cnpj: '', telefone: '', email: '', endereco: '' }; }
-  private pecaInicial(): Peca { return { nomePeca: '', codigoNacional: '', marcaPeca: '', modeloAplicavel: '', anoVeiculo: undefined, anoModelo: undefined, prazoGarantiaDias: 90, descricao: '' }; }
+  private pecaInicial(): Peca { return { nomePeca: '', codigoNacional: '', marcaPeca: '', modeloAplicavel: '', anoVeiculo: undefined, anoModelo: undefined, idFornecedorPadrao: 0, valorUnitarioPadrao: 0, prazoGarantiaDias: 90, descricao: '' }; }
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

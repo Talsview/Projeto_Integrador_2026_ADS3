@@ -85,6 +85,7 @@ export class ItensOsComponent implements OnInit {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir serviço.'; this.atualizarTela(); return; }
     if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Serviços só podem ser incluídos enquanto a OS está em ORÇAMENTO.'; this.atualizarTela(); return; }
     if (!this.validarItemServico()) { this.erro = 'Corrija os campos destacados antes de adicionar o serviço à OS.'; this.atualizarTela(); return; }
+    this.recalcularTotalServico(false);
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemServicoForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemServicoApi.criar(payload).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
@@ -97,6 +98,7 @@ export class ItensOsComponent implements OnInit {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir peça.'; this.atualizarTela(); return; }
     if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Peças só podem ser incluídas enquanto a OS está em ORÇAMENTO.'; this.atualizarTela(); return; }
     if (!this.validarItemPeca()) { this.erro = 'Corrija os campos destacados antes de adicionar a peça à OS.'; this.atualizarTela(); return; }
+    this.recalcularTotalPeca(false);
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemPecaForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemPecaApi.criar(payload).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
@@ -111,6 +113,11 @@ export class ItensOsComponent implements OnInit {
   }
 
   aoAlterarServico(): void {
+    const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
+    if (servico) {
+      this.itemServicoForm.valorUnitario = Number(servico.valorBase ?? 0);
+      this.recalcularTotalServico(false);
+    }
     if (!this.servicoSelecionadoTerceirizado()) {
       this.itemServicoForm.idEmpresaTerceirizada = undefined;
       this.itemServicoForm.dataEnvioTerceirizacao = undefined;
@@ -119,7 +126,44 @@ export class ItensOsComponent implements OnInit {
       this.itemServicoForm.observacaoTerceirizacao = undefined;
     }
     delete this.errosServico['idServico'];
+    delete this.errosServico['valorUnitario'];
     this.atualizarTela();
+  }
+
+  aoAlterarPeca(): void {
+    const peca = this.pecas.find(p => Number(p.id) === Number(this.itemPecaForm.idPeca));
+    if (peca) {
+      this.itemPecaForm.idFornecedor = Number(peca.idFornecedorPadrao ?? 0);
+      this.itemPecaForm.valorUnitario = Number(peca.valorUnitarioPadrao ?? 0);
+      this.recalcularTotalPeca(false);
+    } else {
+      this.itemPecaForm.idFornecedor = 0;
+      this.itemPecaForm.valorUnitario = 0;
+      this.itemPecaForm.valorTotal = 0;
+    }
+    delete this.errosPeca['idPeca'];
+    delete this.errosPeca['idFornecedor'];
+    delete this.errosPeca['valorUnitario'];
+    this.atualizarTela();
+  }
+
+  recalcularTotalServico(atualizar = true): void {
+    const quantidade = Number(this.itemServicoForm.quantidade ?? 0);
+    const valorUnitario = Number(this.itemServicoForm.valorUnitario ?? 0);
+    this.itemServicoForm.valorTotal = quantidade > 0 && valorUnitario >= 0 ? quantidade * valorUnitario : 0;
+    if (atualizar) this.atualizarTela();
+  }
+
+  recalcularTotalPeca(atualizar = true): void {
+    const quantidade = Number(this.itemPecaForm.quantidade ?? 0);
+    const valorUnitario = Number(this.itemPecaForm.valorUnitario ?? 0);
+    this.itemPecaForm.valorTotal = quantidade > 0 && valorUnitario >= 0 ? quantidade * valorUnitario : 0;
+    if (atualizar) this.atualizarTela();
+  }
+
+  fornecedorPecaSelecionado(): string {
+    const fornecedor = this.fornecedores.find(f => Number(f.id) === Number(this.itemPecaForm.idFornecedor));
+    return fornecedor?.nomeFornecedor ?? 'Nenhum fornecedor vinculado à peça selecionada';
   }
 
   excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
@@ -228,7 +272,7 @@ export class ItensOsComponent implements OnInit {
     this.itemPecaForm = this.itemPecaInicial();
   }
 
-  private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, descricaoExecucao: '' }; }
-  private itemPecaInicial(): ItemPeca { return { idOrdemServico: this.idOrdemSelecionada, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, observacao: '' }; }
+  private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, valorTotal: 0, descricaoExecucao: '' }; }
+  private itemPecaInicial(): ItemPeca { return { idOrdemServico: this.idOrdemSelecionada, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, valorTotal: 0, observacao: '' }; }
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

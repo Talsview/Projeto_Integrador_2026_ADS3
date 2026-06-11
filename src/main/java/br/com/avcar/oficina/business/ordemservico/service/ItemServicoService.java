@@ -18,6 +18,7 @@ import br.com.avcar.oficina.business.servico.service.EmpresaTerceirizadaService;
 import br.com.avcar.oficina.business.servico.service.ServicoService;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import java.math.BigDecimal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -69,11 +70,15 @@ public class ItemServicoService {
 
     @Transactional
     public ItemServicoDTO cadastrar(ItemServicoDTO dto) {
-        validation.validateInsert(dto);
+        if (dto == null) {
+            validation.validateInsert(null);
+        }
         ordemServicoService.validarOrdemEmOrcamento(dto.getIdOrdemServico());
 
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
         ServicoModel servico = servicoService.buscarModelAtivo(dto.getIdServico());
+        completarDadosAutomaticosDoServico(dto, servico);
+        validation.validateInsert(dto);
         ColaboradorModel colaborador = buscarColaboradorAtivo(dto.getIdColaborador());
 
         validarTerceirizacao(servico, dto);
@@ -87,7 +92,10 @@ public class ItemServicoService {
 
     @Transactional
     public ItemServicoDTO atualizar(Long id, ItemServicoDTO dto) {
-        validation.validateUpdate(id, dto);
+        validation.validateId(id);
+        if (dto == null) {
+            validation.validateUpdate(id, null);
+        }
         ItemServicoModel itemServico = buscarModelAtivo(id);
         Long idOrdemServicoAnterior = itemServico.getOrdemServico().getId();
         ordemServicoService.validarOrdemEmOrcamento(idOrdemServicoAnterior);
@@ -95,6 +103,8 @@ public class ItemServicoService {
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
         ordemServicoService.validarOrdemEmOrcamento(ordemServico.getId());
         ServicoModel servico = servicoService.buscarModelAtivo(dto.getIdServico());
+        completarDadosAutomaticosDoServico(dto, servico);
+        validation.validateUpdate(id, dto);
         ColaboradorModel colaborador = buscarColaboradorAtivo(dto.getIdColaborador());
 
         validarTerceirizacao(servico, dto);
@@ -160,6 +170,17 @@ public class ItemServicoService {
     public ItemServicoModel buscarModelAtivo(Long id) {
         return itemServicoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Item de Serviço não encontrado ou inativo."));
+    }
+
+    private void completarDadosAutomaticosDoServico(ItemServicoDTO dto, ServicoModel servico) {
+        if ((dto.getValorUnitario() == null || dto.getValorUnitario().compareTo(BigDecimal.ZERO) == 0)
+                && servico.getValorBase() != null
+                && servico.getValorBase().compareTo(BigDecimal.ZERO) > 0) {
+            dto.setValorUnitario(servico.getValorBase());
+        }
+        if (dto.getQuantidade() == null) {
+            dto.setQuantidade(BigDecimal.ONE);
+        }
     }
 
     private ColaboradorModel buscarColaboradorAtivo(Long id) {

@@ -2,6 +2,7 @@ package br.com.avcar.oficina.business.peca.service;
 
 import br.com.avcar.oficina.business.peca.dto.PecaDTO;
 import br.com.avcar.oficina.business.peca.mapper.PecaMapper;
+import br.com.avcar.oficina.business.peca.model.FornecedorModel;
 import br.com.avcar.oficina.business.peca.model.PecaModel;
 import br.com.avcar.oficina.business.peca.repository.IPecaRepository;
 import br.com.avcar.oficina.business.peca.validation.PecaValidation;
@@ -20,19 +21,23 @@ public class PecaService {
     private final IPecaRepository pecaRepository;
     private final PecaValidation validation;
     private final PecaMapper mapper;
+    private final FornecedorService fornecedorService;
 
     public PecaService(IPecaRepository pecaRepository,
                        PecaValidation validation,
-                       PecaMapper mapper) {
+                       PecaMapper mapper,
+                       FornecedorService fornecedorService) {
         this.pecaRepository = pecaRepository;
         this.validation = validation;
         this.mapper = mapper;
+        this.fornecedorService = fornecedorService;
     }
 
     @Transactional
     public PecaDTO cadastrar(PecaDTO dto) {
         validation.validateInsert(dto);
-        PecaModel saved = pecaRepository.save(mapper.toModel(dto));
+        FornecedorModel fornecedorPadrao = buscarFornecedorPadrao(dto);
+        PecaModel saved = pecaRepository.save(mapper.toModel(dto, fornecedorPadrao));
         return mapper.toDto(saved);
     }
 
@@ -40,7 +45,8 @@ public class PecaService {
     public PecaDTO atualizar(Long id, PecaDTO dto) {
         validation.validateUpdate(id, dto);
         PecaModel peca = buscarModelAtivo(id);
-        mapper.atualizarModel(peca, dto);
+        FornecedorModel fornecedorPadrao = buscarFornecedorPadrao(dto);
+        mapper.atualizarModel(peca, dto, fornecedorPadrao);
         return mapper.toDto(pecaRepository.save(peca));
     }
 
@@ -69,6 +75,13 @@ public class PecaService {
         PecaModel peca = buscarModelAtivo(id);
         peca.setAtivo(Boolean.FALSE);
         pecaRepository.save(peca);
+    }
+
+    private FornecedorModel buscarFornecedorPadrao(PecaDTO dto) {
+        if (dto.getIdFornecedorPadrao() == null || dto.getIdFornecedorPadrao() <= 0) {
+            return null;
+        }
+        return fornecedorService.buscarModelAtivo(dto.getIdFornecedorPadrao());
     }
 
     public PecaModel buscarModelAtivo(Long id) {

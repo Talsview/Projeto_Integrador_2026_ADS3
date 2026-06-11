@@ -309,3 +309,22 @@ database/01_schema/03_create_notificacao_auditoria.sql
 ```
 
 Essa tabela é necessária porque o projeto utiliza `spring.jpa.hibernate.ddl-auto=validate`, ou seja, o backend valida se todas as tabelas mapeadas existem no banco físico.
+
+## Etapa 58 — Peça com fornecedor padrão e valor padrão
+
+A Etapa 58 adicionou rastreabilidade direta entre o cadastro de peça e o fornecedor padrão, além do valor unitário padrão da peça.
+
+Para bancos já existentes, execute antes de iniciar o backend atualizado:
+
+```text
+database/01_schema/04_alter_peca_fornecedor_valor.sql
+```
+
+Campos adicionados na tabela `peca`:
+
+```text
+id_fornecedor_padrao
+valor_unitario_padrao
+```
+
+Esses campos permitem que, na tela de Itens da OS, ao selecionar uma peça, o sistema carregue automaticamente o fornecedor relacionado e o valor unitário cadastrado.

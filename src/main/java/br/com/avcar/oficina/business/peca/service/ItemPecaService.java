@@ -10,6 +10,7 @@ import br.com.avcar.oficina.business.peca.model.PecaModel;
 import br.com.avcar.oficina.business.peca.repository.IItemPecaRepository;
 import br.com.avcar.oficina.business.peca.validation.ItemPecaValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import java.math.BigDecimal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -50,9 +51,13 @@ public class ItemPecaService {
 
     @Transactional
     public ItemPecaDTO cadastrar(ItemPecaDTO dto) {
-        validation.validateInsert(dto);
+        if (dto == null) {
+            validation.validateInsert(null);
+        }
         ordemServicoService.validarOrdemEmOrcamento(dto.getIdOrdemServico());
         PecaModel peca = pecaService.buscarModelAtivo(dto.getIdPeca());
+        completarDadosAutomaticosDaPeca(dto, peca);
+        validation.validateInsert(dto);
         FornecedorModel fornecedor = fornecedorService.buscarModelAtivo(dto.getIdFornecedor());
         ItemPecaModel saved = itemPecaRepository.save(mapper.toModel(dto, peca, fornecedor));
         garantiaService.criarGarantiaPecaAguardando(saved);
@@ -62,12 +67,17 @@ public class ItemPecaService {
 
     @Transactional
     public ItemPecaDTO atualizar(Long id, ItemPecaDTO dto) {
-        validation.validateUpdate(id, dto);
+        validation.validateId(id);
+        if (dto == null) {
+            validation.validateUpdate(id, null);
+        }
         ItemPecaModel itemPeca = buscarModelAtivo(id);
         Long idOrdemServicoAnterior = itemPeca.getIdOrdemServico();
         ordemServicoService.validarOrdemEmOrcamento(idOrdemServicoAnterior);
         ordemServicoService.validarOrdemEmOrcamento(dto.getIdOrdemServico());
         PecaModel peca = pecaService.buscarModelAtivo(dto.getIdPeca());
+        completarDadosAutomaticosDaPeca(dto, peca);
+        validation.validateUpdate(id, dto);
         FornecedorModel fornecedor = fornecedorService.buscarModelAtivo(dto.getIdFornecedor());
         mapper.atualizarModel(itemPeca, dto, peca, fornecedor);
         ItemPecaModel saved = itemPecaRepository.save(itemPeca);
@@ -114,6 +124,20 @@ public class ItemPecaService {
         itemPeca.setAtivo(Boolean.FALSE);
         itemPecaRepository.save(itemPeca);
         ordemServicoService.recalcularValorTotal(itemPeca.getIdOrdemServico());
+    }
+
+    private void completarDadosAutomaticosDaPeca(ItemPecaDTO dto, PecaModel peca) {
+        if ((dto.getIdFornecedor() == null || dto.getIdFornecedor() <= 0) && peca.getFornecedorPadrao() != null) {
+            dto.setIdFornecedor(peca.getFornecedorPadrao().getId());
+        }
+        if ((dto.getValorUnitario() == null || dto.getValorUnitario().compareTo(BigDecimal.ZERO) == 0)
+                && peca.getValorUnitarioPadrao() != null
+                && peca.getValorUnitarioPadrao().compareTo(BigDecimal.ZERO) > 0) {
+            dto.setValorUnitario(peca.getValorUnitarioPadrao());
+        }
+        if (dto.getQuantidade() == null) {
+            dto.setQuantidade(BigDecimal.ONE);
+        }
     }
 
     public ItemPecaModel buscarModelAtivo(Long id) {

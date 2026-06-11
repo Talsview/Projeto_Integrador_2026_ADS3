@@ -5,8 +5,12 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,7 +19,7 @@ import lombok.Setter;
  *
  * Regra de negócio: a peça deve considerar marca, modelo aplicável, ano do
  * veículo e ano do modelo, pois esses dados apoiam a compra correta e a
- * rastreabilidade da peça aplicada na OS.
+ * rastreabilidade da peça aplicada na OS. A partir da Etapa 58, a peça também possui fornecedor padrão e valor unitário padrão, facilitando a inclusão automática no orçamento.
  */
 @Getter
 @Setter
@@ -45,6 +49,13 @@ public class PecaModel extends BaseModel {
 
     @Column(name = "ano_modelo")
     private Integer anoModelo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_fornecedor_padrao")
+    private FornecedorModel fornecedorPadrao;
+
+    @Column(name = "valor_unitario_padrao", nullable = false, precision = 12, scale = 2)
+    private BigDecimal valorUnitarioPadrao = BigDecimal.ZERO;
 
     @Column(name = "prazo_garantia_dias", nullable = false)
     private Integer prazoGarantiaDias = 90;

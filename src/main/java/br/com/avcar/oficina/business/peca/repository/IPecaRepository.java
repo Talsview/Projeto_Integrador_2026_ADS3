@@ -14,12 +14,14 @@ public interface IPecaRepository extends IGenericRepository<PecaModel> {
     @Query("""
            SELECT p
              FROM PecaModel p
+             LEFT JOIN p.fornecedorPadrao fp
             WHERE p.ativo = true
               AND (
                     LOWER(p.nomePeca) LIKE LOWER(CONCAT('%', :termo, '%'))
                  OR LOWER(COALESCE(p.codigoNacional, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
                  OR LOWER(COALESCE(p.marcaPeca, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
                  OR LOWER(COALESCE(p.modeloAplicavel, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
+                 OR LOWER(COALESCE(fp.nomeFornecedor, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
     Page<PecaModel> search(@Param("termo") String termo, Pageable pageable);

@@ -12,8 +12,9 @@
       <div><label>Cor</label><input [(ngModel)]="form.cor" [class.input-error]="errosCampo['cor']"><small class="field-error" *ngIf="errosCampo['cor']">{{ errosCampo['cor'] }}</small></div>
       <div><label>Ano fabricação</label><input type="number" min="1900" [(ngModel)]="form.anoVeiculo" [class.input-error]="errosCampo['anoVeiculo']"><small class="field-error" *ngIf="errosCampo['anoVeiculo']">{{ errosCampo['anoVeiculo'] }}</small></div>
       <div><label>Ano modelo</label><input type="number" min="1900" [(ngModel)]="form.anoModelo" [class.input-error]="errosCampo['anoModelo']"><small class="field-error" *ngIf="errosCampo['anoModelo']">{{ errosCampo['anoModelo'] }}</small></div>
-      <div><label>Quilometragem</label><input type="number" min="0" [(ngModel)]="form.quilometragemAtual" [class.input-error]="errosCampo['quilometragemAtual']"><small class="field-error" *ngIf="errosCampo['quilometragemAtual']">{{ errosCampo['quilometragemAtual'] }}</small></div>
-      <div><label>Proprietário atual</label><select [(ngModel)]="form.proprietarioAtualId" [class.input-error]="errosCampo['proprietarioAtualId']"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientes" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select><small class="field-error" *ngIf="errosCampo['proprietarioAtualId']">{{ errosCampo['proprietarioAtualId'] }}</small></div>
+      <div><label>Quilometragem</label><input type="number" min="0" placeholder="Informe a quilometragem atual" [(ngModel)]="form.quilometragemAtual" [class.input-error]="errosCampo['quilometragemAtual']"><small class="field-error" *ngIf="errosCampo['quilometragemAtual']">{{ errosCampo['quilometragemAtual'] }}</small></div>
+      <div><label>Buscar proprietário atual</label><input [(ngModel)]="termoClienteProprietario" placeholder="Digite nome ou CPF/CNPJ" (input)="pesquisarClientesProprietario()"><small class="field-hint">Use a busca para filtrar clientes antes de selecionar o proprietário.</small></div>
+      <div><label>Proprietário atual</label><select [(ngModel)]="form.proprietarioAtualId" [class.input-error]="errosCampo['proprietarioAtualId']"><option [ngValue]="0">Selecione</option><option *ngFor="let cliente of clientesProprietarioFiltrados" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option></select><small class="field-error" *ngIf="errosCampo['proprietarioAtualId']">{{ errosCampo['proprietarioAtualId'] }}</small><small class="field-hint">Selecionado: {{ nomeProprietarioSelecionado() }}</small></div>
       <div><label>Início da posse</label><input type="date" [(ngModel)]="form.dataInicioPosse" [class.input-error]="errosCampo['dataInicioPosse']"><small class="field-error" *ngIf="errosCampo['dataInicioPosse']">{{ errosCampo['dataInicioPosse'] }}</small></div>
     </div>
     <label>Observação</label><textarea rows="2" [(ngModel)]="form.observacao"></textarea>
@@ -43,7 +44,7 @@
             <td>
               <div class="entity-cell">
                 <strong>{{ veiculo.placa }}</strong>
-                <small>KM {{ veiculo.quilometragemAtual || 0 }}</small>
+                <small>KM {{ veiculo.quilometragemAtual ?? '-' }}</small>
               </div>
             </td>
             <td>

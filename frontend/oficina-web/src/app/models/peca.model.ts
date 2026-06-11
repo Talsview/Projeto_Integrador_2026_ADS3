@@ -15,6 +15,9 @@ export interface Peca extends BaseDTO {
   modeloAplicavel?: string;
   anoVeiculo?: number;
   anoModelo?: number;
+  idFornecedorPadrao?: number;
+  nomeFornecedorPadrao?: string;
+  valorUnitarioPadrao?: number;
   prazoGarantiaDias?: number;
   descricao?: string;
 }

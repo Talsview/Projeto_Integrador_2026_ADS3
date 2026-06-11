@@ -16,7 +16,9 @@ export class VeiculosComponent implements OnInit {
   marcas: Marca[] = [];
   modelos: Modelo[] = [];
   clientes: ClienteResumo[] = [];
+  clientesProprietarioFiltrados: ClienteResumo[] = [];
   termo = '';
+  termoClienteProprietario = '';
   erro?: string;
   mensagem?: string;
   carregando = false;
@@ -56,6 +58,7 @@ export class VeiculosComponent implements OnInit {
         this.marcas = [...resultado.marcas];
         this.modelos = [...resultado.modelos];
         this.clientes = [...resultado.clientes];
+        this.clientesProprietarioFiltrados = [...resultado.clientes];
         this.atualizarTela();
       },
       error: e => {
@@ -75,6 +78,7 @@ export class VeiculosComponent implements OnInit {
         this.marcas = [...resultado.marcas];
         this.modelos = [...resultado.modelos];
         this.clientes = [...resultado.clientes];
+        this.clientesProprietarioFiltrados = [...resultado.clientes];
         this.atualizarTela();
       },
       error: e => {
@@ -156,7 +160,10 @@ export class VeiculosComponent implements OnInit {
   }
 
   editar(v: VeiculoResumo): void {
-    this.form = { ...v, modeloId: v.modeloId ?? 0, marcaId: v.marcaId ?? 0, proprietarioAtualId: v.proprietarioAtualId ?? 0 };
+    this.form = { ...v, modeloId: v.modeloId ?? 0, marcaId: v.marcaId ?? 0, proprietarioAtualId: v.proprietarioAtualId ?? 0, quilometragemAtual: v.quilometragemAtual ?? undefined };
+    this.termoClienteProprietario = '';
+    const atual = this.clientes.find(c => Number(c.id) === Number(v.proprietarioAtualId));
+    this.clientesProprietarioFiltrados = atual ? [atual, ...this.clientes.filter(c => c.id !== atual.id)] : [...this.clientes];
     this.atualizarTela();
   }
 
@@ -186,6 +193,8 @@ export class VeiculosComponent implements OnInit {
 
   limpar(): void {
     this.form = this.formularioInicial();
+    this.termoClienteProprietario = '';
+    this.clientesProprietarioFiltrados = [...this.clientes];
     this.errosCampo = {};
     this.atualizarTela();
   }
@@ -216,6 +225,34 @@ export class VeiculosComponent implements OnInit {
     return this.modelos.filter(modelo => Number(modelo.marcaId) === marcaId);
   }
 
+  pesquisarClientesProprietario(): void {
+    const termo = this.termoClienteProprietario.trim().toLowerCase();
+    if (!termo) {
+      this.clientesProprietarioFiltrados = [...this.clientes];
+      this.atualizarTela();
+      return;
+    }
+    this.clientesProprietarioFiltrados = this.clientes.filter(cliente => {
+      const nome = (cliente.nome ?? '').toLowerCase();
+      const documento = (cliente.documento ?? '').toLowerCase();
+      return nome.includes(termo) || documento.includes(termo);
+    });
+    this.atualizarTela();
+  }
+
+  selecionarClienteProprietario(cliente: ClienteResumo): void {
+    this.form.proprietarioAtualId = cliente.id ?? 0;
+    this.termoClienteProprietario = '';
+    this.clientesProprietarioFiltrados = [cliente, ...this.clientes.filter(c => c.id !== cliente.id)];
+    delete this.errosCampo['proprietarioAtualId'];
+    this.atualizarTela();
+  }
+
+  nomeProprietarioSelecionado(): string {
+    const cliente = this.clientes.find(c => Number(c.id) === Number(this.form.proprietarioAtualId));
+    return cliente ? `${cliente.nome} — ${cliente.documento ?? ''}` : 'Nenhum proprietário selecionado';
+  }
+
   private validarFormulario(): boolean {
     this.errosCampo = {};
     if (!this.form.marcaId || Number(this.form.marcaId) <= 0) this.errosCampo['marcaId'] = 'Selecione a marca do veículo.';
@@ -233,7 +270,7 @@ export class VeiculosComponent implements OnInit {
   }
 
   private formularioInicial(): any {
-    return { modeloId: 0, marcaId: 0, placa: '', chassi: '', cor: '', anoVeiculo: undefined, anoModelo: undefined, quilometragemAtual: 0, observacao: '', proprietarioAtualId: 0, dataInicioPosse: '', observacaoPosse: '' };
+    return { modeloId: 0, marcaId: 0, placa: '', chassi: '', cor: '', anoVeiculo: undefined, anoModelo: undefined, quilometragemAtual: undefined, observacao: '', proprietarioAtualId: 0, dataInicioPosse: '', observacaoPosse: '' };
   }
 
   private atualizarTela(): void {

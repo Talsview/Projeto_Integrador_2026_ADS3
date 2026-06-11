@@ -27,14 +27,16 @@
       <div><label>Modelo aplicável</label><input [(ngModel)]="pecaForm.modeloAplicavel" [class.input-error]="errosPeca['modeloAplicavel']"><small class="field-error" *ngIf="errosPeca['modeloAplicavel']">{{ errosPeca['modeloAplicavel'] }}</small></div>
       <div><label>Ano veículo</label><input type="number" [(ngModel)]="pecaForm.anoVeiculo" [class.input-error]="errosPeca['anoVeiculo']"><small class="field-error" *ngIf="errosPeca['anoVeiculo']">{{ errosPeca['anoVeiculo'] }}</small></div>
       <div><label>Ano modelo</label><input type="number" [(ngModel)]="pecaForm.anoModelo" [class.input-error]="errosPeca['anoModelo']"><small class="field-error" *ngIf="errosPeca['anoModelo']">{{ errosPeca['anoModelo'] }}</small></div>
+      <div><label>Fornecedor padrão</label><select [(ngModel)]="pecaForm.idFornecedorPadrao" [class.input-error]="errosPeca['idFornecedorPadrao']"><option [ngValue]="0">Selecione</option><option *ngFor="let f of fornecedores" [ngValue]="f.id">{{ f.nomeFornecedor }}</option></select><small class="field-error" *ngIf="errosPeca['idFornecedorPadrao']">{{ errosPeca['idFornecedorPadrao'] }}</small></div>
+      <div><label>Valor unitário padrão</label><input type="number" min="0" step="0.01" [(ngModel)]="pecaForm.valorUnitarioPadrao" [class.input-error]="errosPeca['valorUnitarioPadrao']"><small class="field-error" *ngIf="errosPeca['valorUnitarioPadrao']">{{ errosPeca['valorUnitarioPadrao'] }}</small></div>
       <div><label>Garantia em dias</label><input type="number" min="0" [(ngModel)]="pecaForm.prazoGarantiaDias" [class.input-error]="errosPeca['prazoGarantiaDias']"><small class="field-error" *ngIf="errosPeca['prazoGarantiaDias']">{{ errosPeca['prazoGarantiaDias'] }}</small></div>
     </div>
     <label>Descrição</label><textarea rows="2" [(ngModel)]="pecaForm.descricao"></textarea>
     <div class="actions" style="margin-top: 14px;"><button (click)="salvarPeca()">Salvar peça</button></div>
     <h3>Peças</h3><div class="actions"><input [(ngModel)]="termoPeca" placeholder="Pesquisar peça"><button (click)="pesquisarPecas()">Pesquisar</button><button class="secondary" (click)="listarPecas()">Listar</button></div>
-    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Peça</th><th>Código</th><th>Garantia</th><th class="actions-col">Ações</th></tr></thead><tbody>
-      <tr *ngFor="let p of pecas"><td>{{ p.id }}</td><td>{{ p.nomePeca }}</td><td>{{ p.codigoNacional }}</td><td>{{ p.prazoGarantiaDias }} dias</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarPeca(p)">Editar</button><button class="danger" (click)="excluirPeca(p)">Inativar</button></td></tr>
-      <tr *ngIf="!pecas.length"><td colspan="5">Nenhuma peça encontrada.</td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Peça</th><th>Código</th><th>Fornecedor</th><th>Valor padrão</th><th>Garantia</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let p of pecas"><td>{{ p.id }}</td><td>{{ p.nomePeca }}</td><td>{{ p.codigoNacional }}</td><td>{{ p.nomeFornecedorPadrao || '-' }}</td><td>{{ p.valorUnitarioPadrao | currency:'BRL' }}</td><td>{{ p.prazoGarantiaDias }} dias</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarPeca(p)">Editar</button><button class="danger" (click)="excluirPeca(p)">Inativar</button></td></tr>
+      <tr *ngIf="!pecas.length"><td colspan="7">Nenhuma peça encontrada.</td></tr>
     </tbody></table></div>
   </section>
 </div>

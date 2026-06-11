@@ -147,18 +147,18 @@ INSERT INTO fornecedor (nome_fornecedor, cnpj, telefone, email, endereco)
 SELECT 'Representante de Lubrificantes', '19.354.200/0001-70', '(62) 3300-1202', 'lubrificantes@exemplo.com', 'Setor Leste Universitário, Goiânia-GO'
 WHERE NOT EXISTS (SELECT 1 FROM fornecedor WHERE cnpj = '19.354.200/0001-70');
 
-INSERT INTO peca (nome_peca, codigo_nacional, marca_peca, modelo_aplicavel, ano_veiculo, ano_modelo, prazo_garantia_dias, descricao)
+INSERT INTO peca (nome_peca, codigo_nacional, marca_peca, modelo_aplicavel, ano_veiculo, ano_modelo, id_fornecedor_padrao, valor_unitario_padrao, prazo_garantia_dias, descricao)
 VALUES
-    ('Filtro de óleo FOL0113', 'FOL0113', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Peça de manutenção preventiva.'),
-    ('Filtro de ar do motor ART8826', 'ART8826', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Peça de manutenção preventiva.'),
-    ('Óleo do motor 5W30', 'OLEO5W30', 'Selenia', 'Aplicação conforme especificação do veículo', NULL, NULL, 90, 'Lubrificante automotivo.'),
-    ('Filtro de cabine FCA0125', 'FCA0125', 'Tecfil', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Filtro de cabine para ar-condicionado.'),
-    ('Kit distribuição', 'KITDISTRIBUICAO', 'AMX', 'Aplicação conforme motorização', NULL, NULL, 180, 'Kit de manutenção do sistema de distribuição.'),
-    ('Correia micro V', 'CORREIAMICROV', 'Gates', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Correia auxiliar do motor.'),
-    ('Cubo de roda dianteiro com rolamento', 'NKF8116', 'Nakata', 'Aplicação conforme catálogo', NULL, NULL, 180, 'Cubo de roda dianteiro com rolamento.'),
-    ('Radiador', 'RADIADOR522201', 'Valeo', 'Aplicação conforme catálogo', NULL, NULL, 180, 'Radiador do sistema de arrefecimento.'),
-    ('Aditivo de radiador orgânico rosa 1L', 'ADITIVOORGROSA1L', 'Petronas', 'Aplicação geral', NULL, NULL, 90, 'Aditivo para sistema de arrefecimento.'),
-    ('Vela de ignição NGK', 'VELANGK99632', 'NGK', 'Aplicação conforme catálogo', NULL, NULL, 90, 'Vela de ignição automotiva.')
+    ('Filtro de óleo FOL0113', 'FOL0113', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '11.222.333/0001-81'), 40.00, 90, 'Peça de manutenção preventiva.'),
+    ('Filtro de ar do motor ART8826', 'ART8826', 'AMX', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '11.222.333/0001-81'), 58.00, 90, 'Peça de manutenção preventiva.'),
+    ('Óleo do motor 5W30', 'OLEO5W30', 'Selenia', 'Aplicação conforme especificação do veículo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '19.354.200/0001-70'), 55.00, 90, 'Lubrificante automotivo.'),
+    ('Filtro de cabine FCA0125', 'FCA0125', 'Tecfil', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '11.222.333/0001-81'), 40.00, 90, 'Filtro de cabine para ar-condicionado.'),
+    ('Kit distribuição', 'KITDISTRIBUICAO', 'AMX', 'Aplicação conforme motorização', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '45.997.418/0001-53'), 168.00, 180, 'Kit de manutenção do sistema de distribuição.'),
+    ('Correia micro V', 'CORREIAMICROV', 'Gates', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '45.997.418/0001-53'), 63.00, 90, 'Correia auxiliar do motor.'),
+    ('Cubo de roda dianteiro com rolamento', 'NKF8116', 'Nakata', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '45.997.418/0001-53'), 288.00, 180, 'Cubo de roda dianteiro com rolamento.'),
+    ('Radiador', 'RADIADOR522201', 'Valeo', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '45.997.418/0001-53'), 1265.00, 180, 'Radiador do sistema de arrefecimento.'),
+    ('Aditivo de radiador orgânico rosa 1L', 'ADITIVOORGROSA1L', 'Petronas', 'Aplicação geral', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '19.354.200/0001-70'), 40.00, 90, 'Aditivo para sistema de arrefecimento.'),
+    ('Vela de ignição NGK', 'VELANGK99632', 'NGK', 'Aplicação conforme catálogo', NULL, NULL, (SELECT id_fornecedor FROM fornecedor WHERE cnpj = '11.222.333/0001-81'), 20.00, 90, 'Vela de ignição automotiva.')
 ON CONFLICT DO NOTHING;
 
 -- =========================================================
