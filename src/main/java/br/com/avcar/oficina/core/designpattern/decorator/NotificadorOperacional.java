@@ -16,6 +16,12 @@ import java.time.LocalDateTime;
 public class NotificadorOperacional implements Notificador {
 
     @Override
+    /**
+     * Função: Envia uma notificação operacional e registra a auditoria do envio quando o decorador
+     * está aplicado.
+     * Uso no sistema: apoia a rastreabilidade de eventos importantes, principalmente mudanças de
+     * status da OS.
+     */
     public NotificacaoResultadoDTO notificar(NotificacaoDTO notificacao) {
         NotificacaoResultadoDTO resultado = new NotificacaoResultadoDTO();
         resultado.setEntregue(Boolean.TRUE);
@@ -29,12 +35,20 @@ public class NotificadorOperacional implements Notificador {
         return resultado;
     }
 
+    /**
+     * Função: Padroniza uma mensagem antes de enviá-la como resposta da API.
+     * Uso no sistema: mantém retornos simples e consistentes para o frontend.
+     */
     private String formatarMensagem(NotificacaoDTO notificacao) {
         String titulo = valorOuPadrao(notificacao.getTitulo(), "Notificação do sistema");
         String mensagem = valorOuPadrao(notificacao.getMensagem(), "Sem mensagem informada.");
         return titulo + " - " + mensagem;
     }
 
+    /**
+     * Função: Retorna o valor informado ou um valor padrão quando o campo está vazio.
+     * Uso no sistema: evita nulos em mensagens e respostas simples da API.
+     */
     private String valorOuPadrao(String valor, String padrao) {
         return valor == null || valor.isBlank() ? padrao : valor.trim();
     }

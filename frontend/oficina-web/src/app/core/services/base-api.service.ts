@@ -21,74 +21,192 @@ export abstract class BaseApiService<T> {
     'Expires': '0'
   });
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   protected constructor(
     protected readonly http: HttpClient,
     private readonly resourcePath: string
   ) {}
 
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   listar(): Observable<T[]> {
     return this.http.get<ApiResponse<PageResponse<T> | T[]> | PageResponse<T> | T[]>(
       `${this.apiBaseUrl}/${this.resourcePath}`,
       this.opcoesSemCache()
     ).pipe(
       timeout(this.tempoLimiteMs),
+      /**
+       * Função: Executa a integração HTTP necessária para map.
+       * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+       * componentes focados na tela.
+       */
       map(response => this.extrairListaDeResposta<T>(response))
     );
   }
 
+
+  /**
+   * Função: Monta a chamada HTTP para listar ou reativar registros inativados no backend.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
+  listarInativos(): Observable<T[]> {
+    return this.http.get<ApiResponse<PageResponse<T> | T[]> | PageResponse<T> | T[]>(
+      `${this.apiBaseUrl}/${this.resourcePath}/inativos`,
+      this.opcoesSemCache()
+    ).pipe(
+      timeout(this.tempoLimiteMs),
+      map(response => this.extrairListaDeResposta<T>(response))
+    );
+  }
+
+  /**
+   * Função: Executa a integração HTTP necessária para ativar.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
+  ativar(id: number): Observable<T> {
+    return this.http.patch<ApiResponse<T> | T>(`${this.apiBaseUrl}/${this.resourcePath}/${id}/ativar`, {})
+      .pipe(
+        timeout(this.tempoLimiteMs),
+        map(response => this.extrairDados(response) as T)
+      );
+  }
+
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
+  ativarEListar(id: number): Observable<T[]> {
+    return this.ativar(id).pipe(switchMap(() => this.listar()));
+  }
+
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   buscarPorId(id: number): Observable<T> {
     return this.http.get<ApiResponse<T> | T>(
       `${this.apiBaseUrl}/${this.resourcePath}/${id}`,
       this.opcoesSemCache()
     ).pipe(
       timeout(this.tempoLimiteMs),
+      /**
+       * Função: Executa a integração HTTP necessária para map.
+       * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+       * componentes focados na tela.
+       */
       map(response => this.extrairDados(response) as T)
     );
   }
 
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   pesquisar(termo: string): Observable<T[]> {
     return this.http.get<ApiResponse<PageResponse<T> | T[]> | PageResponse<T> | T[]>(
       `${this.apiBaseUrl}/${this.resourcePath}/pesquisar`,
       this.opcoesSemCache(new HttpParams().set('termo', termo ?? ''))
     ).pipe(
       timeout(this.tempoLimiteMs),
+      /**
+       * Função: Executa a integração HTTP necessária para map.
+       * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+       * componentes focados na tela.
+       */
       map(response => this.extrairListaDeResposta<T>(response))
     );
   }
 
+  /**
+   * Função: Envia ao backend os dados preenchidos na tela para gravação.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   criar(payload: Partial<T>): Observable<T> {
     return this.http.post<ApiResponse<T> | T>(`${this.apiBaseUrl}/${this.resourcePath}`, payload)
       .pipe(
         timeout(this.tempoLimiteMs),
+        /**
+         * Função: Executa a integração HTTP necessária para map.
+         * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+         * componentes focados na tela.
+         */
         map(response => this.extrairDados(response) as T)
       );
   }
 
+  /**
+   * Função: Envia ao backend a alteração de um registro já existente.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   atualizar(id: number, payload: Partial<T>): Observable<T> {
     return this.http.put<ApiResponse<T> | T>(`${this.apiBaseUrl}/${this.resourcePath}/${id}`, payload)
       .pipe(
         timeout(this.tempoLimiteMs),
+        /**
+         * Função: Executa a integração HTTP necessária para map.
+         * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+         * componentes focados na tela.
+         */
         map(response => this.extrairDados(response) as T)
       );
   }
 
+  /**
+   * Função: Solicita ao backend a inativação lógica do registro, preservando histórico.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   excluir(id: number): Observable<void> {
     return this.http.delete<ApiResponse<void> | void>(`${this.apiBaseUrl}/${this.resourcePath}/${id}`)
       .pipe(
         timeout(this.tempoLimiteMs),
+        /**
+         * Função: Executa a integração HTTP necessária para map.
+         * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+         * componentes focados na tela.
+         */
         map(() => undefined)
       );
   }
 
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   salvarEListar(id: number | null | undefined, payload: Partial<T>): Observable<T[]> {
     const acao = id ? this.atualizar(id, payload) : this.criar(payload);
     return acao.pipe(switchMap(() => this.listar()));
   }
 
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   excluirEListar(id: number): Observable<T[]> {
     return this.excluir(id).pipe(switchMap(() => this.listar()));
   }
 
+  /**
+   * Função: Monta a chamada HTTP de consulta e normaliza a resposta recebida da API.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   atualizarEListar(id: number, payload: Partial<T>): Observable<T[]> {
     return this.atualizar(id, payload).pipe(switchMap(() => this.listar()));
   }
@@ -112,14 +230,29 @@ export abstract class BaseApiService<T> {
     return response as unknown as R;
   }
 
+  /**
+   * Função: Executa a integração HTTP necessária para extrair mensagem.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   protected extrairMensagem(response: ApiResponse<unknown>): string {
     return response.message ?? response.mensagem ?? 'Operação concluída.';
   }
 
+  /**
+   * Função: Executa a integração HTTP necessária para parametros sem cache.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   protected parametrosSemCache(params?: HttpParams): HttpParams {
     return (params ?? new HttpParams()).set('_t', Date.now().toString());
   }
 
+  /**
+   * Função: Executa a integração HTTP necessária para opcoes sem cache.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   protected opcoesSemCache(params?: HttpParams): { headers: HttpHeaders; params: HttpParams } {
     return {
       headers: this.noCacheHeaders,

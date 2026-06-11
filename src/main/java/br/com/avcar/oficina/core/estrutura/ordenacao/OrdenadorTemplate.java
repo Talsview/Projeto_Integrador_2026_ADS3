@@ -15,6 +15,14 @@ import java.util.List;
  */
 public abstract class OrdenadorTemplate<T> {
 
+    /**
+     * Função: Executa o fluxo padrão de ordenação manual definido pela classe base.
+     * Padrão aplicado: TEMPLATE METHOD.
+     * Justificativa: o algoritmo fica em um ponto único, enquanto as subclasses alteram somente o
+     * critério de comparação.
+     * Uso no sistema: atende à ordenação manual exigida no projeto e organiza diferentes critérios de
+     * consulta de OS.
+     */
     public final List<T> ordenar(List<T> entrada) {
         List<T> lista = new ArrayList<>(entrada);
 
@@ -33,5 +41,14 @@ public abstract class OrdenadorTemplate<T> {
         return lista;
     }
 
+    /**
+     * Função: Define o critério específico usado para comparar duas Ordens de Serviço durante a
+     * ordenação.
+     * Padrão aplicado: TEMPLATE METHOD.
+     * Justificativa: permite ordenar por data, valor ou prioridade sem duplicar o algoritmo de
+     * ordenação.
+     * Uso no sistema: atende à ordenação manual exigida no projeto e organiza diferentes critérios de
+     * consulta de OS.
+     */
     protected abstract int comparar(T anterior, T atual);
 }

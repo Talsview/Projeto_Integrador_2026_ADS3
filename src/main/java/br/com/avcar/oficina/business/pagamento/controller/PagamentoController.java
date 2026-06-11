@@ -30,11 +30,22 @@ public class PagamentoController {
 
     private final PagamentoService pagamentoService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public PagamentoController(PagamentoService pagamentoService) {
         this.pagamentoService = pagamentoService;
     }
 
     @PostMapping
+    /**
+     * Função: Recebe a requisição de cadastro de pagamento, encaminha os dados para o serviço e
+     * retorna a resposta da operação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PagamentoDTO>> cadastrar(@RequestBody PagamentoDTO dto) {
         PagamentoDTO saved = pagamentoService.cadastrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,6 +53,12 @@ public class PagamentoController {
     }
 
     @PutMapping("/{id}")
+    /**
+     * Função: Recebe a requisição de atualização de pagamento, preservando a validação e a regra de
+     * negócio no serviço.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PagamentoDTO>> atualizar(@PathVariable Long id,
                                                                @RequestBody PagamentoDTO dto) {
         PagamentoDTO updated = pagamentoService.atualizar(id, dto);
@@ -49,6 +66,12 @@ public class PagamentoController {
     }
 
     @PatchMapping("/{id}/status")
+    /**
+     * Função: Atende a rota HTTP responsável por alterar status e repassa a regra ao serviço
+     * correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PagamentoDTO>> alterarStatus(@PathVariable Long id,
                                                                    @RequestParam StatusPagamento statusPagamento) {
         PagamentoDTO updated = pagamentoService.alterarStatus(id, statusPagamento);
@@ -56,18 +79,36 @@ public class PagamentoController {
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Recebe filtros de consulta de pagamento, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PagamentoDTO>> buscar(@PathVariable Long id) {
         PagamentoDTO pagamento = pagamentoService.buscar(id);
         return ResponseEntity.ok(ApiResponse.success("Pagamento localizado com sucesso.", pagamento));
     }
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de pagamento, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<PagamentoDTO>>> listar(Pageable pageable) {
         Page<PagamentoDTO> pagamentos = pagamentoService.listar(pageable);
         return ResponseEntity.ok(ApiResponse.success("Pagamentos localizados com sucesso.", PageResponse.from(pagamentos)));
     }
 
     @GetMapping("/ordem-servico/{idOrdemServico}")
+    /**
+     * Função: Recebe filtros de consulta de pagamento, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<PagamentoDTO>>> listarPorOrdemServico(@PathVariable Long idOrdemServico,
                                                                                          Pageable pageable) {
         Page<PagamentoDTO> pagamentos = pagamentoService.listarPorOrdemServico(idOrdemServico, pageable);
@@ -75,6 +116,12 @@ public class PagamentoController {
     }
 
     @GetMapping("/ordem-servico/{idOrdemServico}/pesquisar")
+    /**
+     * Função: Recebe filtros de consulta de pagamento, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<PagamentoDTO>>> pesquisarPorOrdemServico(@PathVariable Long idOrdemServico,
                                                                                             @RequestParam String termo,
                                                                                             Pageable pageable) {
@@ -83,12 +130,50 @@ public class PagamentoController {
     }
 
     @GetMapping("/ordem-servico/{idOrdemServico}/resumo")
+    /**
+     * Função: Atende a rota HTTP responsável por resumir por ordem servico e repassa a regra ao
+     * serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ResumoPagamentoOrdemServicoDTO>> resumirPorOrdemServico(@PathVariable Long idOrdemServico) {
         ResumoPagamentoOrdemServicoDTO resumo = pagamentoService.resumirPorOrdemServico(idOrdemServico);
         return ResponseEntity.ok(ApiResponse.success("Resumo financeiro da Ordem de Serviço localizado com sucesso.", resumo));
     }
 
+
+
+    @GetMapping("/inativos")
+    /**
+     * Função: Atende a requisição de consulta de registros inativados e devolve os dados para a tela
+     * de reativação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<PageResponse<PagamentoDTO>>> listarInativos(Pageable pageable) {
+        Page<PagamentoDTO> registros = pagamentoService.listarInativos(pageable);
+        return ResponseEntity.ok(ApiResponse.success("Pagamentos inativos localizados.", PageResponse.from(registros)));
+    }
+
+    @PatchMapping("/{id}/ativar")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<PagamentoDTO>> ativar(@PathVariable Long id) {
+        PagamentoDTO registro = pagamentoService.ativar(id);
+        return ResponseEntity.ok(ApiResponse.success("Pagamento ativado.", registro));
+    }
+
     @DeleteMapping("/{id}")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<Void>> inativar(@PathVariable Long id) {
         pagamentoService.inativar(id);
         return ResponseEntity.ok(ApiResponse.success("Pagamento inativado com sucesso.", null));

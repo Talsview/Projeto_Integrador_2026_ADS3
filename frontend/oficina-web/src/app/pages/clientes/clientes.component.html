@@ -2,6 +2,10 @@
 <p class="page-subtitle">
   Cadastro e consulta de clientes pessoa física e pessoa jurídica, respeitando a especialização exclusiva e total do modelo.
 </p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || consultando">Ver inativos</button>
+</div>
+
 
 <div class="grid two">
   <section class="card">
@@ -143,3 +147,18 @@
     </div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Clientes inativos"
+  descricao="Pesquisar clientes inativos por nome, documento, telefone ou data."
+  [registros]="clientesInativos"
+  [camposTexto]="['nome','documento','telefone','email']"
+  campoPrincipal="nome"
+  campoSecundario="documento"
+  [carregando]="carregandoInativos"
+  [processando]="consultando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

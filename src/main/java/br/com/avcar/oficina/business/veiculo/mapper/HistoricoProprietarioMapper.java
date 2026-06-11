@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class HistoricoProprietarioMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public HistoricoProprietarioModel criarHistoricoInicial(VeiculoModel veiculo, ClienteModel cliente, VeiculoDTO dto) {
         HistoricoProprietarioModel historico = new HistoricoProprietarioModel();
         historico.setVeiculo(veiculo);
@@ -24,6 +28,10 @@ public class HistoricoProprietarioMapper {
         return historico;
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public HistoricoProprietarioModel criarNovoHistorico(VeiculoModel veiculo,
                                                          ClienteModel novoCliente,
                                                          TransferenciaProprietarioDTO dto) {

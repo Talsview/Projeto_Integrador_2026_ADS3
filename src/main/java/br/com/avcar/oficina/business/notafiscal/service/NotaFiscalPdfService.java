@@ -77,6 +77,11 @@ public class NotaFiscalPdfService {
     private final IPessoaFisicaRepository pessoaFisicaRepository;
     private final IPessoaJuridicaRepository pessoaJuridicaRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public NotaFiscalPdfService(IOrdemServicoRepository ordemServicoRepository,
                                 IItemServicoRepository itemServicoRepository,
                                 IItemPecaRepository itemPecaRepository,
@@ -94,6 +99,12 @@ public class NotaFiscalPdfService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Gera o PDF da OS a partir dos dados do cliente, veículo, serviços, peças, pagamentos e
+     * status atual.
+     * Uso no sistema: produz um comprovante/nota interna do atendimento sem alterar os registros da
+     * Ordem de Serviço.
+     */
     public byte[] gerarNotaFiscalOrdemServico(Long idOrdemServico) {
         if (idOrdemServico == null) {
             throw new BusinessException("O identificador da Ordem de Serviço é obrigatório para gerar a nota fiscal.");
@@ -131,6 +142,10 @@ public class NotaFiscalPdfService {
         }
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar dados para emissao.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarDadosParaEmissao(OrdemServicoModel ordem,
                                          List<ItemServicoModel> servicos,
                                          List<ItemPecaModel> pecas,
@@ -152,6 +167,11 @@ public class NotaFiscalPdfService {
         }
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar regras financeiras
+     * para nota.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarRegrasFinanceirasParaNota(OrdemServicoModel ordem,
                                                   List<PagamentoModel> pagamentos,
                                                   HistoricoStatusOrdemModel statusAtual) {
@@ -177,6 +197,10 @@ public class NotaFiscalPdfService {
         }
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar nome arquivo.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     public String montarNomeArquivo(Long idOrdemServico) {
         OrdemServicoModel ordem = ordemServicoRepository.findByIdAndAtivoTrue(idOrdemServico)
                 .orElseThrow(() -> new BusinessException("Ordem de Serviço não encontrada ou inativa."));
@@ -187,6 +211,11 @@ public class NotaFiscalPdfService {
         return "nota-fiscal-os-" + numero + ".pdf";
     }
 
+    /**
+     * Função: Monta o cabeçalho do PDF com logo, dados da oficina, data de emissão e número da OS.
+     * Uso no sistema: aproxima o documento gerado do modelo visual das ordens de serviço reais usadas
+     * pela oficina.
+     */
     private void adicionarCabecalho(Document document, OrdemServicoModel ordem) throws DocumentException, IOException {
         PdfPTable cabecalho = new PdfPTable(new float[]{1.5f, 3.8f, 1.8f});
         cabecalho.setWidthPercentage(100);
@@ -230,6 +259,11 @@ public class NotaFiscalPdfService {
         document.add(faixa);
     }
 
+    /**
+     * Função: Insere no PDF os dados do cliente vinculado à Ordem de Serviço, incluindo nome,
+     * documento, telefone, e-mail e endereço.
+     * Uso no sistema: garante que o comprovante identifique corretamente quem solicitou o atendimento.
+     */
     private void adicionarDadosCliente(Document document, OrdemServicoModel ordem) throws DocumentException {
         PdfPTable tabela = new PdfPTable(new float[]{1.2f, 4.2f, 1.2f, 2.4f});
         tabela.setWidthPercentage(100);
@@ -264,6 +298,11 @@ public class NotaFiscalPdfService {
         document.add(tabela);
     }
 
+    /**
+     * Função: Insere no PDF os dados do veículo atendido, como modelo, marca, placa, quilometragem e
+     * status atual da OS.
+     * Uso no sistema: mantém a rastreabilidade entre cliente, veículo e serviço prestado.
+     */
     private void adicionarDadosVeiculo(Document document, OrdemServicoModel ordem, HistoricoStatusOrdemModel statusAtual) throws DocumentException {
         PdfPTable tabela = new PdfPTable(new float[]{1.2f, 2.5f, 1.2f, 2.2f, 1.1f, 1.7f});
         tabela.setWidthPercentage(100);
@@ -300,6 +339,11 @@ public class NotaFiscalPdfService {
         document.add(tabela);
     }
 
+    /**
+     * Função: Monta no PDF as tabelas de serviços e peças usados na OS, com quantidade, valor unitário
+     * e total.
+     * Uso no sistema: apresenta ao cliente a composição do orçamento ou do atendimento finalizado.
+     */
     private void adicionarSecaoItens(Document document, List<ItemPecaModel> pecas, List<ItemServicoModel> servicos) throws DocumentException {
         PdfPTable titulo = new PdfPTable(1);
         titulo.setWidthPercentage(100);
@@ -353,6 +397,11 @@ public class NotaFiscalPdfService {
         document.add(tabelaServicos);
     }
 
+    /**
+     * Função: Calcula e exibe no PDF os totais de serviços, peças, pagamentos e saldo da Ordem de
+     * Serviço.
+     * Uso no sistema: deixa claro o valor financeiro do atendimento e a situação de pagamento.
+     */
     private void adicionarTotais(Document document,
                                  List<ItemServicoModel> servicos,
                                  List<ItemPecaModel> pecas,
@@ -415,6 +464,11 @@ public class NotaFiscalPdfService {
         }
     }
 
+    /**
+     * Função: Adiciona observações gerais, regras de garantia e aviso sobre o caráter
+     * interno/simplificado do documento.
+     * Uso no sistema: registra informações complementares importantes para cliente e oficina.
+     */
     private void adicionarObservacoes(Document document, OrdemServicoModel ordem) throws DocumentException {
         PdfPTable tabela = new PdfPTable(1);
         tabela.setWidthPercentage(100);
@@ -430,6 +484,10 @@ public class NotaFiscalPdfService {
         document.add(tabela);
     }
 
+    /**
+     * Função: Cria a área de assinatura do cliente e da oficina no final do documento.
+     * Uso no sistema: permite formalizar a ciência do cliente sobre os dados da OS.
+     */
     private void adicionarAssinaturas(Document document, OrdemServicoModel ordem) throws DocumentException {
         PdfPTable tabela = new PdfPTable(new float[]{1f, 1f});
         tabela.setWidthPercentage(100);
@@ -439,15 +497,29 @@ public class NotaFiscalPdfService {
         document.add(tabela);
     }
 
+    /**
+     * Função: Localiza informações de notafiscal conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private Optional<HistoricoStatusOrdemModel> buscarStatusAtual(Long idOrdemServico) {
         List<HistoricoStatusOrdemModel> historico = historicoStatusRepository.findHistoricoFluxoDesc(idOrdemServico);
         return historico.isEmpty() ? Optional.empty() : Optional.of(historico.get(0));
     }
 
+    /**
+     * Função: Calcula valores agregados a partir de serviços, peças, quantidade e valor unitário.
+     * Uso no sistema: mantém o orçamento e o total da OS coerentes com os itens informados pelo
+     * usuário.
+     */
     private void recalcularEmMemoria(OrdemServicoModel ordem, List<ItemServicoModel> servicos, List<ItemPecaModel> pecas) {
         ordem.setValorTotal(somarServicos(servicos).add(somarPecas(pecas)));
     }
 
+    /**
+     * Função: Soma os valores totais dos serviços lançados na Ordem de Serviço.
+     * Uso no sistema: compõe o total financeiro do documento e confirma o custo da mão de obra.
+     */
     private BigDecimal somarServicos(List<ItemServicoModel> servicos) {
         return servicos.stream()
                 .map(ItemServicoModel::getValorTotal)
@@ -455,6 +527,11 @@ public class NotaFiscalPdfService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    /**
+     * Função: Soma os valores totais das peças aplicadas na Ordem de Serviço.
+     * Uso no sistema: compõe o total financeiro do documento e mantém a separação entre peças e
+     * serviços.
+     */
     private BigDecimal somarPecas(List<ItemPecaModel> pecas) {
         return pecas.stream()
                 .map(ItemPecaModel::getValorTotal)
@@ -462,6 +539,10 @@ public class NotaFiscalPdfService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
+    /**
+     * Função: Identifica se o cliente possui CPF ou CNPJ e monta o texto do documento para impressão.
+     * Uso no sistema: respeita a regra de clientes Pessoa Física e Pessoa Jurídica.
+     */
     private String documentoCliente(OrdemServicoModel ordem) {
         if (ordem.getCliente() == null || ordem.getCliente().getId() == null) {
             return "";
@@ -474,6 +555,11 @@ public class NotaFiscalPdfService {
         return pj.map(pessoaJuridicaModel -> "CNPJ: " + texto(pessoaJuridicaModel.getCnpj())).orElse("");
     }
 
+    /**
+     * Função: Busca o arquivo de logo da oficina nos recursos da aplicação e o transforma em imagem
+     * para o PDF.
+     * Uso no sistema: personaliza o documento gerado sem depender de internet ou arquivo externo.
+     */
     private Optional<Image> carregarLogo() throws IOException {
         ClassPathResource resource = new ClassPathResource("static/assets/branding/av-car-logo-horizontal-480.png");
         if (!resource.exists()) {
@@ -486,12 +572,21 @@ public class NotaFiscalPdfService {
         }
     }
 
+    /**
+     * Função: Adiciona uma linha de título ocupando todas as colunas da tabela informada.
+     * Uso no sistema: organiza visualmente as seções Cliente, Veículo, Serviços, Peças, Totais e
+     * Observações.
+     */
     private void adicionarTituloSecao(PdfPTable tabela, String titulo) {
         PdfPCell cell = cabecalhoTabela(titulo);
         cell.setColspan(tabela.getNumberOfColumns());
         tabela.addCell(cell);
     }
 
+    /**
+     * Função: Cria uma célula de cabeçalho com fonte em negrito, cor de fundo e borda padronizada.
+     * Uso no sistema: mantém o layout das tabelas do PDF uniforme e fácil de ler.
+     */
     private PdfPCell cabecalhoTabela(String texto) {
         PdfPCell cell = new PdfPCell(new Phrase(texto(texto), fonteNegrito(8)));
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -502,6 +597,10 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula de rótulo para identificar campos como Cliente, Placa, Serviço ou Total.
+     * Uso no sistema: diferencia visualmente o nome do campo do valor apresentado no documento.
+     */
     private PdfPCell rotulo(String texto) {
         PdfPCell cell = new PdfPCell(new Phrase(texto(texto), fonteNegrito(8)));
         cell.setBackgroundColor(CINZA_CLARO);
@@ -510,6 +609,11 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula de valor com fonte padrão e borda para inserir informações no PDF.
+     * Uso no sistema: padroniza a escrita dos dados vindos da OS, cliente, veículo, peças e
+     * pagamentos.
+     */
     private PdfPCell valor(String texto) {
         PdfPCell cell = new PdfPCell(new Phrase(texto(texto), fonteNormal(8)));
         cell.setBorderColor(BORDA);
@@ -517,6 +621,10 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula de valor em negrito para informações que precisam de destaque.
+     * Uso no sistema: destaca totais, títulos internos ou dados relevantes no comprovante.
+     */
     private PdfPCell valorNegrito(String texto) {
         PdfPCell cell = new PdfPCell(new Phrase(texto(texto), fonteNegrito(8)));
         cell.setBorderColor(BORDA);
@@ -524,24 +632,40 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula de valor alinhada ao centro.
+     * Uso no sistema: melhora a leitura de quantidades, datas ou campos curtos nas tabelas do PDF.
+     */
     private PdfPCell valorCentralizado(String texto) {
         PdfPCell cell = valor(texto);
         cell.setHorizontalAlignment(Element.ALIGN_CENTER);
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula de valor alinhada à direita.
+     * Uso no sistema: alinha valores monetários e números de forma adequada no documento.
+     */
     private PdfPCell valorDireita(String texto) {
         PdfPCell cell = valor(texto);
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula monetária alinhada à direita e em negrito.
+     * Uso no sistema: destaca totais financeiros no PDF da OS.
+     */
     private PdfPCell valorDireitaNegrito(String texto) {
         PdfPCell cell = valorNegrito(texto);
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         return cell;
     }
 
+    /**
+     * Função: Monta uma célula com linha e nome para assinatura.
+     * Uso no sistema: reserva espaço para assinatura do cliente e da oficina no comprovante.
+     */
     private PdfPCell assinatura(String texto) {
         PdfPCell cell = new PdfPCell();
         cell.setBorder(Rectangle.NO_BORDER);
@@ -555,6 +679,10 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula auxiliar sem borda para compor áreas livres do layout.
+     * Uso no sistema: evita bordas desnecessárias no cabeçalho e em áreas decorativas do PDF.
+     */
     private PdfPCell semBorda() {
         PdfPCell cell = new PdfPCell();
         cell.setBorder(Rectangle.NO_BORDER);
@@ -562,6 +690,10 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria uma célula genérica com conteúdo, cor de fundo e alinhamento informados.
+     * Uso no sistema: reaproveita a mesma montagem visual em diferentes partes do documento.
+     */
     private PdfPCell celula(Paragraph paragraph, Color background, int alinhamento) {
         PdfPCell cell = new PdfPCell();
         cell.setBackgroundColor(background);
@@ -572,6 +704,10 @@ public class NotaFiscalPdfService {
         return cell;
     }
 
+    /**
+     * Função: Cria um parágrafo com texto, fonte e alinhamento definidos.
+     * Uso no sistema: padroniza textos curtos no cabeçalho e nas observações do PDF.
+     */
     private Paragraph paragrafo(String texto, Font fonte, int alinhamento) {
         Paragraph paragraph = new Paragraph(texto(texto), fonte);
         paragraph.setAlignment(alinhamento);
@@ -579,6 +715,12 @@ public class NotaFiscalPdfService {
         return paragraph;
     }
 
+    /**
+     * Função: Processa dados de peça, fornecedor, quantidade ou valor unitário conforme a operação
+     * solicitada.
+     * Uso no sistema: garante rastreabilidade entre peça utilizada, fornecedor responsável e valor
+     * aplicado na OS.
+     */
     private String descricaoPeca(ItemPecaModel item) {
         if (item == null || item.getPeca() == null) {
             return "";
@@ -601,6 +743,11 @@ public class NotaFiscalPdfService {
         return builder.toString();
     }
 
+    /**
+     * Função: Define a descrição que será impressa para o serviço, usando a descrição executada ou o
+     * nome cadastrado.
+     * Uso no sistema: deixa o PDF compreensível mesmo quando há observação específica do serviço.
+     */
     private String descricaoServico(ItemServicoModel item) {
         if (item == null || item.getServico() == null) {
             return "";
@@ -609,6 +756,10 @@ public class NotaFiscalPdfService {
         return descricao.isBlank() ? texto(item.getServico().getNomeServico()) : descricao;
     }
 
+    /**
+     * Função: Resolve o nome do colaborador responsável por um item de serviço.
+     * Uso no sistema: permite que o documento mostre quem executou ou assumiu o serviço da OS.
+     */
     private String responsavel(ItemServicoModel item) {
         if (item == null || item.getColaborador() == null || item.getColaborador().getPessoa() == null) {
             return "";
@@ -616,42 +767,84 @@ public class NotaFiscalPdfService {
         return texto(item.getColaborador().getPessoa().getNome());
     }
 
+    /**
+     * Função: Formata data e hora no padrão brasileiro para impressão.
+     * Uso no sistema: deixa datas do PDF compatíveis com o uso local da oficina.
+     */
     private String formatarDataHora(LocalDateTime data) {
         return data == null ? "" : data.format(DATA_HORA);
     }
 
+    /**
+     * Função: Formata apenas a data no padrão brasileiro para impressão.
+     * Uso no sistema: evita formatos técnicos de data no documento entregue ao cliente.
+     */
     private String formatarData(LocalDateTime data) {
         return data == null ? "" : data.format(DATA);
     }
 
+    /**
+     * Função: Extrai e formata o horário de uma data/hora quando ele precisa aparecer separado.
+     * Uso no sistema: reproduz no documento informações semelhantes às OS analisadas no levantamento.
+     */
     private String hora(LocalDateTime data) {
         return data == null ? "" : data.format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
+    /**
+     * Função: Formata valores numéricos inteiros, tratando nulos como vazio ou zero conforme
+     * necessário.
+     * Uso no sistema: evita erro visual quando algum campo opcional não foi informado.
+     */
     private String valorInteiro(Integer valor) {
         return valor == null ? "" : valor.toString();
     }
 
+    /**
+     * Função: Formata números decimais usados em quantidade ou valores da OS.
+     * Uso no sistema: mantém padrão brasileiro de casas decimais no PDF.
+     */
     private String numero(BigDecimal valor) {
         return valor == null ? "" : valor.stripTrailingZeros().toPlainString().replace('.', ',');
     }
 
+    /**
+     * Função: Formata valores monetários em reais.
+     * Uso no sistema: apresenta peças, serviços, pagamentos e totais de forma compreensível para o
+     * usuário.
+     */
     private String moeda(BigDecimal valor) {
         return NumberFormat.getCurrencyInstance(LOCALE_BR).format(valor == null ? BigDecimal.ZERO : valor);
     }
 
+    /**
+     * Função: Normaliza texto nulo para string vazia antes de escrever no PDF.
+     * Uso no sistema: evita que o documento mostre “null” em campos não preenchidos.
+     */
     private String texto(String value) {
         return value == null ? "" : value.trim();
     }
 
+    /**
+     * Função: Cria fonte padrão usada em textos comuns do PDF.
+     * Uso no sistema: centraliza o estilo visual para facilitar ajustes futuros.
+     */
     private Font fonteNormal(int tamanho) {
         return FontFactory.getFont(FontFactory.HELVETICA, tamanho, Font.NORMAL, Color.BLACK);
     }
 
+    /**
+     * Função: Cria fonte em negrito usada em rótulos e destaques.
+     * Uso no sistema: padroniza os pontos de destaque do documento.
+     */
     private Font fonteNegrito(int tamanho) {
         return FontFactory.getFont(FontFactory.HELVETICA, tamanho, Font.BOLD, Color.BLACK);
     }
 
+    /**
+     * Função: Cria fonte de título com tamanho e cor definidos.
+     * Uso no sistema: mantém o cabeçalho e as seções principais visualmente consistentes.
+     */
     private Font fonteTitulo(int tamanho, Color cor) {
         return FontFactory.getFont(FontFactory.HELVETICA, tamanho, Font.BOLD, cor);
     }

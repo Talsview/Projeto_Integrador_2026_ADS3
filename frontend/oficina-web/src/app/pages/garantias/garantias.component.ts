@@ -30,12 +30,25 @@ export class GarantiasComponent implements OnInit {
   errosCampo: Record<string, string> = {};
   responsabilidades: ResponsabilidadeGarantiaPeca[] = ['FORNECEDOR', 'OFICINA', 'AMBOS'];
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(private readonly garantiaApi: GarantiaApiService, private readonly ordemApi: OrdemServicoApiService, private readonly cdr: ChangeDetectorRef) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void { this.carregarTelaInicial(); }
 
   carregarTelaInicial(): void {
     this.carregando = true; this.erro = undefined; this.atualizarTela();
+    /**
+     * Função: Controla na tela a etapa fork join.
+     * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+     */
     forkJoin({ ordens: this.ordemApi.listar(), pecas: this.garantiaApi.listarGarantiasPecas(), servicos: this.garantiaApi.listarGarantiasServicos() })
       .pipe(finalize(() => { this.carregando = false; this.atualizarTela(); }))
       .subscribe({
@@ -46,19 +59,39 @@ export class GarantiasComponent implements OnInit {
 
   listarTodas(): void { this.idOrdemSelecionada = 0; this.carregarTelaInicial(); }
 
+  /**
+   * Função: Controla na tela a etapa listar por ordem.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   listarPorOrdem(): void {
     if (!this.idOrdemSelecionada) { this.listarTodas(); return; }
     this.carregando = true; this.erro = undefined; this.atualizarTela();
+    /**
+     * Função: Controla na tela a etapa fork join.
+     * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+     */
     forkJoin({ pecas: this.garantiaApi.listarPecasPorOrdemServico(this.idOrdemSelecionada), servicos: this.garantiaApi.listarServicosPorOrdemServico(this.idOrdemSelecionada) })
       .pipe(finalize(() => { this.carregando = false; this.atualizarTela(); }))
       .subscribe({ next: r => { this.garantiasPecas = [...r.pecas]; this.garantiasServicos = [...r.servicos]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } });
   }
 
+  /**
+   * Função: Controla na tela a etapa abrir acionamento peca.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   abrirAcionamentoPeca(g: GarantiaPeca): void { this.abrirModal('PECA', 'ACIONAR', g); }
   abrirEncerramentoPeca(g: GarantiaPeca): void { this.abrirModal('PECA', 'ENCERRAR', g); }
+  /**
+   * Função: Controla na tela a etapa abrir acionamento servico.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   abrirAcionamentoServico(g: GarantiaServico): void { this.abrirModal('SERVICO', 'ACIONAR', g); }
   abrirEncerramentoServico(g: GarantiaServico): void { this.abrirModal('SERVICO', 'ENCERRAR', g); }
 
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
   abrirModal(tipo: TipoGarantiaModal, acao: AcaoGarantiaModal, garantia: GarantiaPeca | GarantiaServico): void {
     if (acao === 'ACIONAR' && !this.permiteAcionar(garantia.statusGarantia)) {
       this.erro = 'Apenas garantias vigentes podem ser acionadas.';
@@ -79,12 +112,20 @@ export class GarantiasComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
   fecharModal(): void {
     if (this.processando) return;
     this.limparModalAposSucesso();
     this.atualizarTela();
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   private limparModalAposSucesso(): void {
     this.modalAberto = false;
     this.tipoModal = undefined;
@@ -94,6 +135,10 @@ export class GarantiasComponent implements OnInit {
     this.errosCampo = {};
   }
 
+  /**
+   * Função: Controla na tela a etapa confirmar atendimento garantia.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   confirmarAtendimentoGarantia(): void {
     if (!this.garantiaSelecionada?.id || !this.tipoModal || !this.acaoModal) return;
     if (!this.validarFormularioGarantia()) return;
@@ -132,6 +177,10 @@ export class GarantiasComponent implements OnInit {
   permiteAcionar(status?: string): boolean { return status === 'VIGENTE'; }
   permiteEncerrar(status?: string): boolean { return status === 'ACIONADA'; }
 
+  /**
+   * Função: Controla na tela a etapa nome garantia selecionada.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   nomeGarantiaSelecionada(): string {
     if (!this.garantiaSelecionada) return '';
     if (this.tipoModal === 'PECA') {
@@ -140,6 +189,10 @@ export class GarantiasComponent implements OnInit {
     return (this.garantiaSelecionada as GarantiaServico).nomeServico || 'Serviço não informado';
   }
 
+  /**
+   * Função: Controla na tela a etapa classe status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   classeStatus(status?: string): string {
     if (status === 'VIGENTE') return 'success';
     if (status === 'ACIONADA') return 'warning';
@@ -148,6 +201,10 @@ export class GarantiasComponent implements OnInit {
     return '';
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   limparErro(campo: string): void { delete this.errosCampo[campo]; }
 
   private recarregarGarantiasDoTipoAtual(): Observable<GarantiaPeca[] | GarantiaServico[]> {
@@ -157,6 +214,10 @@ export class GarantiasComponent implements OnInit {
     return this.idOrdemSelecionada ? this.garantiaApi.listarServicosPorOrdemServico(this.idOrdemSelecionada) : this.garantiaApi.listarGarantiasServicos();
   }
 
+  /**
+   * Função: Controla na tela a etapa validar formulario garantia.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarFormularioGarantia(): boolean {
     this.errosCampo = {};
     const hoje = this.dataHoje();
@@ -188,6 +249,10 @@ export class GarantiasComponent implements OnInit {
     return Object.keys(this.errosCampo).length === 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa novo formulario.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private novoFormulario(garantia?: GarantiaPeca | GarantiaServico, acao?: AcaoGarantiaModal, tipo?: TipoGarantiaModal): AcionamentoGarantia {
     const hoje = this.dataHoje();
     if (acao === 'ENCERRAR') {
@@ -203,10 +268,18 @@ export class GarantiasComponent implements OnInit {
     };
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   private filtrarOrdensPorStatus(ordens: OrdemServicoResumo[], status: StatusFluxoOrdemServico): OrdemServicoResumo[] {
     return [...(ordens ?? [])].filter(os => this.normalizarStatus(os.statusAtual) === status);
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private normalizarStatus(status?: string): StatusFluxoOrdemServico | '' {
     return (status ?? '')
       .normalize('NFD')
@@ -216,7 +289,15 @@ export class GarantiasComponent implements OnInit {
       .replace(/\s+/g, '_') as StatusFluxoOrdemServico | '';
   }
 
+  /**
+   * Função: Controla na tela a etapa data hoje.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private dataHoje(): string { return new Date().toISOString().substring(0, 10); }
   private valorTexto(value?: string): boolean { return !!value && value.trim().length > 0; }
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

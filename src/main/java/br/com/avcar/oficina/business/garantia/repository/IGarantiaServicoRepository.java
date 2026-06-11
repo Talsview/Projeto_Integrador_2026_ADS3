@@ -13,8 +13,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IGarantiaServicoRepository extends IGenericRepository<GarantiaServicoModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<GarantiaServicoModel> findByItemServicoIdAndAtivoTrue(Long idItemServico);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsByItemServicoIdAndAtivoTrue(Long idItemServico);
 
     @Query("""
@@ -25,6 +37,12 @@ public interface IGarantiaServicoRepository extends IGenericRepository<GarantiaS
               AND isv.ativo = true
               AND isv.ordemServico.id = :idOrdemServico
            """)
+    /**
+     * Função: Declara uma consulta derivada pelo Spring Data JPA com base nos campos informados no
+     * nome do método.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     List<GarantiaServicoModel> findByOrdemServico(@Param("idOrdemServico") Long idOrdemServico);
 
     @Query("""
@@ -35,5 +53,11 @@ public interface IGarantiaServicoRepository extends IGenericRepository<GarantiaS
               AND isv.ativo = true
               AND isv.ordemServico.id = :idOrdemServico
            """)
+    /**
+     * Função: Declara uma consulta derivada pelo Spring Data JPA com base nos campos informados no
+     * nome do método.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<GarantiaServicoModel> findByOrdemServico(@Param("idOrdemServico") Long idOrdemServico, Pageable pageable);
 }

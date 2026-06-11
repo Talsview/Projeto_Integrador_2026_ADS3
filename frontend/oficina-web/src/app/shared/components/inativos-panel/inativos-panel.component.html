@@ -1,0 +1,55 @@
+<div class="modal-backdrop inativos-backdrop">
+  <section class="card inativos-panel">
+    <div class="modal-header">
+      <div>
+        <h2>{{ titulo }}</h2>
+        <p class="muted">{{ descricao }}</p>
+      </div>
+      <button type="button" class="secondary" (click)="fechar.emit()">Fechar</button>
+    </div>
+
+    <div class="inativos-filtros">
+      <label>
+        Pesquisa
+        <input [(ngModel)]="filtroTexto" placeholder="Nome, documento, placa, código ou número">
+      </label>
+      <label>
+        Data inicial
+        <input type="date" [(ngModel)]="dataInicial">
+      </label>
+      <label>
+        Data final
+        <input type="date" [(ngModel)]="dataFinal">
+      </label>
+      <button type="button" class="secondary" (click)="limparFiltros()">Limpar filtros</button>
+    </div>
+
+    <p *ngIf="carregando">Carregando inativos...</p>
+
+    <div class="table-wrap" *ngIf="!carregando">
+      <table>
+        <thead>
+          <tr>
+            <th>Cadastro</th>
+            <th>Detalhe</th>
+            <th>Data de alteração</th>
+            <th class="actions-col">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let registro of registrosFiltrados()">
+            <td>{{ rotuloPrincipal(registro) }}</td>
+            <td>{{ rotuloSecundario(registro) || '-' }}</td>
+            <td>{{ dataReferencia(registro) }}</td>
+            <td class="actions row-actions actions-sticky">
+              <button type="button" (click)="ativar(registro)" [disabled]="processando">Ativar</button>
+            </td>
+          </tr>
+          <tr *ngIf="registrosFiltrados().length === 0">
+            <td colspan="4">Nenhum registro inativo encontrado.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>

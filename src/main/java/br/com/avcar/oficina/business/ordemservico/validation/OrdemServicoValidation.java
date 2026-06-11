@@ -18,19 +18,42 @@ public class OrdemServicoValidation {
 
     private final IOrdemServicoRepository ordemServicoRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public OrdemServicoValidation(IOrdemServicoRepository ordemServicoRepository) {
         this.ordemServicoRepository = ordemServicoRepository;
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(OrdemServicoDTO dto) {
         validateDto(dto);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, OrdemServicoDTO dto) {
         validateId(id);
         validateDto(dto);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateStatusChange(AlterarStatusOrdemServicoDTO dto,
                                      HistoricoStatusOrdemModel statusAtual,
                                      StatusOrdemServicoModel novoStatus) {
@@ -58,12 +81,24 @@ public class OrdemServicoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new RuleValidationException("ID inválido para Ordem de Serviço.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateDto(OrdemServicoDTO dto) {
         if (dto == null) {
             throw new RuleValidationException("Os dados da Ordem de Serviço são obrigatórios.");

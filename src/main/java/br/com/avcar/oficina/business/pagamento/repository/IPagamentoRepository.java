@@ -14,8 +14,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IPagamentoRepository extends IGenericRepository<PagamentoModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<PagamentoModel> findByOrdemServicoIdAndAtivoTrue(Long idOrdemServico, Pageable pageable);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     List<PagamentoModel> findByOrdemServicoIdAndAtivoTrue(Long idOrdemServico);
 
     @Query("""

@@ -15,10 +15,21 @@ public class EmpresaTerceirizadaValidation {
 
     private final IEmpresaTerceirizadaRepository empresaRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public EmpresaTerceirizadaValidation(IEmpresaTerceirizadaRepository empresaRepository) {
         this.empresaRepository = empresaRepository;
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(EmpresaTerceirizadaDTO dto) {
         validateFields(dto);
         String cnpj = onlyDigits(dto.getCnpj());
@@ -27,6 +38,12 @@ public class EmpresaTerceirizadaValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, EmpresaTerceirizadaDTO dto) {
         validateId(id);
         validateFields(dto);
@@ -36,12 +53,24 @@ public class EmpresaTerceirizadaValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new FieldValidationException("O identificador da empresa terceirizada é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFields(EmpresaTerceirizadaDTO dto) {
         if (dto == null) {
             throw new FieldValidationException("Os dados da empresa terceirizada são obrigatórios.");
@@ -56,6 +85,11 @@ public class EmpresaTerceirizadaValidation {
         }
     }
 
+    /**
+     * Função: Valida os dados necessários para a operação only digits.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private String onlyDigits(String value) {
         if (value == null) {
             return null;

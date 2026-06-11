@@ -41,6 +41,10 @@ public class ColaboradorFuncaoModel extends BaseModel {
     private FuncaoModel funcao;
 
     @Column(name = "data_inicio", nullable = false)
+    /**
+     * Função: Representa ou apoia os dados usados na operação local date.now.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private LocalDate dataInicio = LocalDate.now();
 
     @Column(name = "data_fim")

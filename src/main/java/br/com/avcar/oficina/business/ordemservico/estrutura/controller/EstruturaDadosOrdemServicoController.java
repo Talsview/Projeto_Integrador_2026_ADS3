@@ -24,17 +24,33 @@ public class EstruturaDadosOrdemServicoController {
 
     private final EstruturaDadosOrdemServicoService service;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public EstruturaDadosOrdemServicoController(EstruturaDadosOrdemServicoService service) {
         this.service = service;
     }
 
     @GetMapping("/fila-atendimento")
+    /**
+     * Função: Atende a rota HTTP responsável por fila atendimento e repassa a regra ao serviço
+     * correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<FilaAtendimentoOrdemServicoDTO>> filaAtendimento() {
         FilaAtendimentoOrdemServicoDTO dto = service.montarFilaAtendimento();
         return ResponseEntity.ok(ApiResponse.success("Fila de atendimento das Ordens de Serviço gerada com sucesso.", dto));
     }
 
     @GetMapping("/ordenar")
+    /**
+     * Função: Atende a rota HTTP responsável por ordenar e repassa a regra ao serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ResultadoOrdenacaoOrdemServicoDTO>> ordenar(
             @RequestParam(defaultValue = "DATA_ABERTURA") CriterioOrdenacaoOrdemServico criterio) {
         ResultadoOrdenacaoOrdemServicoDTO dto = service.ordenar(criterio);
@@ -42,12 +58,24 @@ public class EstruturaDadosOrdemServicoController {
     }
 
     @GetMapping("/pesquisar-linear")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ResultadoPesquisaOrdemServicoDTO>> pesquisarLinear(@RequestParam(required = false) String termo) {
         ResultadoPesquisaOrdemServicoDTO dto = service.pesquisarLinear(termo);
         return ResponseEntity.ok(ApiResponse.success("Pesquisa linear das Ordens de Serviço executada com sucesso.", dto));
     }
 
     @GetMapping("/{idOrdemServico}/total-recursivo")
+    /**
+     * Função: Atende a rota HTTP responsável por calcular total recursivo e repassa a regra ao serviço
+     * correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<CalculoRecursivoTotalOSDTO>> calcularTotalRecursivo(@PathVariable Long idOrdemServico) {
         CalculoRecursivoTotalOSDTO dto = service.calcularTotalRecursivo(idOrdemServico);
         return ResponseEntity.ok(ApiResponse.success("Cálculo recursivo do total da Ordem de Serviço executado com sucesso.", dto));

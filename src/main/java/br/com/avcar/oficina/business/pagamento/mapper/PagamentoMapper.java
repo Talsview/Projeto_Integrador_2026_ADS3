@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class PagamentoMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public PagamentoModel toModel(PagamentoDTO dto, OrdemServicoModel ordemServico) {
         PagamentoModel model = new PagamentoModel();
         model.setOrdemServico(ordemServico);
@@ -21,6 +25,10 @@ public class PagamentoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarModel(PagamentoModel model, PagamentoDTO dto, OrdemServicoModel ordemServico) {
         model.setOrdemServico(ordemServico);
         model.setFormaPagamento(dto.getFormaPagamento());
@@ -32,6 +40,11 @@ public class PagamentoMapper {
         model.setObservacao(normalize(dto.getObservacao()));
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public PagamentoDTO toDto(PagamentoModel model) {
         if (model == null) {
             return null;
@@ -39,6 +52,8 @@ public class PagamentoMapper {
         PagamentoDTO dto = new PagamentoDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         if (model.getOrdemServico() != null) {
             dto.setIdOrdemServico(model.getOrdemServico().getId());
             dto.setNumeroOs(model.getOrdemServico().getNumeroOs());
@@ -51,6 +66,10 @@ public class PagamentoMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String normalize(String value) {
         if (value == null) {
             return null;

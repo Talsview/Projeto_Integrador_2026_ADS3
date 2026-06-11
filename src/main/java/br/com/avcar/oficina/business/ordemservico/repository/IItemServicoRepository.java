@@ -12,10 +12,28 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IItemServicoRepository extends IGenericRepository<ItemServicoModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ItemServicoModel> findAllByOrdemServicoIdAndAtivoTrue(Long idOrdemServico, Pageable pageable);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     List<ItemServicoModel> findByOrdemServicoIdAndAtivoTrue(Long idOrdemServico);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsByOrdemServicoIdAndAtivoTrue(Long idOrdemServico);
 
     @Query("""

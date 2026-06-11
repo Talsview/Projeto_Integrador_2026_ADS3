@@ -26,6 +26,14 @@ public class OrdemServicoDTO extends BaseDTO {
     private BigDecimal valorTotal;
     private String observacao;
     private String statusAtual;
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<HistoricoStatusOrdemDTO> historicoStatus = new ArrayList<>();
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<ItemServicoDTO> itensServico = new ArrayList<>();
 }

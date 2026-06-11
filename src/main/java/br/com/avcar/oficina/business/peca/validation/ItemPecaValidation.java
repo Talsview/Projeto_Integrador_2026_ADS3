@@ -12,27 +12,57 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemPecaValidation {
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(ItemPecaDTO dto) {
         validateFields(dto);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, ItemPecaDTO dto) {
         validateId(id);
         validateFields(dto);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new FieldValidationException("O identificador do item de peça é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateIdOrdemServico(Long idOrdemServico) {
         if (idOrdemServico == null || idOrdemServico <= 0) {
             throw new FieldValidationException("O identificador da ordem de serviço é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFields(ItemPecaDTO dto) {
         if (dto == null) {
             throw new FieldValidationException("Os dados do item de peça são obrigatórios.");

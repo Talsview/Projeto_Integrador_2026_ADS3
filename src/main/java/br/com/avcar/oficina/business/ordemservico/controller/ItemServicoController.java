@@ -27,11 +27,22 @@ public class ItemServicoController {
 
     private final ItemServicoService itemServicoService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ItemServicoController(ItemServicoService itemServicoService) {
         this.itemServicoService = itemServicoService;
     }
 
     @PostMapping
+    /**
+     * Função: Recebe a requisição de cadastro de ordemservico, encaminha os dados para o serviço e
+     * retorna a resposta da operação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ItemServicoDTO>> cadastrar(@RequestBody ItemServicoDTO dto) {
         ItemServicoDTO saved = itemServicoService.cadastrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -39,6 +50,12 @@ public class ItemServicoController {
     }
 
     @PutMapping("/{id}")
+    /**
+     * Função: Recebe a requisição de atualização de ordemservico, preservando a validação e a regra de
+     * negócio no serviço.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ItemServicoDTO>> atualizar(@PathVariable Long id,
                                                                  @RequestBody ItemServicoDTO dto) {
         ItemServicoDTO updated = itemServicoService.atualizar(id, dto);
@@ -46,18 +63,36 @@ public class ItemServicoController {
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ItemServicoDTO>> buscar(@PathVariable Long id) {
         ItemServicoDTO item = itemServicoService.buscar(id);
         return ResponseEntity.ok(ApiResponse.success("Item de Serviço localizado com sucesso.", item));
     }
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ItemServicoDTO>>> listar(Pageable pageable) {
         Page<ItemServicoDTO> itens = itemServicoService.listar(pageable);
         return ResponseEntity.ok(ApiResponse.success("Itens de Serviço localizados com sucesso.", PageResponse.from(itens)));
     }
 
     @GetMapping("/ordem-servico/{idOrdemServico}")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ItemServicoDTO>>> listarPorOrdemServico(@PathVariable Long idOrdemServico,
                                                                                            Pageable pageable) {
         Page<ItemServicoDTO> itens = itemServicoService.listarPorOrdemServico(idOrdemServico, pageable);
@@ -65,6 +100,12 @@ public class ItemServicoController {
     }
 
     @GetMapping("/ordem-servico/{idOrdemServico}/pesquisar")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ItemServicoDTO>>> pesquisarPorOrdemServico(@PathVariable Long idOrdemServico,
                                                                                               @RequestParam String termo,
                                                                                               Pageable pageable) {
@@ -73,6 +114,12 @@ public class ItemServicoController {
     }
 
     @DeleteMapping("/{id}")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<Void>> inativar(@PathVariable Long id) {
         itemServicoService.inativar(id);
         return ResponseEntity.ok(ApiResponse.success("Item de Serviço inativado com sucesso.", null));

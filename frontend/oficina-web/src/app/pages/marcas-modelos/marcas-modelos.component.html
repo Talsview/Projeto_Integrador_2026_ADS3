@@ -12,7 +12,7 @@
     <div class="actions" style="margin-top: 14px;"><button type="button" (click)="salvarMarca()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar marca' }}</button><button class="secondary" type="button" (click)="marcaForm = { nomeMarca: '' }">Limpar</button></div>
 
     <h3>Marcas cadastradas</h3>
-    <div class="actions"><input [(ngModel)]="termoMarca" placeholder="Pesquisar marca"><button type="button" (click)="pesquisarMarcas()">Pesquisar</button><button type="button" class="secondary" (click)="listarMarcas()">Listar</button></div>
+    <div class="actions"><input [(ngModel)]="termoMarca" placeholder="Pesquisar marca"><button type="button" (click)="pesquisarMarcas()">Pesquisar</button><button type="button" class="secondary" (click)="listarMarcas()">Listar</button><button type="button" class="secondary" (click)="abrirMarcasInativas()">Ver inativos</button></div>
     <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Marca</th><th class="actions-col">Ações</th></tr></thead><tbody>
       <tr *ngFor="let marca of marcas"><td>{{ marca.id }}</td><td>{{ marca.nomeMarca }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarMarca(marca)">Editar</button><button class="danger" (click)="excluirMarca(marca)" [disabled]="processando">Inativar</button></td></tr>
       <tr *ngIf="!marcas.length"><td colspan="3">Nenhuma marca encontrada.</td></tr>
@@ -28,7 +28,7 @@
     <div class="actions" style="margin-top: 14px;"><button type="button" (click)="salvarModelo()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar modelo' }}</button><button class="secondary" type="button" (click)="modeloForm = { marcaId: 0, nomeModelo: '' }">Limpar</button></div>
 
     <h3>Modelos cadastrados</h3>
-    <div class="actions"><input [(ngModel)]="termoModelo" placeholder="Pesquisar modelo"><button type="button" (click)="pesquisarModelos()">Pesquisar</button><button type="button" class="secondary" (click)="listarModelos()">Listar</button></div>
+    <div class="actions"><input [(ngModel)]="termoModelo" placeholder="Pesquisar modelo"><button type="button" (click)="pesquisarModelos()">Pesquisar</button><button type="button" class="secondary" (click)="listarModelos()">Listar</button><button type="button" class="secondary" (click)="abrirModelosInativos()">Ver inativos</button></div>
     <p *ngIf="carregando">Carregando modelos...</p>
     <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Marca</th><th>Modelo</th><th class="actions-col">Ações</th></tr></thead><tbody>
       <tr *ngFor="let modelo of modelos"><td>{{ modelo.id }}</td><td>{{ modelo.nomeMarca }}</td><td>{{ modelo.nomeModelo }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editarModelo(modelo)">Editar</button><button class="danger" (click)="excluirModelo(modelo)" [disabled]="processando">Inativar</button></td></tr>
@@ -36,3 +36,32 @@
     </tbody></table></div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarMarcasInativas"
+  titulo="Marcas inativas"
+  descricao="Pesquisar marcas inativas por nome ou data."
+  [registros]="marcasInativas"
+  [camposTexto]="['nomeMarca']"
+  campoPrincipal="nomeMarca"
+  campoSecundario="id"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarMarcaInativa($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>
+
+<app-inativos-panel
+  *ngIf="mostrarModelosInativos"
+  titulo="Modelos inativos"
+  descricao="Pesquisar modelos inativos por nome, marca ou data."
+  [registros]="modelosInativos"
+  [camposTexto]="['nomeModelo','nomeMarca']"
+  campoPrincipal="nomeModelo"
+  campoSecundario="nomeMarca"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarModeloInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

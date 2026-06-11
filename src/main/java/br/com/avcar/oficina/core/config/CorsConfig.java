@@ -11,6 +11,10 @@ import org.springframework.web.filter.CorsFilter;
 public class CorsConfig {
 
     @Bean
+    /**
+     * Função: Configura o filtro CORS usado para permitir a comunicação entre Angular e backend local.
+     * Uso no sistema: viabiliza o uso do frontend no navegador acessando a API Spring Boot.
+     */
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(List.of("http://localhost:4200"));

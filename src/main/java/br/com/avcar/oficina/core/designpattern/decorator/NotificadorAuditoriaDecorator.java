@@ -22,6 +22,15 @@ public class NotificadorAuditoriaDecorator extends NotificadorDecorator {
 
     private final INotificacaoAuditoriaRepository auditoriaRepository;
 
+    /**
+     * Função: Recebe o notificador original e o repositório de auditoria que serão usados para
+     * complementar a notificação.
+     * Padrão aplicado: DECORATOR.
+     * Justificativa: permite acrescentar persistência de auditoria sem alterar a classe concreta que
+     * envia a notificação operacional.
+     * Uso no sistema: registra evidências de notificações ligadas principalmente à mudança de status
+     * da Ordem de Serviço.
+     */
     public NotificadorAuditoriaDecorator(Notificador notificadorDecorado,
                                          INotificacaoAuditoriaRepository auditoriaRepository) {
         super(notificadorDecorado);
@@ -29,6 +38,12 @@ public class NotificadorAuditoriaDecorator extends NotificadorDecorator {
     }
 
     @Override
+    /**
+     * Função: Envia uma notificação operacional e registra a auditoria do envio quando o decorador
+     * está aplicado.
+     * Uso no sistema: apoia a rastreabilidade de eventos importantes, principalmente mudanças de
+     * status da OS.
+     */
     public NotificacaoResultadoDTO notificar(NotificacaoDTO notificacao) {
         NotificacaoResultadoDTO resultado = super.notificar(notificacao);
         resultado.setDataHoraAuditoria(LocalDateTime.now());
@@ -42,6 +57,15 @@ public class NotificadorAuditoriaDecorator extends NotificadorDecorator {
         return resultado;
     }
 
+    /**
+     * Função: Transforma o resultado da notificação em uma entidade de auditoria pronta para gravação
+     * no banco.
+     * Padrão aplicado: DECORATOR.
+     * Justificativa: mantém a responsabilidade adicional do Decorator organizada e separada da regra
+     * de envio da notificação.
+     * Uso no sistema: registra evidências de notificações ligadas principalmente à mudança de status
+     * da Ordem de Serviço.
+     */
     private NotificacaoAuditoriaModel montarAuditoria(NotificacaoResultadoDTO resultado) {
         NotificacaoAuditoriaModel auditoria = new NotificacaoAuditoriaModel();
         auditoria.setModulo(resultado.getModulo());
@@ -57,6 +81,14 @@ public class NotificadorAuditoriaDecorator extends NotificadorDecorator {
         return auditoria;
     }
 
+    /**
+     * Função: Monta uma observação textual indicando o módulo e a referência operacional auditada.
+     * Padrão aplicado: DECORATOR.
+     * Justificativa: enriquece a notificação decorada com informação útil para rastrear mudanças de
+     * status da OS.
+     * Uso no sistema: registra evidências de notificações ligadas principalmente à mudança de status
+     * da Ordem de Serviço.
+     */
     private String montarObservacaoAuditoria(NotificacaoResultadoDTO resultado) {
         return "Notificação persistida para rastreabilidade no módulo " + resultado.getModulo()
                 + " e referência " + resultado.getReferencia() + ".";

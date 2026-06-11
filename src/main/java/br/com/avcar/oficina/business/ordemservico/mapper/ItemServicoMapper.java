@@ -16,6 +16,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemServicoMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ItemServicoModel toModel(ItemServicoDTO dto,
                                     OrdemServicoModel ordemServico,
                                     ServicoModel servico,
@@ -28,6 +32,10 @@ public class ItemServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarModel(ItemServicoModel model,
                                ItemServicoDTO dto,
                                OrdemServicoModel ordemServico,
@@ -44,6 +52,10 @@ public class ItemServicoMapper {
         model.setDataFim(dto.getDataFim());
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ExecucaoServicoTerceirizadoModel toExecucaoTerceirizada(ItemServicoModel itemServico,
                                                                     EmpresaTerceirizadaModel empresa,
                                                                     ItemServicoDTO dto) {
@@ -52,6 +64,10 @@ public class ItemServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarExecucaoTerceirizada(ExecucaoServicoTerceirizadoModel model,
                                                ItemServicoModel itemServico,
                                                EmpresaTerceirizadaModel empresa,
@@ -65,6 +81,11 @@ public class ItemServicoMapper {
         model.setAtivo(Boolean.TRUE);
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public ItemServicoDTO toDto(ItemServicoModel itemServico, ExecucaoServicoTerceirizadoModel execucao) {
         if (itemServico == null) {
             return null;
@@ -107,6 +128,10 @@ public class ItemServicoMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String normalize(String value) {
         if (value == null) {
             return null;

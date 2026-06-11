@@ -5,6 +5,11 @@ import { Peca } from '../../models/peca.model';
 
 @Injectable({ providedIn: 'root' })
 export class PecaApiService extends BaseApiService<Peca> {
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(http: HttpClient) {
     super(http, 'pecas');
   }

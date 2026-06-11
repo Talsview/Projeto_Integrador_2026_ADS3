@@ -21,6 +21,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class OrdemServicoMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public OrdemServicoModel toModel(OrdemServicoDTO dto, ClienteModel cliente, VeiculoModel veiculo) {
         OrdemServicoModel model = new OrdemServicoModel();
         model.setCliente(cliente);
@@ -29,6 +33,10 @@ public class OrdemServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarModel(OrdemServicoModel model, OrdemServicoDTO dto, ClienteModel cliente, VeiculoModel veiculo) {
         model.setCliente(cliente);
         model.setVeiculo(veiculo);
@@ -39,6 +47,10 @@ public class OrdemServicoMapper {
         model.setObservacao(normalize(dto.getObservacao()));
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public OrdemServicoDTO toDetalheDto(OrdemServicoModel ordemServico,
                                         HistoricoStatusOrdemModel statusAtual,
                                         List<HistoricoStatusOrdemDTO> historicoStatus,
@@ -54,6 +66,10 @@ public class OrdemServicoMapper {
         return dto;
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public OrdemServicoResumoDTO toResumoDto(OrdemServicoModel ordemServico, HistoricoStatusOrdemModel statusAtual) {
         if (ordemServico == null) {
             return null;
@@ -61,6 +77,8 @@ public class OrdemServicoMapper {
         OrdemServicoResumoDTO dto = new OrdemServicoResumoDTO();
         dto.setId(ordemServico.getId());
         dto.setAtivo(ordemServico.getAtivo());
+        dto.setDataHoraCriacao(ordemServico.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(ordemServico.getDataHoraAtualizacao());
         dto.setNumeroOs(ordemServico.getNumeroOs());
         dto.setDataAbertura(ordemServico.getDataAbertura());
         dto.setDataFinalizacao(ordemServico.getDataFinalizacao());
@@ -71,11 +89,17 @@ public class OrdemServicoMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação preencher dados comuns.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private void preencherDadosComuns(OrdemServicoDTO dto,
                                       OrdemServicoModel ordemServico,
                                       HistoricoStatusOrdemModel statusAtual) {
         dto.setId(ordemServico.getId());
         dto.setAtivo(ordemServico.getAtivo());
+        dto.setDataHoraCriacao(ordemServico.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(ordemServico.getDataHoraAtualizacao());
         dto.setNumeroOs(ordemServico.getNumeroOs());
         dto.setDataAbertura(ordemServico.getDataAbertura());
         dto.setDataFinalizacao(ordemServico.getDataFinalizacao());
@@ -86,6 +110,10 @@ public class OrdemServicoMapper {
         dto.setStatusAtual(statusAtual == null ? null : statusAtual.getStatusOrdemServico().getNomeStatus());
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação preencher cliente veiculo.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private void preencherClienteVeiculo(OrdemServicoDTO dto, OrdemServicoModel ordemServico) {
         if (ordemServico.getCliente() != null) {
             dto.setIdCliente(ordemServico.getCliente().getId());
@@ -105,6 +133,10 @@ public class OrdemServicoMapper {
         }
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação preencher cliente veiculo.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private void preencherClienteVeiculo(OrdemServicoResumoDTO dto, OrdemServicoModel ordemServico) {
         if (ordemServico.getCliente() != null) {
             dto.setIdCliente(ordemServico.getCliente().getId());
@@ -124,6 +156,10 @@ public class OrdemServicoMapper {
         }
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String normalize(String value) {
         if (value == null) {
             return null;

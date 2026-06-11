@@ -38,17 +38,30 @@ export class ConfiguracoesComponent implements OnInit {
     avisosOperacionais: true
   };
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(
     private readonly dashboardService: DashboardService,
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void {
     this.carregarPreferencias();
     this.aplicarPreferencias();
     this.verificarBanco();
   }
 
+  /**
+   * Função: Controla na tela a etapa verificar banco.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   verificarBanco(): void {
     this.carregandoStatus = true;
     this.erro = undefined;
@@ -69,6 +82,11 @@ export class ConfiguracoesComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvarPreferencias(): void {
     localStorage.setItem('avcar-preferencias', JSON.stringify(this.preferencias));
     this.aplicarPreferencias();
@@ -77,6 +95,10 @@ export class ConfiguracoesComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa restaurar preferencias.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   restaurarPreferencias(): void {
     this.preferencias = { animacoesSutis: true, modoCompacto: false, avisosOperacionais: true };
     localStorage.removeItem('avcar-preferencias');
@@ -86,6 +108,10 @@ export class ConfiguracoesComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa copiar comandos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   copiarComandos(): void {
     const texto = this.comandos.join('\n');
     navigator.clipboard?.writeText(texto)
@@ -93,10 +119,18 @@ export class ConfiguracoesComponent implements OnInit {
       .catch(() => { this.erro = 'Não foi possível copiar. Copie manualmente.'; this.atualizarTela(); });
   }
 
+  /**
+   * Função: Controla na tela a etapa abrir swagger.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   abrirSwagger(): void {
     window.open(this.swaggerUrl, '_blank', 'noopener');
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar preferencias.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private carregarPreferencias(): void {
     const armazenadas = localStorage.getItem('avcar-preferencias');
     if (!armazenadas) return;
@@ -107,11 +141,19 @@ export class ConfiguracoesComponent implements OnInit {
     }
   }
 
+  /**
+   * Função: Controla na tela a etapa aplicar preferencias.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private aplicarPreferencias(): void {
     document.body.classList.toggle('reduce-motion', !this.preferencias.animacoesSutis);
     document.body.classList.toggle('compact-mode', this.preferencias.modoCompacto);
     document.body.classList.toggle('hide-operational-hints', !this.preferencias.avisosOperacionais);
   }
 
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

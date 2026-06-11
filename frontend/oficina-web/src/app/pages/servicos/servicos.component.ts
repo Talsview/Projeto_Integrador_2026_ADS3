@@ -1,14 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InativosPanelComponent } from '../../shared/components/inativos-panel/inativos-panel.component';
 import { finalize, switchMap } from 'rxjs';
 import { ServicoApiService } from '../../core/services/servico-api.service';
 import { numeroNaoNegativo, textoCadastroValido } from '../../core/validation/field-validation';
 import { Servico, TipoServico } from '../../models/servico.model';
 
-@Component({ selector: 'app-servicos', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './servicos.component.html' })
+@Component({ selector: 'app-servicos', standalone: true, imports: [CommonModule, FormsModule, InativosPanelComponent], templateUrl: './servicos.component.html' })
 export class ServicosComponent implements OnInit {
   servicos: Servico[] = [];
+  servicosInativos: Servico[] = [];
+  mostrarInativos = false;
+  carregandoInativos = false;
   termo = '';
   mensagem?: string;
   erro?: string;
@@ -17,7 +21,16 @@ export class ServicosComponent implements OnInit {
   tipos: TipoServico[] = ['INTERNO', 'TERCEIRIZADO'];
   form: Servico = this.formularioInicial();
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(private readonly servicoApi: ServicoApiService, private readonly cdr: ChangeDetectorRef) {}
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void { this.listar(); }
 
   listar(): void {
@@ -28,6 +41,10 @@ export class ServicosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   pesquisar(): void {
     const t = this.termo.trim();
     if (!t) { this.listar(); return; }
@@ -38,6 +55,11 @@ export class ServicosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvar(): void {
     this.mensagem = undefined; this.erro = undefined;
     const erroValidacao = this.validarFormulario();
@@ -52,6 +74,10 @@ export class ServicosComponent implements OnInit {
 
   editar(servico: Servico): void { this.form = { ...servico }; this.atualizarTela(); }
 
+  /**
+   * Função: Solicita confirmação e envia a inativação do registro para a API.
+   * Uso no sistema: remove o item da listagem principal sem apagar seu histórico no banco.
+   */
   excluir(servico: Servico): void {
     if (!servico.id) return;
     this.processando = true; this.erro = undefined; this.atualizarTela();
@@ -62,6 +88,10 @@ export class ServicosComponent implements OnInit {
   }
 
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+  /**
+   * Função: Controla na tela a etapa validar formulario.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarFormulario(): string | undefined {
     if (!textoCadastroValido(this.form.nomeServico, true)) return 'Informe um nome de serviço válido.';
     if (!this.form.tipoServico) return 'Selecione o tipo do serviço.';
@@ -70,6 +100,68 @@ export class ServicosComponent implements OnInit {
     return undefined;
   }
 
+  /**
+   * Função: Controla na tela a etapa formulario inicial.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private formularioInicial(): Servico { return { nomeServico: '', descricao: '', prazoGarantiaDias: 90, valorBase: 0, tipoServico: 'INTERNO', observacaoInterna: '', observacaoTerceirizacao: '' }; }
+
+  /**
+   * Função: Controla na tela a etapa abrir inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  abrirInativos(): void {
+    this.mostrarInativos = true;
+    this.carregarInativos();
+  }
+
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
+  fecharInativos(): void {
+    this.mostrarInativos = false;
+    this.atualizarTela();
+  }
+
+  /**
+   * Função: Controla na tela a etapa carregar inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  carregarInativos(): void {
+    this.carregandoInativos = true;
+    this.erro = undefined;
+    this.atualizarTela();
+    this.servicoApi.listarInativos()
+      .pipe(finalize(() => { this.carregandoInativos = false; this.atualizarTela(); }))
+      .subscribe({
+        next: registros => { this.servicosInativos = [...registros]; this.atualizarTela(); },
+        error: e => { this.erro = e.message ?? 'Não foi possível carregar os inativos.'; this.atualizarTela(); }
+      });
+  }
+
+  /**
+   * Função: Envia à API a reativação do registro escolhido na tela de inativos.
+   * Uso no sistema: permite recuperar cadastros sem criar duplicidade.
+   */
+  ativarInativo(registro: Servico): void {
+    if (!registro.id) return;
+    this.processando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
+    this.atualizarTela();
+    this.servicoApi.ativar(registro.id)
+      .pipe(switchMap(() => this.servicoApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); }))
+      .subscribe({
+        next: registros => {
+          this.servicos = [...registros];
+          this.mensagem = 'Cadastro ativado.';
+          this.carregarInativos();
+          this.atualizarTela();
+        },
+        error: e => { this.erro = e.message ?? 'Não foi possível ativar o cadastro.'; this.atualizarTela(); }
+      });
+  }
+
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

@@ -23,6 +23,11 @@ public class ColaboradorValidation {
     private final IColaboradorRepository colaboradorRepository;
     private final IFuncaoRepository funcaoRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ColaboradorValidation(IPessoaRepository pessoaRepository,
                                  IColaboradorRepository colaboradorRepository,
                                  IFuncaoRepository funcaoRepository) {
@@ -31,24 +36,48 @@ public class ColaboradorValidation {
         this.funcaoRepository = funcaoRepository;
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(ColaboradorDTO dto) {
         validateFields(dto);
         validatePessoaParaInsert(dto);
         validateFuncoes(extractFuncoesIds(dto));
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, ColaboradorDTO dto) {
         validateId(id);
         validateFields(dto);
         validateFuncoes(extractFuncoesIds(dto));
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new FieldValidationException("O identificador do colaborador é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public List<Long> extractFuncoesIds(ColaboradorDTO dto) {
         Set<Long> ids = new LinkedHashSet<>();
 
@@ -66,6 +95,12 @@ public class ColaboradorValidation {
         return new ArrayList<>(ids);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFields(ColaboradorDTO dto) {
         if (dto == null) {
             throw new FieldValidationException("Os dados do colaborador são obrigatórios.");
@@ -80,6 +115,12 @@ public class ColaboradorValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validatePessoaParaInsert(ColaboradorDTO dto) {
         if (dto.getPessoaId() == null) {
             return;
@@ -95,6 +136,12 @@ public class ColaboradorValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFuncoes(List<Long> funcoesIds) {
         if (funcoesIds == null || funcoesIds.isEmpty()) {
             throw new FieldValidationException("O colaborador deve possuir ao menos uma função.");

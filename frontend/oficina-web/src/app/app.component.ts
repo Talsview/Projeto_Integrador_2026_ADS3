@@ -15,32 +15,56 @@ export class AppComponent {
 
   protected menuAberto?: string;
 
+  /**
+   * Função: Controla na tela a etapa alternar menu.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   protected alternarMenu(titulo: string, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     this.menuAberto = this.menuAberto === titulo ? undefined : titulo;
   }
 
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
   protected fecharMenu(): void {
     this.menuAberto = undefined;
   }
 
   @HostListener('document:click', ['$event'])
+  /**
+   * Função: Controla na tela a etapa ao clicar no documento.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   protected aoClicarNoDocumento(event: MouseEvent): void {
     this.fecharMenu();
     this.animarConteudoLongo(event.target as HTMLElement);
   }
 
   @HostListener('document:focusin', ['$event'])
+  /**
+   * Função: Controla na tela a etapa ao focar no documento.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   protected aoFocarNoDocumento(event: FocusEvent): void {
     this.animarConteudoLongo(event.target as HTMLElement);
   }
 
   @HostListener('document:keydown.escape')
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
   protected fecharMenuAoPressionarEscape(): void {
     this.fecharMenu();
   }
 
+  /**
+   * Função: Controla na tela a etapa animar conteudo longo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private animarConteudoLongo(elemento: HTMLElement | null): void {
     const alvo = this.encontrarElementoAnimavel(elemento);
     if (!alvo || document.body.classList.contains('reduce-motion')) return;
@@ -60,6 +84,10 @@ export class AppComponent {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa encontrar elemento animavel.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private encontrarElementoAnimavel(elemento: HTMLElement | null): HTMLElement | null {
     if (!elemento) return null;
     const seletor = 'input:not([type="checkbox"]):not([type="radio"]), textarea, select, button, .dropdown-item, .primary-shortcut, .api-link';
@@ -68,6 +96,10 @@ export class AppComponent {
     return encontrado instanceof HTMLElement ? encontrado : null;
   }
 
+  /**
+   * Função: Controla na tela a etapa obter texto do elemento.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private obterTextoDoElemento(elemento: HTMLElement): string {
     if (elemento instanceof HTMLInputElement || elemento instanceof HTMLTextAreaElement) {
       return elemento.value || elemento.placeholder || '';
@@ -78,6 +110,10 @@ export class AppComponent {
     return elemento.textContent?.trim() ?? '';
   }
 
+  /**
+   * Função: Controla na tela a etapa animar scroll horizontal.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private animarScrollHorizontal(elemento: HTMLElement, excesso: number): void {
     const duracao = Math.min(2800, Math.max(1200, excesso * 28));
     const inicio = performance.now();

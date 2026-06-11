@@ -16,14 +16,27 @@ import java.util.List;
  */
 public class CalculadoraRecursivaTotalOrdemServico {
 
+    /**
+     * Função: Soma os valores totais dos serviços lançados na Ordem de Serviço.
+     * Uso no sistema: compõe o total financeiro do documento e confirma o custo da mão de obra.
+     */
     public BigDecimal somarServicos(List<ItemServicoModel> itens) {
         return somarServicos(itens, 0);
     }
 
+    /**
+     * Função: Soma os valores totais das peças aplicadas na Ordem de Serviço.
+     * Uso no sistema: compõe o total financeiro do documento e mantém a separação entre peças e
+     * serviços.
+     */
     public BigDecimal somarPecas(List<ItemPecaModel> itens) {
         return somarPecas(itens, 0);
     }
 
+    /**
+     * Função: Soma os valores totais dos serviços lançados na Ordem de Serviço.
+     * Uso no sistema: compõe o total financeiro do documento e confirma o custo da mão de obra.
+     */
     private BigDecimal somarServicos(List<ItemServicoModel> itens, int indice) {
         if (itens == null || indice >= itens.size()) {
             return BigDecimal.ZERO;
@@ -34,6 +47,11 @@ public class CalculadoraRecursivaTotalOrdemServico {
         return valorAtual.add(somarServicos(itens, indice + 1));
     }
 
+    /**
+     * Função: Soma os valores totais das peças aplicadas na Ordem de Serviço.
+     * Uso no sistema: compõe o total financeiro do documento e mantém a separação entre peças e
+     * serviços.
+     */
     private BigDecimal somarPecas(List<ItemPecaModel> itens, int indice) {
         if (itens == null || indice >= itens.size()) {
             return BigDecimal.ZERO;

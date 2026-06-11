@@ -23,6 +23,11 @@ public class VeiculoValidation {
     private final IVeiculoRepository veiculoRepository;
     private final VeiculoMapper veiculoMapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public VeiculoValidation(IModeloRepository modeloRepository,
                              IClienteRepository clienteRepository,
                              IVeiculoRepository veiculoRepository,
@@ -33,6 +38,12 @@ public class VeiculoValidation {
         this.veiculoMapper = veiculoMapper;
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(VeiculoDTO dto) {
         validateFields(dto, true);
         validateModelo(dto.getModeloId());
@@ -49,6 +60,12 @@ public class VeiculoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, VeiculoDTO dto) {
         validateId(id);
         validateFields(dto, false);
@@ -65,6 +82,12 @@ public class VeiculoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateTransferencia(Long veiculoId,
                                       TransferenciaProprietarioDTO dto,
                                       HistoricoProprietarioModel proprietarioAtual) {
@@ -86,12 +109,24 @@ public class VeiculoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new FieldValidationException("O identificador do veículo é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFields(VeiculoDTO dto, boolean validarProprietario) {
         if (dto == null) {
             throw new FieldValidationException("Os dados do veículo são obrigatórios.");
@@ -113,12 +148,24 @@ public class VeiculoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateModelo(Long modeloId) {
         if (modeloRepository.findByIdAndAtivoTrue(modeloId).isEmpty()) {
             throw new FieldValidationException("O modelo informado não foi localizado ou está inativo.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateCliente(Long clienteId, String mensagemObrigatorio) {
         if (clienteId == null || clienteId <= 0) {
             throw new FieldValidationException(mensagemObrigatorio);

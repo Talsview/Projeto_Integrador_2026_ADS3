@@ -15,13 +15,31 @@ public interface IModeloRepository extends IGenericRepository<ModeloModel> {
 
     @Override
     @EntityGraph(attributePaths = "marca")
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<ModeloModel> findByIdAndAtivoTrue(Long id);
 
     @Override
     @EntityGraph(attributePaths = "marca")
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ModeloModel> findAllByAtivoTrue(Pageable pageable);
 
     @EntityGraph(attributePaths = "marca")
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ModeloModel> findByMarcaIdAndAtivoTrue(Long marcaId, Pageable pageable);
 
     @EntityGraph(attributePaths = "marca")
@@ -36,6 +54,12 @@ public interface IModeloRepository extends IGenericRepository<ModeloModel> {
                  OR LOWER(ma.nomeMarca) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ModeloModel> search(@Param("termo") String termo, Pageable pageable);
 
     @Query("""
@@ -45,6 +69,12 @@ public interface IModeloRepository extends IGenericRepository<ModeloModel> {
               AND m.marca.id = :marcaId
               AND LOWER(m.nomeModelo) = LOWER(:nomeModelo)
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByMarcaAndNome(@Param("marcaId") Long marcaId, @Param("nomeModelo") String nomeModelo);
 
     @Query("""

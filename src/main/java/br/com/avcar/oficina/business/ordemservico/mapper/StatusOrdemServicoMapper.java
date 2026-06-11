@@ -10,6 +10,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class StatusOrdemServicoMapper {
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public StatusOrdemServicoDTO toDto(StatusOrdemServicoModel model) {
         if (model == null) {
             return null;
@@ -17,6 +22,8 @@ public class StatusOrdemServicoMapper {
         StatusOrdemServicoDTO dto = new StatusOrdemServicoDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         dto.setNomeStatus(model.getNomeStatus());
         dto.setOrdemFluxo(model.getOrdemFluxo());
         dto.setDescricao(model.getDescricao());

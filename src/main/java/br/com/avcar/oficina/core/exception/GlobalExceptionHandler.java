@@ -19,6 +19,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
+    /**
+     * Função: Trata exceções de negócio conhecidas e monta uma resposta padronizada.
+     * Uso no sistema: impede que erros controlados apareçam como falhas técnicas para o usuário.
+     */
     public ResponseEntity<ApiResponse<ErrorResponse>> handleBaseException(BaseException exception) {
         HttpStatus status = exception instanceof FieldValidationException
                 ? HttpStatus.BAD_REQUEST
@@ -36,6 +40,11 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação handle method argument not
+     * valid.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     public ResponseEntity<ApiResponse<ErrorResponse>> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
         ErrorResponse error = new ErrorResponse(
                 "Erro de Validação",
@@ -51,6 +60,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
+    /**
+     * Função: Trata requisições com JSON inválido ou corpo incompatível com o DTO esperado.
+     * Uso no sistema: retorna erro compreensível quando a tela envia dados malformados.
+     */
     public ResponseEntity<ApiResponse<ErrorResponse>> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
         ErrorResponse error = new ErrorResponse(
                 "Requisição Inválida",
@@ -64,6 +77,10 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    /**
+     * Função: Trata falhas inesperadas e retorna resposta segura para a API.
+     * Uso no sistema: evita expor detalhes internos do backend para o usuário final.
+     */
     public ResponseEntity<ApiResponse<ErrorResponse>> handleUnexpectedException(Exception exception) {
         ErrorResponse error = new ErrorResponse(
                 "Erro Interno",

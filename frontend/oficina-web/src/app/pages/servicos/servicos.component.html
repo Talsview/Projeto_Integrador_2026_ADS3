@@ -1,5 +1,9 @@
 <h1 class="page-title">Serviços</h1>
 <p class="page-subtitle">Cadastro de serviços internos e terceirizados. Todo serviço deve ser classificado como interno ou terceirizado, nunca ambos.</p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 
 <div class="grid two">
   <section class="card">
@@ -27,3 +31,18 @@
     </tbody></table></div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Serviços inativos"
+  descricao="Pesquisar serviços inativos por nome, tipo ou data."
+  [registros]="servicosInativos"
+  [camposTexto]="['nomeServico','descricao','tipoServico']"
+  campoPrincipal="nomeServico"
+  campoSecundario="tipoServico"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

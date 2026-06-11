@@ -43,6 +43,11 @@ export class DashboardComponent implements OnInit {
   carregandoBanco = false;
   erro?: string;
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(
     private readonly dashboardService: DashboardService,
     private readonly clienteService: ClienteApiService,
@@ -52,11 +57,19 @@ export class DashboardComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void {
     this.carregarVisaoGeral();
     this.verificarBanco();
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar visao geral.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   carregarVisaoGeral(): void {
     this.carregandoVisaoGeral = true;
 
@@ -100,6 +113,10 @@ export class DashboardComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Controla na tela a etapa verificar banco.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   verificarBanco(): void {
     this.carregandoBanco = true;
     this.erro = undefined;
@@ -126,6 +143,10 @@ export class DashboardComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Controla na tela a etapa percentual.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   percentual(valor: number): number {
     if (!this.totalOrdens) {
       return 0;
@@ -133,6 +154,10 @@ export class DashboardComponent implements OnInit {
     return Math.round((valor / this.totalOrdens) * 100);
   }
 
+  /**
+   * Função: Controla na tela a etapa classe badge status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   classeBadgeStatus(status?: string): string {
     switch (this.normalizarStatus(status)) {
       case 'FINALIZADO': return 'success';
@@ -142,6 +167,10 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private normalizarStatus(status?: string): string {
     return String(status || 'ORCAMENTO').toUpperCase();
   }

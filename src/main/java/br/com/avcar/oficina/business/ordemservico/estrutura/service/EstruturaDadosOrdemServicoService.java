@@ -45,6 +45,11 @@ public class EstruturaDadosOrdemServicoService {
     private final IItemPecaRepository itemPecaRepository;
     private final OrdemServicoMapper ordemServicoMapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public EstruturaDadosOrdemServicoService(IOrdemServicoRepository ordemServicoRepository,
                                              IHistoricoStatusOrdemRepository historicoStatusRepository,
                                              IItemServicoRepository itemServicoRepository,
@@ -163,6 +168,11 @@ public class EstruturaDadosOrdemServicoService {
         return dto;
     }
 
+    /**
+     * Função: Carrega as Ordens de Serviço ativas usadas nas demonstrações de fila, busca, ordenação e
+     * recursividade.
+     * Uso no sistema: alimenta as estruturas de dados com registros reais cadastrados no banco.
+     */
     private List<OrdemServicoResumoDTO> carregarResumosAtivos() {
         return ordemServicoRepository.findAllByAtivoTrue(Pageable.unpaged())
                 .getContent()
@@ -171,6 +181,10 @@ public class EstruturaDadosOrdemServicoService {
                 .toList();
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar resumo.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private OrdemServicoResumoDTO montarResumo(OrdemServicoModel ordemServico) {
         HistoricoStatusOrdemModel statusAtual = historicoStatusRepository
                 .findHistoricoFluxoDesc(ordemServico.getId())
@@ -180,6 +194,11 @@ public class EstruturaDadosOrdemServicoService {
         return ordemServicoMapper.toResumoDto(ordemServico, statusAtual);
     }
 
+    /**
+     * Função: Escolhe o ordenador correto conforme o critério solicitado na tela.
+     * Uso no sistema: permite ordenar OS por data, valor ou prioridade usando o mesmo fluxo de
+     * ordenação manual.
+     */
     private OrdenadorTemplate<OrdemServicoResumoDTO> selecionarOrdenador(CriterioOrdenacaoOrdemServico criterio) {
         return switch (criterio) {
             case VALOR_TOTAL -> new OrdenadorOrdemServicoPorValorTotal();
@@ -188,6 +207,11 @@ public class EstruturaDadosOrdemServicoService {
         };
     }
 
+    /**
+     * Função: Verifica se uma OS contém o termo pesquisado em campos como número, cliente, veículo ou
+     * placa.
+     * Uso no sistema: sustenta a busca linear exigida pela disciplina de Estrutura de Dados.
+     */
     private boolean correspondeAoTermo(OrdemServicoResumoDTO resumo, String termoNormalizado) {
         if (termoNormalizado == null || termoNormalizado.isBlank()) {
             return true;
@@ -200,14 +224,27 @@ public class EstruturaDadosOrdemServicoService {
                 || contem(resumo.getPrioridade() == null ? null : resumo.getPrioridade().name(), termoNormalizado);
     }
 
+    /**
+     * Função: Compara um texto normalizado com o termo pesquisado, tratando nulos com segurança.
+     * Uso no sistema: evita erro de busca quando algum campo da OS está vazio.
+     */
     private boolean contem(String valor, String termoNormalizado) {
         return normalizarTexto(valor).contains(termoNormalizado);
     }
 
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     private String normalizarStatus(String status) {
         return status == null ? null : status.trim().toUpperCase();
     }
 
+    /**
+     * Função: Remove diferenças de maiúsculas, minúsculas e acentos antes de comparar textos.
+     * Uso no sistema: torna a pesquisa da OS mais flexível para o usuário.
+     */
     private String normalizarTexto(String valor) {
         if (valor == null) {
             return "";

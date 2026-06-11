@@ -46,6 +46,11 @@ public class ItemServicoService {
     private final ItemServicoValidation validation;
     private final ItemServicoMapper mapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ItemServicoService(IItemServicoRepository itemServicoRepository,
                               IExecucaoServicoTerceirizadoRepository execucaoRepository,
                               IColaboradorRepository colaboradorRepository,
@@ -69,6 +74,12 @@ public class ItemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de
+     * ordemservico.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public ItemServicoDTO cadastrar(ItemServicoDTO dto) {
         if (dto == null) {
             validation.validateInsert(null);
@@ -91,6 +102,12 @@ public class ItemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Busca o registro ativo, aplica as alterações permitidas e salva a atualização de
+     * ordemservico.
+     * Uso no sistema: garante que alterações passem por validação e não quebrem vínculos já existentes
+     * no sistema.
+     */
     public ItemServicoDTO atualizar(Long id, ItemServicoDTO dto) {
         validation.validateId(id);
         if (dto == null) {
@@ -121,6 +138,11 @@ public class ItemServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public ItemServicoDTO buscar(Long id) {
         validation.validateId(id);
         ItemServicoModel itemServico = buscarModelAtivo(id);
@@ -128,12 +150,24 @@ public class ItemServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<ItemServicoDTO> listar(Pageable pageable) {
         return itemServicoRepository.findAllByAtivoTrue(pageable)
                 .map(item -> mapper.toDto(item, buscarExecucaoTerceirizadaOuNula(item.getId())));
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<ItemServicoDTO> listarPorOrdemServico(Long idOrdemServico, Pageable pageable) {
         validation.validateIdOrdemServico(idOrdemServico);
         return itemServicoRepository.findAllByOrdemServicoIdAndAtivoTrue(idOrdemServico, pageable)
@@ -141,6 +175,12 @@ public class ItemServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<ItemServicoDTO> pesquisarPorOrdemServico(Long idOrdemServico, String termo, Pageable pageable) {
         validation.validateIdOrdemServico(idOrdemServico);
         if (termo == null || termo.isBlank()) {
@@ -151,6 +191,12 @@ public class ItemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativar(Long id) {
         validation.validateId(id);
         ItemServicoModel itemServico = buscarModelAtivo(id);
@@ -167,11 +213,21 @@ public class ItemServicoService {
         ordemServicoService.recalcularValorTotal(itemServico.getOrdemServico().getId());
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public ItemServicoModel buscarModelAtivo(Long id) {
         return itemServicoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Item de Serviço não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Processa dados de serviço executado, responsável, valor e vínculo com a Ordem de
+     * Serviço.
+     * Uso no sistema: garante que cada serviço da OS tenha registro próprio e colaborador responsável.
+     */
     private void completarDadosAutomaticosDoServico(ItemServicoDTO dto, ServicoModel servico) {
         if ((dto.getValorUnitario() == null || dto.getValorUnitario().compareTo(BigDecimal.ZERO) == 0)
                 && servico.getValorBase() != null
@@ -183,15 +239,29 @@ public class ItemServicoService {
         }
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private ColaboradorModel buscarColaboradorAtivo(Long id) {
         return colaboradorRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Colaborador responsável não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Processa dados de serviço executado, responsável, valor e vínculo com a Ordem de
+     * Serviço.
+     * Uso no sistema: garante que cada serviço da OS tenha registro próprio e colaborador responsável.
+     */
     private boolean isServicoTerceirizado(ServicoModel servico) {
         return servicoTerceirizadoRepository.findByIdAndAtivoTrue(servico.getId()).isPresent();
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar terceirizacao.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarTerceirizacao(ServicoModel servico, ItemServicoDTO dto) {
         boolean terceirizado = isServicoTerceirizado(servico);
         if (terceirizado && (dto.getIdEmpresaTerceirizada() == null || dto.getIdEmpresaTerceirizada() <= 0)) {
@@ -202,6 +272,12 @@ public class ItemServicoService {
         }
     }
 
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de
+     * ordemservico.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     private void salvarOuAtualizarExecucaoTerceirizada(ItemServicoModel itemServico, ItemServicoDTO dto, ServicoModel servico) {
         boolean terceirizado = isServicoTerceirizado(servico);
 
@@ -220,6 +296,11 @@ public class ItemServicoService {
         execucaoRepository.save(execucao);
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private ExecucaoServicoTerceirizadoModel buscarExecucaoTerceirizadaOuNula(Long idItemServico) {
         return execucaoRepository.findByItemServicoIdAndAtivoTrue(idItemServico).orElse(null);
     }

@@ -8,6 +8,10 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: false, runCoalescing: false }),
     provideRouter(routes),
+    /**
+     * Função: Controla na tela a etapa provide http client.
+     * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+     */
     provideHttpClient(withInterceptors([apiErrorInterceptor]))
   ]
 };

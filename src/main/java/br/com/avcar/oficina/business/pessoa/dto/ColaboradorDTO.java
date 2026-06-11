@@ -25,6 +25,14 @@ public class ColaboradorDTO extends BaseDTO {
     private String endereco;
     private LocalDate dataAdmissao;
     private StatusColaborador statusColaborador;
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<Long> funcoesIds = new ArrayList<>();
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<ColaboradorFuncaoDTO> funcoes = new ArrayList<>();
 }

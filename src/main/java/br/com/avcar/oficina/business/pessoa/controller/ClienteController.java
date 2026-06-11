@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,11 +32,22 @@ public class ClienteController {
 
     private final ClienteService clienteService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ClienteController(ClienteService clienteService) {
         this.clienteService = clienteService;
     }
 
     @PostMapping("/pessoa-fisica")
+    /**
+     * Função: Recebe a requisição de cadastro de cliente, encaminha os dados para o serviço e retorna
+     * a resposta da operação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ClientePessoaFisicaDTO>> cadastrarPessoaFisica(@RequestBody ClientePessoaFisicaDTO dto) {
         ClientePessoaFisicaDTO saved = clienteService.cadastrarPessoaFisica(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -43,6 +55,12 @@ public class ClienteController {
     }
 
     @PostMapping("/pessoa-juridica")
+    /**
+     * Função: Recebe a requisição de cadastro de cliente, encaminha os dados para o serviço e retorna
+     * a resposta da operação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ClientePessoaJuridicaDTO>> cadastrarPessoaJuridica(@RequestBody ClientePessoaJuridicaDTO dto) {
         ClientePessoaJuridicaDTO saved = clienteService.cadastrarPessoaJuridica(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -50,6 +68,12 @@ public class ClienteController {
     }
 
     @PutMapping("/pessoa-fisica/{id}")
+    /**
+     * Função: Recebe a requisição de atualização de cliente, preservando a validação e a regra de
+     * negócio no serviço.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ClientePessoaFisicaDTO>> atualizarPessoaFisica(@PathVariable Long id,
                                                                                      @RequestBody ClientePessoaFisicaDTO dto) {
         ClientePessoaFisicaDTO updated = clienteService.atualizarPessoaFisica(id, dto);
@@ -57,6 +81,12 @@ public class ClienteController {
     }
 
     @PutMapping("/pessoa-juridica/{id}")
+    /**
+     * Função: Recebe a requisição de atualização de cliente, preservando a validação e a regra de
+     * negócio no serviço.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ClientePessoaJuridicaDTO>> atualizarPessoaJuridica(@PathVariable Long id,
                                                                                          @RequestBody ClientePessoaJuridicaDTO dto) {
         ClientePessoaJuridicaDTO updated = clienteService.atualizarPessoaJuridica(id, dto);
@@ -64,24 +94,74 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Recebe filtros de consulta de cliente, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ClienteDetalheDTO>> buscarDetalhado(@PathVariable Long id) {
         ClienteDetalheDTO detalhe = clienteService.buscarDetalhado(id);
         return ResponseEntity.ok(ApiResponse.success("Cliente localizado com sucesso.", detalhe));
     }
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de cliente, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ClienteResumoDTO>>> listar(Pageable pageable) {
         Page<ClienteResumoDTO> clientes = clienteService.listar(pageable);
         return ResponseEntity.ok(ApiResponse.success("Clientes localizados com sucesso.", PageResponse.from(clientes)));
     }
 
     @GetMapping("/pesquisar")
+    /**
+     * Função: Recebe filtros de consulta de cliente, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ClienteResumoDTO>>> pesquisar(@RequestParam String termo, Pageable pageable) {
         Page<ClienteResumoDTO> clientes = clienteService.pesquisar(termo, pageable);
         return ResponseEntity.ok(ApiResponse.success("Pesquisa de clientes executada com sucesso.", PageResponse.from(clientes)));
     }
 
+
+
+    @GetMapping("/inativos")
+    /**
+     * Função: Atende a requisição de consulta de registros inativados e devolve os dados para a tela
+     * de reativação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<PageResponse<ClienteResumoDTO>>> listarInativos(Pageable pageable) {
+        Page<ClienteResumoDTO> registros = clienteService.listarInativos(pageable);
+        return ResponseEntity.ok(ApiResponse.success("Clientes inativos localizados.", PageResponse.from(registros)));
+    }
+
+    @PatchMapping("/{id}/ativar")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<ClienteResumoDTO>> ativar(@PathVariable Long id) {
+        ClienteResumoDTO registro = clienteService.ativar(id);
+        return ResponseEntity.ok(ApiResponse.success("Cliente ativado.", registro));
+    }
+
     @DeleteMapping("/{id}")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<Void>> inativar(@PathVariable Long id) {
         clienteService.inativar(id);
         return ResponseEntity.ok(ApiResponse.success("Cliente inativado com sucesso.", null));

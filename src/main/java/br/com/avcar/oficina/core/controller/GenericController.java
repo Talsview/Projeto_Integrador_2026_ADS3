@@ -34,12 +34,23 @@ public abstract class GenericController<
     protected final S service;
     protected final M mapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     protected GenericController(S service, M mapper) {
         this.service = service;
         this.mapper = mapper;
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Atende a rota HTTP responsável por find by id e repassa a regra ao serviço
+     * correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<D>> findById(@PathVariable Long id) {
         E entity = service.findByIdActive(id);
         D dto = mapper.toDto(entity);
@@ -47,6 +58,11 @@ public abstract class GenericController<
     }
 
     @GetMapping
+    /**
+     * Função: Atende a rota HTTP responsável por find all e repassa a regra ao serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<D>>> findAll(Pageable pageable) {
         Page<E> entities = service.findAllActive(pageable);
         Page<D> dtos = mapper.toDtoPage(entities);
@@ -54,6 +70,11 @@ public abstract class GenericController<
     }
 
     @PostMapping
+    /**
+     * Função: Atende a rota HTTP responsável por insert e repassa a regra ao serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<D>> insert(@RequestBody D dto) {
         E entity = mapper.toEntity(dto);
         E saved = service.insert(entity);
@@ -63,6 +84,11 @@ public abstract class GenericController<
     }
 
     @PutMapping("/{id}")
+    /**
+     * Função: Atende a rota HTTP responsável por update e repassa a regra ao serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<D>> update(@PathVariable Long id, @RequestBody D dto) {
         E entity = mapper.toEntity(dto);
         entity.setId(id);
@@ -71,6 +97,11 @@ public abstract class GenericController<
     }
 
     @DeleteMapping("/{id}")
+    /**
+     * Função: Atende a rota HTTP responsável por delete e repassa a regra ao serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<Void>> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.ok(ApiResponse.success("Registro inativado com sucesso.", null));

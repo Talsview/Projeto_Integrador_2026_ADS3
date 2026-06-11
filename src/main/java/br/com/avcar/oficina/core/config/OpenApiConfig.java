@@ -9,6 +9,11 @@ import org.springframework.context.annotation.Configuration;
 public class OpenApiConfig {
 
     @Bean
+    /**
+     * Função: Configura o título, a descrição e a versão da documentação Swagger/OpenAPI da oficina.
+     * Uso no sistema: facilita testar e apresentar os endpoints do backend durante o desenvolvimento
+     * e a banca do projeto.
+     */
     public OpenAPI oficinaOpenAPI() {
         return new OpenAPI()
                 .info(new Info()

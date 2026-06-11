@@ -12,8 +12,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IStatusOrdemServicoRepository extends IGenericRepository<StatusOrdemServicoModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<StatusOrdemServicoModel> findByNomeStatusAndAtivoTrue(String nomeStatus);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<StatusOrdemServicoModel> findByOrdemFluxoAndAtivoTrue(Integer ordemFluxo);
 
     @Query("""
@@ -22,6 +34,12 @@ public interface IStatusOrdemServicoRepository extends IGenericRepository<Status
             WHERE s.ativo = true
          ORDER BY s.ordemFluxo ASC
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<StatusOrdemServicoModel> findAllActiveOrderByFluxo(Pageable pageable);
 
     @Query("""
@@ -34,5 +52,11 @@ public interface IStatusOrdemServicoRepository extends IGenericRepository<Status
               )
          ORDER BY s.ordemFluxo ASC
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<StatusOrdemServicoModel> search(@Param("termo") String termo, Pageable pageable);
 }

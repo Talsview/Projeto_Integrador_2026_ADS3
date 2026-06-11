@@ -14,5 +14,9 @@ public class ResultadoPesquisaOrdemServicoDTO {
     private String algoritmoUtilizado;
     private String termoPesquisado;
     private Integer quantidadeEncontrada;
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<OrdemServicoResumoDTO> resultados = new ArrayList<>();
 }

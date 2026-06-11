@@ -15,10 +15,21 @@ public class ServicoValidation {
 
     private final IServicoRepository servicoRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ServicoValidation(IServicoRepository servicoRepository) {
         this.servicoRepository = servicoRepository;
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(ServicoDTO dto) {
         validateFields(dto);
         if (servicoRepository.existsActiveByNome(dto.getNomeServico().trim())) {
@@ -26,6 +37,12 @@ public class ServicoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, ServicoDTO dto) {
         validateId(id);
         validateFields(dto);
@@ -34,12 +51,24 @@ public class ServicoValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new FieldValidationException("O identificador do serviço é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFields(ServicoDTO dto) {
         if (dto == null) {
             throw new FieldValidationException("Os dados do serviço são obrigatórios.");

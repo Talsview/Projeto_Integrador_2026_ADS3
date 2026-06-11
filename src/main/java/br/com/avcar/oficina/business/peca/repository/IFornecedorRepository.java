@@ -22,6 +22,12 @@ public interface IFornecedorRepository extends IGenericRepository<FornecedorMode
                  OR LOWER(COALESCE(f.email, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<FornecedorModel> search(@Param("termo") String termo, Pageable pageable);
 
     @Query("""
@@ -31,6 +37,12 @@ public interface IFornecedorRepository extends IGenericRepository<FornecedorMode
               AND f.cnpj IS NOT NULL
               AND f.cnpj = :cnpj
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByCnpj(@Param("cnpj") String cnpj);
 
     @Query("""
@@ -41,5 +53,11 @@ public interface IFornecedorRepository extends IGenericRepository<FornecedorMode
               AND f.cnpj IS NOT NULL
               AND f.cnpj = :cnpj
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByCnpjAndIdNot(@Param("cnpj") String cnpj, @Param("id") Long id);
 }

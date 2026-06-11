@@ -1,5 +1,9 @@
 <h1 class="page-title">Ordens de Serviço</h1>
 <p class="page-subtitle">Registro principal do atendimento, com cliente, veículo, prioridade e rastreabilidade. O envio do orçamento para pagamento é realizado na tela Itens da OS, após a inclusão dos serviços e peças.</p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 
 <section class="card os-form-card">
     <h2>{{ form.id ? 'Editar OS' : 'Nova OS' }}</h2>
@@ -75,10 +79,25 @@
 
 <section class="card" style="margin-top: 16px;">
   <h2>Consulta de OS</h2>
-  <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar por número, placa ou cliente" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar todos</button></div>
+  <div class="actions os-consulta-filtros"><input [(ngModel)]="termo" placeholder="Pesquisar por número, placa ou cliente" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar todos</button><button class="secondary" (click)="verOsConcluidas()">Ver concluídas</button><select [(ngModel)]="filtroStatusConsulta"><option [ngValue]="''">Todos os status</option><option *ngFor="let status of statusConsulta" [ngValue]="status" [hidden]="!status">{{ status }}</option></select><input type="date" [(ngModel)]="filtroDataAberturaInicio" title="Data inicial"><input type="date" [(ngModel)]="filtroDataAberturaFim" title="Data final"><button class="secondary" (click)="limparFiltrosConsulta()">Limpar filtros</button></div>
   <p *ngIf="carregando">Carregando ordens de serviço...</p>
   <div class="table-wrap" style="margin-top: 14px;"><table><thead><tr><th>Nº OS</th><th>Cliente</th><th>Placa</th><th>Status</th><th>Prioridade</th><th>Total</th><th class="actions-col">Ações</th></tr></thead><tbody>
-    <tr *ngFor="let ordem of ordens"><td>{{ ordem.numeroOs }}</td><td>{{ ordem.nomeCliente }}</td><td>{{ ordem.placaVeiculo }}</td><td><span class="badge">{{ ordem.statusAtual }}</span></td><td>{{ ordem.prioridade }}</td><td>{{ ordem.valorTotal | currency:'BRL' }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editar(ordem)">Editar</button><button class="secondary" (click)="baixarNotaFiscal(ordem)" [disabled]="processando">Nota PDF</button><button class="danger" (click)="excluir(ordem)" [disabled]="processando">Inativar</button></td></tr>
-    <tr *ngIf="!ordens.length && !carregando"><td colspan="7">Nenhuma ordem de serviço encontrada.</td></tr>
+    <tr *ngFor="let ordem of ordensConsultaFiltradas()"><td>{{ ordem.numeroOs }}</td><td>{{ ordem.nomeCliente }}</td><td>{{ ordem.placaVeiculo }}</td><td><span class="badge">{{ ordem.statusAtual }}</span></td><td>{{ ordem.prioridade }}</td><td>{{ ordem.valorTotal | currency:'BRL' }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editar(ordem)">Editar</button><button class="secondary" (click)="baixarNotaFiscal(ordem)" [disabled]="processando">Nota PDF</button><button class="danger" (click)="excluir(ordem)" [disabled]="processando">Inativar</button></td></tr>
+    <tr *ngIf="!ordensConsultaFiltradas().length && !carregando"><td colspan="7">Nenhuma ordem de serviço encontrada.</td></tr>
   </tbody></table></div>
 </section>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Ordens de Serviço inativas"
+  descricao="Pesquisar OS inativas por número, cliente, placa, status ou data."
+  [registros]="ordensInativos"
+  [camposTexto]="['numeroOs','nomeCliente','placaVeiculo','descricaoVeiculo','statusAtual']"
+  campoPrincipal="numeroOs"
+  campoSecundario="nomeCliente"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

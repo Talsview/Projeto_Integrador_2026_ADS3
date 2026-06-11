@@ -10,8 +10,18 @@ export class DashboardService {
   private readonly apiBaseUrl = environment.apiBaseUrl;
   private readonly tempoLimiteMs = 3000;
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(private readonly http: HttpClient) {}
 
+  /**
+   * Função: Executa a integração HTTP necessária para verificar banco.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   verificarBanco(): Observable<DatabaseStatus> {
     return this.http.get<ApiResponse<Record<string, unknown>>>(`${this.apiBaseUrl}/database/status`).pipe(
       timeout(this.tempoLimiteMs),
@@ -40,6 +50,11 @@ export class DashboardService {
     );
   }
 
+  /**
+   * Função: Envia ao backend os dados preenchidos na tela para gravação.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   private criarMensagemBanco(available: boolean, tempoRespostaMs: number): string {
     if (available) {
       return `Conectado em ${tempoRespostaMs} ms.`;
@@ -48,6 +63,11 @@ export class DashboardService {
     return 'Banco indisponível.';
   }
 
+  /**
+   * Função: Executa a integração HTTP necessária para tratar erro de comunicacao.
+   * Uso no sistema: mantém a comunicação com a API centralizada em serviços Angular, deixando os
+   * componentes focados na tela.
+   */
   private tratarErroDeComunicacao(error: Error): string {
     const mensagem = error.message?.toLowerCase() ?? '';
 

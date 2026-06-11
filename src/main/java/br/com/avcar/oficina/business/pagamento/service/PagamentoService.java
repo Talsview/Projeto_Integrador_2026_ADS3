@@ -44,6 +44,11 @@ public class PagamentoService {
     private final PagamentoValidation validation;
     private final PagamentoMapper mapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public PagamentoService(IPagamentoRepository pagamentoRepository,
                             IHistoricoStatusOrdemRepository historicoStatusRepository,
                             OrdemServicoService ordemServicoService,
@@ -57,6 +62,12 @@ public class PagamentoService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de
+     * pagamento.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public PagamentoDTO cadastrar(PagamentoDTO dto) {
         validation.validateInsert(dto);
 
@@ -73,6 +84,12 @@ public class PagamentoService {
     }
 
     @Transactional
+    /**
+     * Função: Busca o registro ativo, aplica as alterações permitidas e salva a atualização de
+     * pagamento.
+     * Uso no sistema: garante que alterações passem por validação e não quebrem vínculos já existentes
+     * no sistema.
+     */
     public PagamentoDTO atualizar(Long id, PagamentoDTO dto) {
         validation.validateUpdate(id, dto);
         PagamentoModel pagamento = buscarModelAtivo(id);
@@ -88,23 +105,46 @@ public class PagamentoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de pagamento conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public PagamentoDTO buscar(Long id) {
         validation.validateId(id);
         return mapper.toDto(buscarModelAtivo(id));
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de pagamento aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<PagamentoDTO> listar(Pageable pageable) {
         return pagamentoRepository.findAllByAtivoTrue(pageable).map(mapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de pagamento aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<PagamentoDTO> listarPorOrdemServico(Long idOrdemServico, Pageable pageable) {
         validation.validateIdOrdemServico(idOrdemServico);
         return pagamentoRepository.findByOrdemServicoIdAndAtivoTrue(idOrdemServico, pageable).map(mapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de pagamento aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<PagamentoDTO> pesquisarPorOrdemServico(Long idOrdemServico, String termo, Pageable pageable) {
         validation.validateIdOrdemServico(idOrdemServico);
         if (termo == null || termo.isBlank()) {
@@ -114,6 +154,11 @@ public class PagamentoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Processa dados de serviço executado, responsável, valor e vínculo com a Ordem de
+     * Serviço.
+     * Uso no sistema: garante que cada serviço da OS tenha registro próprio e colaborador responsável.
+     */
     public ResumoPagamentoOrdemServicoDTO resumirPorOrdemServico(Long idOrdemServico) {
         validation.validateIdOrdemServico(idOrdemServico);
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(idOrdemServico);
@@ -135,6 +180,11 @@ public class PagamentoService {
     }
 
     @Transactional
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     public PagamentoDTO alterarStatus(Long id, StatusPagamento statusPagamento) {
         validation.validateId(id);
         validation.validateStatus(statusPagamento);
@@ -155,6 +205,12 @@ public class PagamentoService {
     }
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativar(Long id) {
         validation.validateId(id);
         PagamentoModel pagamento = buscarModelAtivo(id);
@@ -164,6 +220,11 @@ public class PagamentoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Calcula valores agregados a partir de serviços, peças, quantidade e valor unitário.
+     * Uso no sistema: mantém o orçamento e o total da OS coerentes com os itens informados pelo
+     * usuário.
+     */
     public BigDecimal calcularValorPago(Long idOrdemServico) {
         validation.validateIdOrdemServico(idOrdemServico);
         BigDecimal total = pagamentoRepository.somarValorPorStatus(idOrdemServico, StatusPagamento.PAGO);
@@ -171,12 +232,22 @@ public class PagamentoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Processa dados de serviço executado, responsável, valor e vínculo com a Ordem de
+     * Serviço.
+     * Uso no sistema: garante que cada serviço da OS tenha registro próprio e colaborador responsável.
+     */
     public boolean ordemServicoQuitada(Long idOrdemServico, BigDecimal valorTotalOrdemServico) {
         BigDecimal valorTotal = zeroIfNull(valorTotalOrdemServico);
         BigDecimal valorPago = calcularValorPago(idOrdemServico);
         return valorPago.compareTo(valorTotal) >= 0;
     }
 
+    /**
+     * Função: Localiza informações de pagamento conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public PagamentoModel buscarModelAtivo(Long id) {
         return pagamentoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Pagamento não encontrado ou inativo."));
@@ -225,6 +296,11 @@ public class PagamentoService {
         }
     }
 
+    /**
+     * Função: Finaliza a OS ou operação após validar que as etapas anteriores foram cumpridas.
+     * Uso no sistema: encerra o atendimento e permite iniciar garantias de peças e serviços quando
+     * aplicável.
+     */
     private void finalizarOrdemAutomaticamenteSeQuitada(Long idOrdemServico) {
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(idOrdemServico);
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(idOrdemServico);
@@ -246,6 +322,11 @@ public class PagamentoService {
         }
     }
 
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     private void alterarStatusAutomaticamente(Long idOrdemServico,
                                               StatusFluxoOrdemServico novoStatus,
                                               String observacao) {
@@ -255,6 +336,12 @@ public class PagamentoService {
         ordemServicoService.alterarStatus(idOrdemServico, dto);
     }
 
+    /**
+     * Função: Processa informações financeiras da OS, como valores, parcelas, quitação ou consulta de
+     * pagamentos.
+     * Uso no sistema: separa a etapa financeira da execução do serviço e mantém o histórico de
+     * recebimentos.
+     */
     private void validarOrdemPermitePagamento(OrdemServicoModel ordemServico) {
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(ordemServico.getId());
         if (statusAtual == null) {
@@ -266,11 +353,49 @@ public class PagamentoService {
         }
     }
 
+
+    @Transactional(readOnly = true)
+    /**
+     * Função: Lista cadastros inativados para que o usuário possa localizar e reativar registros sem
+     * recriá-los.
+     * Uso no sistema: reforça a rastreabilidade, pois registros antigos continuam no banco e podem
+     * voltar a ficar ativos.
+     */
+    public Page<PagamentoDTO> listarInativos(Pageable pageable) {
+        return pagamentoRepository.findAllByAtivoFalse(pageable).map(mapper::toDto);
+    }
+
+    @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
+    public PagamentoDTO ativar(Long id) {
+        validation.validateId(id);
+        PagamentoModel model = pagamentoRepository.findByIdAndAtivoFalse(id)
+                .orElseThrow(() -> new BusinessException("Pagamento não encontrado entre os inativos."));
+        model.setAtivo(Boolean.TRUE);
+        return mapper.toDto(pagamentoRepository.save(model));
+    }
+
+    /**
+     * Função: Localiza informações de pagamento conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private HistoricoStatusOrdemModel buscarStatusAtualOuNulo(Long idOrdemServico) {
         List<HistoricoStatusOrdemModel> historico = historicoStatusRepository.findHistoricoFluxoDesc(idOrdemServico);
         return historico.isEmpty() ? null : historico.get(0);
     }
 
+    /**
+     * Função: Processa informações financeiras da OS, como valores, parcelas, quitação ou consulta de
+     * pagamentos.
+     * Uso no sistema: separa a etapa financeira da execução do serviço e mantém o histórico de
+     * recebimentos.
+     */
     private void prepararDataPagamento(PagamentoDTO dto) {
         if (dto.getStatusPagamento() == null) {
             dto.setStatusPagamento(StatusPagamento.PAGO);
@@ -280,6 +405,10 @@ public class PagamentoService {
         }
     }
 
+    /**
+     * Função: Converte valor monetário nulo para zero antes de somar ou comparar.
+     * Uso no sistema: evita erro de cálculo em OS com peça, serviço ou pagamento ainda não informado.
+     */
     private BigDecimal zeroIfNull(BigDecimal value) {
         return value == null ? BigDecimal.ZERO : value;
     }

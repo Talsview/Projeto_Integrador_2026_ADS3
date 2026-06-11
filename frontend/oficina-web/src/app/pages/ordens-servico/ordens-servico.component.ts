@@ -1,18 +1,22 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InativosPanelComponent } from '../../shared/components/inativos-panel/inativos-panel.component';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { OrdemServicoApiService } from '../../core/services/ordem-servico-api.service';
 import { VeiculoApiService } from '../../core/services/veiculo-api.service';
 import { dataHoraFutura } from '../../core/validation/field-validation';
 import { ClienteResumo } from '../../models/cliente.model';
-import { OrdemServicoResumo, PrioridadeOrdemServico } from '../../models/ordem-servico.model';
+import { OrdemServicoResumo, PrioridadeOrdemServico, StatusFluxoOrdemServico } from '../../models/ordem-servico.model';
 import { VeiculoResumo } from '../../models/veiculo.model';
 
-@Component({ selector: 'app-ordens-servico', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './ordens-servico.component.html' })
+@Component({ selector: 'app-ordens-servico', standalone: true, imports: [CommonModule, FormsModule, InativosPanelComponent], templateUrl: './ordens-servico.component.html' })
 export class OrdensServicoComponent implements OnInit {
   ordens: OrdemServicoResumo[] = [];
+  ordensInativos: OrdemServicoResumo[] = [];
+  mostrarInativos = false;
+  carregandoInativos = false;
   clientes: ClienteResumo[] = [];
   veiculos: VeiculoResumo[] = [];
   termo = '';
@@ -25,9 +29,18 @@ export class OrdensServicoComponent implements OnInit {
   carregando = false;
   processando = false;
   prioridades: PrioridadeOrdemServico[] = ['BAIXA', 'NORMAL', 'ALTA', 'URGENTE'];
+  statusConsulta: (StatusFluxoOrdemServico | '')[] = ['', 'ORCAMENTO', 'EXECUCAO', 'PAGAMENTO', 'FINALIZADO'];
+  filtroStatusConsulta: StatusFluxoOrdemServico | '' = '';
+  filtroDataAberturaInicio = '';
+  filtroDataAberturaFim = '';
   form: any = this.formularioInicial();
   errosCampo: Record<string, string> = {};
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(
     private readonly ordemApi: OrdemServicoApiService,
     private readonly clienteApi: ClienteApiService,
@@ -35,10 +48,18 @@ export class OrdensServicoComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void { this.carregarTelaInicial(); }
 
   carregarTelaInicial(): void {
     this.carregando = true; this.erro = undefined; this.atualizarTela();
+    /**
+     * Função: Controla na tela a etapa fork join.
+     * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+     */
     forkJoin({ ordens: this.ordemApi.listar(), clientes: this.clienteApi.listar(), veiculos: this.veiculoApi.listar() })
       .pipe(finalize(() => { this.carregando = false; this.atualizarTela(); }))
       .subscribe({
@@ -47,6 +68,10 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar apoio.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   carregarApoio(): void {
     forkJoin({ clientes: this.clienteApi.listar(), veiculos: this.veiculoApi.listar() }).subscribe({
       next: r => { this.clientes = [...r.clientes]; this.veiculos = [...r.veiculos]; this.atualizarTela(); },
@@ -54,6 +79,10 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   buscarClientesParaOs(): void {
     const termo = this.termoClienteOs.trim();
     this.carregandoClientesOs = true;
@@ -69,6 +98,10 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   buscarVeiculosParaOs(): void {
     const termo = this.termoVeiculoOs.trim();
     this.carregandoVeiculosOs = true;
@@ -87,6 +120,11 @@ export class OrdensServicoComponent implements OnInit {
   listar(): void { this.carregando = true; this.erro = undefined; this.atualizarTela(); this.ordemApi.listar().pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   pesquisar(): void { const c = this.termo.trim(); if (!c) { this.listar(); return; } this.carregando = true; this.erro = undefined; this.atualizarTela(); this.ordemApi.pesquisar(c).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: ordens => { this.ordens = [...ordens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvar(): void {
     this.mensagem = undefined; this.erro = undefined;
     if (!this.validarFormulario()) { this.erro = 'Corrija os campos destacados antes de salvar a Ordem de Serviço.'; this.atualizarTela(); return; }
@@ -98,11 +136,74 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Carrega os dados selecionados para o formulário, permitindo conferência ou alteração.
+   * Uso no sistema: evita redigitação e mantém a edição vinculada ao registro correto.
+   */
   editar(ordem: OrdemServicoResumo): void {
     this.form = { ...ordem };
     this.limparCamposDePesquisaDaOs();
     this.atualizarTela();
   }
+
+
+  /**
+   * Função: Controla na tela a etapa ordens consulta filtradas.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  ordensConsultaFiltradas(): OrdemServicoResumo[] {
+    return this.ordens.filter(ordem => {
+      const statusOk = !this.filtroStatusConsulta || ordem.statusAtual === this.filtroStatusConsulta;
+      const dataOk = this.filtrarDataAbertura(ordem);
+      return statusOk && dataOk;
+    });
+  }
+
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
+  limparFiltrosConsulta(): void {
+    this.filtroStatusConsulta = '';
+    this.filtroDataAberturaInicio = '';
+    this.filtroDataAberturaFim = '';
+    this.atualizarTela();
+  }
+
+  /**
+   * Função: Controla na tela a etapa ver os concluidas.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  verOsConcluidas(): void {
+    this.filtroStatusConsulta = 'FINALIZADO';
+    this.atualizarTela();
+  }
+
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
+  private filtrarDataAbertura(ordem: OrdemServicoResumo): boolean {
+    if (!this.filtroDataAberturaInicio && !this.filtroDataAberturaFim) {
+      return true;
+    }
+    if (!ordem.dataAbertura) {
+      return false;
+    }
+    const data = new Date(ordem.dataAbertura);
+    if (this.filtroDataAberturaInicio && data < new Date(`${this.filtroDataAberturaInicio}T00:00:00`)) {
+      return false;
+    }
+    if (this.filtroDataAberturaFim && data > new Date(`${this.filtroDataAberturaFim}T23:59:59`)) {
+      return false;
+    }
+    return true;
+  }
+
+  /**
+   * Função: Controla na tela a etapa baixar nota fiscal.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   baixarNotaFiscal(ordem: OrdemServicoResumo): void {
     if (!ordem.id) {
       this.erro = 'Selecione uma Ordem de Serviço válida para gerar a nota fiscal.';
@@ -131,6 +232,10 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Solicita confirmação e envia a inativação do registro para a API.
+   * Uso no sistema: remove o item da listagem principal sem apagar seu histórico no banco.
+   */
   excluir(ordem: OrdemServicoResumo): void {
     if (!ordem.id) return;
 
@@ -159,6 +264,68 @@ export class OrdensServicoComponent implements OnInit {
       });
   }
 
+
+  /**
+   * Função: Controla na tela a etapa abrir inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  abrirInativos(): void {
+    this.mostrarInativos = true;
+    this.carregarInativos();
+  }
+
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
+  fecharInativos(): void {
+    this.mostrarInativos = false;
+    this.atualizarTela();
+  }
+
+  /**
+   * Função: Controla na tela a etapa carregar inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  carregarInativos(): void {
+    this.carregandoInativos = true;
+    this.erro = undefined;
+    this.atualizarTela();
+    this.ordemApi.listarInativos()
+      .pipe(finalize(() => { this.carregandoInativos = false; this.atualizarTela(); }))
+      .subscribe({
+        next: registros => { this.ordensInativos = [...registros]; this.atualizarTela(); },
+        error: e => { this.erro = e.message ?? 'Não foi possível carregar os inativos.'; this.atualizarTela(); }
+      });
+  }
+
+  /**
+   * Função: Envia à API a reativação do registro escolhido na tela de inativos.
+   * Uso no sistema: permite recuperar cadastros sem criar duplicidade.
+   */
+  ativarInativo(registro: OrdemServicoResumo): void {
+    if (!registro.id) return;
+    this.processando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
+    this.atualizarTela();
+    this.ordemApi.ativar(registro.id)
+      .pipe(switchMap(() => this.ordemApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); }))
+      .subscribe({
+        next: registros => {
+          this.ordens = [...registros];
+          this.mensagem = 'Cadastro ativado.';
+          this.carregarInativos();
+          this.atualizarTela();
+        },
+        error: e => { this.erro = e.message ?? 'Não foi possível ativar o cadastro.'; this.atualizarTela(); }
+      });
+  }
+
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   limpar(): void {
     this.form = this.formularioInicial();
     this.errosCampo = {};
@@ -166,26 +333,46 @@ export class OrdensServicoComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Carrega os dados selecionados para o formulário, permitindo conferência ou alteração.
+   * Uso no sistema: evita redigitação e mantém a edição vinculada ao registro correto.
+   */
   selecionarClienteDaOs(idCliente: number | string): void {
     this.form.idCliente = Number(idCliente ?? 0);
     this.aoAlterarCliente();
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   limparCampoBuscaClienteDaOs(): void {
     this.limparPesquisaClienteOs();
     this.atualizarTela();
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   limparCampoBuscaVeiculoDaOs(): void {
     this.limparPesquisaVeiculoOs();
     this.atualizarTela();
   }
 
+  /**
+   * Função: Carrega os dados selecionados para o formulário, permitindo conferência ou alteração.
+   * Uso no sistema: evita redigitação e mantém a edição vinculada ao registro correto.
+   */
   selecionarVeiculoDaOs(idVeiculo: number | string): void {
     this.form.idVeiculo = Number(idVeiculo ?? 0);
     this.aoAlterarVeiculo();
   }
 
+  /**
+   * Função: Controla na tela a etapa ao alterar cliente.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   aoAlterarCliente(): void {
     this.limparPesquisaClienteOs();
 
@@ -199,27 +386,47 @@ export class OrdensServicoComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa ao alterar veiculo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   aoAlterarVeiculo(): void {
     this.limparPesquisaVeiculoOs();
     delete this.errosCampo['idVeiculo'];
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa rotulo cliente.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   rotuloCliente(cliente: ClienteResumo): string {
     return [cliente.nome, cliente.documento].filter(Boolean).join(' — ');
   }
 
+  /**
+   * Função: Controla na tela a etapa rotulo veiculo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   rotuloVeiculo(veiculo: VeiculoResumo): string {
     const modelo = [veiculo.nomeMarca, veiculo.nomeModelo].filter(Boolean).join(' ');
     return [veiculo.placa, modelo].filter(Boolean).join(' — ');
   }
 
+  /**
+   * Função: Controla na tela a etapa veiculos do cliente selecionado.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   veiculosDoClienteSelecionado(): VeiculoResumo[] {
     const idCliente = Number(this.form.idCliente ?? 0);
     if (!idCliente) return this.veiculos;
     return this.veiculos.filter(v => Number(v.proprietarioAtualId ?? 0) === idCliente);
   }
 
+  /**
+   * Função: Controla na tela a etapa mesclar cliente selecionado.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private mesclarClienteSelecionado(clientes: ClienteResumo[]): ClienteResumo[] {
     const selecionado = this.clientes.find(c => Number(c.id) === Number(this.form.idCliente));
     if (!selecionado || clientes.some(c => Number(c.id) === Number(selecionado.id))) {
@@ -228,6 +435,10 @@ export class OrdensServicoComponent implements OnInit {
     return [selecionado, ...clientes];
   }
 
+  /**
+   * Função: Controla na tela a etapa mesclar veiculo selecionado.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private mesclarVeiculoSelecionado(veiculos: VeiculoResumo[]): VeiculoResumo[] {
     const selecionado = this.veiculos.find(v => Number(v.id) === Number(this.form.idVeiculo));
     if (!selecionado || veiculos.some(v => Number(v.id) === Number(selecionado.id))) {
@@ -236,11 +447,19 @@ export class OrdensServicoComponent implements OnInit {
     return [selecionado, ...veiculos];
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   private limparCamposDePesquisaDaOs(): void {
     this.limparPesquisaClienteOs();
     this.limparPesquisaVeiculoOs();
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   private limparPesquisaClienteOs(): void {
     this.termoClienteOs = '';
     setTimeout(() => {
@@ -251,6 +470,10 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   private limparPesquisaVeiculoOs(): void {
     this.termoVeiculoOs = '';
     setTimeout(() => {
@@ -261,6 +484,10 @@ export class OrdensServicoComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa validar formulario.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarFormulario(): boolean {
     this.errosCampo = {};
     if (!this.form.idCliente || Number(this.form.idCliente) <= 0) this.errosCampo['idCliente'] = 'Selecione o cliente da Ordem de Serviço.';
@@ -276,6 +503,11 @@ export class OrdensServicoComponent implements OnInit {
     return Object.keys(this.errosCampo).length === 0;
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   private salvarArquivo(blob: Blob, nomeArquivo: string): void {
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -285,6 +517,10 @@ export class OrdensServicoComponent implements OnInit {
     window.URL.revokeObjectURL(url);
   }
 
+  /**
+   * Função: Controla na tela a etapa montar nome arquivo nota.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarNomeArquivoNota(ordem: OrdemServicoResumo): string {
     const numero = (ordem.numeroOs ?? ordem.id?.toString() ?? 'os')
       .replace(/[^a-zA-Z0-9_-]/g, '-')
@@ -292,6 +528,10 @@ export class OrdensServicoComponent implements OnInit {
     return `nota-fiscal-${numero}.pdf`;
   }
 
+  /**
+   * Função: Controla na tela a etapa formulario inicial.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private formularioInicial(): any { return { idCliente: 0, idVeiculo: 0, prioridade: 'NORMAL', observacao: '' }; }
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

@@ -26,6 +26,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class VeiculoResponseAdapter {
 
+    /**
+     * Função: Adapta dados de veículo no processamento adaptar para detalhe.
+     * Padrão aplicado: ADAPTER.
+     * Justificativa: separa o formato interno do domínio do formato consumido pelo frontend.
+     * Uso no sistema: facilita a exibição de veículos com proprietário atual sem perder a
+     * rastreabilidade histórica.
+     */
     public VeiculoDTO adaptarParaDetalhe(VeiculoModel veiculo,
                                          HistoricoProprietarioModel proprietarioAtual,
                                          List<HistoricoProprietarioModel> historico) {
@@ -47,6 +54,13 @@ public class VeiculoResponseAdapter {
         return dto;
     }
 
+    /**
+     * Função: Adapta dados de veículo no processamento adaptar para resumo.
+     * Padrão aplicado: ADAPTER.
+     * Justificativa: separa o formato interno do domínio do formato consumido pelo frontend.
+     * Uso no sistema: facilita a exibição de veículos com proprietário atual sem perder a
+     * rastreabilidade histórica.
+     */
     public VeiculoResumoDTO adaptarParaResumo(VeiculoModel veiculo, HistoricoProprietarioModel proprietarioAtual) {
         if (veiculo == null) {
             return null;
@@ -55,6 +69,8 @@ public class VeiculoResponseAdapter {
         VeiculoResumoDTO dto = new VeiculoResumoDTO();
         dto.setId(veiculo.getId());
         dto.setAtivo(veiculo.getAtivo());
+        dto.setDataHoraCriacao(veiculo.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(veiculo.getDataHoraAtualizacao());
         dto.setPlaca(veiculo.getPlaca());
         dto.setChassi(veiculo.getChassi());
         dto.setCor(veiculo.getCor());
@@ -81,6 +97,13 @@ public class VeiculoResponseAdapter {
         return dto;
     }
 
+    /**
+     * Função: Adapta dados de veículo no processamento adaptar historico.
+     * Padrão aplicado: ADAPTER.
+     * Justificativa: separa o formato interno do domínio do formato consumido pelo frontend.
+     * Uso no sistema: facilita a exibição de veículos com proprietário atual sem perder a
+     * rastreabilidade histórica.
+     */
     public HistoricoProprietarioDTO adaptarHistorico(HistoricoProprietarioModel historico) {
         if (historico == null) {
             return null;
@@ -89,6 +112,8 @@ public class VeiculoResponseAdapter {
         HistoricoProprietarioDTO dto = new HistoricoProprietarioDTO();
         dto.setId(historico.getId());
         dto.setAtivo(historico.getAtivo());
+        dto.setDataHoraCriacao(historico.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(historico.getDataHoraAtualizacao());
         dto.setDataInicioPosse(historico.getDataInicioPosse());
         dto.setDataFimPosse(historico.getDataFimPosse());
         dto.setProprietarioAtual(historico.getProprietarioAtual());
@@ -109,9 +134,18 @@ public class VeiculoResponseAdapter {
         return dto;
     }
 
+    /**
+     * Função: Adapta dados de veículo no processamento preencher dados base.
+     * Padrão aplicado: ADAPTER.
+     * Justificativa: separa o formato interno do domínio do formato consumido pelo frontend.
+     * Uso no sistema: facilita a exibição de veículos com proprietário atual sem perder a
+     * rastreabilidade histórica.
+     */
     private void preencherDadosBase(VeiculoDTO dto, VeiculoModel veiculo, HistoricoProprietarioModel proprietarioAtual) {
         dto.setId(veiculo.getId());
         dto.setAtivo(veiculo.getAtivo());
+        dto.setDataHoraCriacao(veiculo.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(veiculo.getDataHoraAtualizacao());
         dto.setPlaca(veiculo.getPlaca());
         dto.setChassi(veiculo.getChassi());
         dto.setCor(veiculo.getCor());

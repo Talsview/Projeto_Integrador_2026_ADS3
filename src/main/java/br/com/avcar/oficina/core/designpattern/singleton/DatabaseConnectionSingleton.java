@@ -37,9 +37,27 @@ public final class DatabaseConnectionSingleton {
     private Boolean ultimoStatusDisponivel;
     private LocalDateTime dataHoraUltimaMudancaStatus;
 
+    /**
+     * Função: Construtor privado que impede a criação direta de novos monitores de conexão fora da
+     * própria classe.
+     * Padrão aplicado: SINGLETON.
+     * Justificativa: garante que o diagnóstico do banco local seja centralizado em uma única instância
+     * durante a execução do backend.
+     * Uso no sistema: apoia a tela de Configurações e o endpoint de status do banco, facilitando
+     * diagnóstico em ambiente local.
+     */
     private DatabaseConnectionSingleton() {
     }
 
+    /**
+     * Função: Retorna a instância única do monitor de conexão, criando-a somente na primeira chamada e
+     * reutilizando-a nas chamadas seguintes.
+     * Padrão aplicado: SINGLETON.
+     * Justificativa: evita múltiplos objetos controlando estados diferentes de conexão, cache e falhas
+     * consecutivas.
+     * Uso no sistema: apoia a tela de Configurações e o endpoint de status do banco, facilitando
+     * diagnóstico em ambiente local.
+     */
     public static DatabaseConnectionSingleton getInstance() {
         if (instance == null) {
             synchronized (DatabaseConnectionSingleton.class) {
@@ -51,6 +69,15 @@ public final class DatabaseConnectionSingleton {
         return instance;
     }
 
+    /**
+     * Função: Atualiza a URL, o usuário e a senha do PostgreSQL usados no diagnóstico e limpa o cache
+     * quando a configuração muda.
+     * Padrão aplicado: SINGLETON.
+     * Justificativa: permite que o mesmo Singleton acompanhe corretamente o ambiente local configurado
+     * no application.properties.
+     * Uso no sistema: apoia a tela de Configurações e o endpoint de status do banco, facilitando
+     * diagnóstico em ambiente local.
+     */
     public synchronized void configure(String jdbcUrl, String username, String password) {
         boolean configuracaoAlterada = !Objects.equals(this.jdbcUrl, jdbcUrl)
                 || !Objects.equals(this.username, username)
@@ -69,6 +96,15 @@ public final class DatabaseConnectionSingleton {
         }
     }
 
+    /**
+     * Função: Consulta o diagnóstico atual e devolve apenas uma resposta booleana indicando se o banco
+     * está disponível.
+     * Padrão aplicado: SINGLETON.
+     * Justificativa: oferece uma leitura simples para telas ou serviços que precisam apenas saber se a
+     * conexão local está ativa.
+     * Uso no sistema: apoia a tela de Configurações e o endpoint de status do banco, facilitando
+     * diagnóstico em ambiente local.
+     */
     public synchronized boolean isConnected() {
         return checkStatus().isAvailable();
     }
@@ -109,6 +145,15 @@ public final class DatabaseConnectionSingleton {
         }
     }
 
+    /**
+     * Função: Grava o resultado da verificação, atualizando quantidade de testes, falhas consecutivas
+     * e horário da última mudança de status.
+     * Padrão aplicado: SINGLETON.
+     * Justificativa: mantém histórico operacional mínimo dentro da instância única, sem espalhar esse
+     * controle por outras classes.
+     * Uso no sistema: apoia a tela de Configurações e o endpoint de status do banco, facilitando
+     * diagnóstico em ambiente local.
+     */
     private DatabaseStatusResult registrarResultado(boolean disponivel, long tempoRespostaMs, String mensagem, String erro) {
         LocalDateTime agora = LocalDateTime.now();
 
@@ -132,6 +177,15 @@ public final class DatabaseConnectionSingleton {
         return resultado;
     }
 
+    /**
+     * Função: Remove informações sensíveis da mensagem JDBC antes de retornar o erro para a tela ou
+     * para logs de diagnóstico.
+     * Padrão aplicado: SINGLETON.
+     * Justificativa: preserva a utilidade do diagnóstico sem expor senha ou detalhes sensíveis da
+     * conexão local.
+     * Uso no sistema: apoia a tela de Configurações e o endpoint de status do banco, facilitando
+     * diagnóstico em ambiente local.
+     */
     private String sanitizarErro(String mensagemErro) {
         if (mensagemErro == null || mensagemErro.isBlank()) {
             return "Erro JDBC não detalhado.";

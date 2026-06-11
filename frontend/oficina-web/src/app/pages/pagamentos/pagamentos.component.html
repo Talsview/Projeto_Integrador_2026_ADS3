@@ -2,6 +2,10 @@
 <p class="page-subtitle">
   Registro de pagamentos das OS em etapa de pagamento.
 </p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
 <p class="alert error" *ngIf="erro">{{ erro }}</p>
 
@@ -125,3 +129,18 @@
     </table>
   </div>
 </section>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Pagamentos inativos"
+  descricao="Pesquisar pagamentos inativos por OS, status, forma ou data."
+  [registros]="pagamentosInativos"
+  [camposTexto]="['numeroOs','formaPagamento','statusPagamento','observacao']"
+  campoPrincipal="numeroOs"
+  campoSecundario="statusPagamento"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

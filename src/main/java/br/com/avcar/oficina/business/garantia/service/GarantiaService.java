@@ -47,6 +47,11 @@ public class GarantiaService {
     private final GarantiaServicoMapper garantiaServicoMapper;
     private final GarantiaValidation validation;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public GarantiaService(IGarantiaPecaRepository garantiaPecaRepository,
                            IGarantiaServicoRepository garantiaServicoRepository,
                            IItemPecaRepository itemPecaRepository,
@@ -64,6 +69,12 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de
+     * garantia.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public void criarGarantiaPecaAguardando(ItemPecaModel itemPeca) {
         if (itemPeca == null || itemPeca.getId() == null) {
             throw new RuleValidationException("Item de peça inválido para geração de garantia.");
@@ -74,6 +85,12 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de
+     * garantia.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public void criarGarantiaServicoAguardando(ItemServicoModel itemServico) {
         if (itemServico == null || itemServico.getId() == null) {
             throw new RuleValidationException("Item de serviço inválido para geração de garantia.");
@@ -84,6 +101,10 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Inicia a garantia vinculada a peças ou serviços após a finalização da Ordem de Serviço.
+     * Uso no sistema: aplica a regra de que a garantia começa somente depois do encerramento da OS.
+     */
     public void iniciarGarantiasDaOrdem(Long idOrdemServico, LocalDate dataInicio) {
         validation.validateIdOrdemServico(idOrdemServico);
         LocalDate inicio = dataInicio == null ? LocalDate.now() : dataInicio;
@@ -107,6 +128,12 @@ public class GarantiaService {
 
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativarGarantiaPorItemPeca(Long idItemPeca) {
         if (idItemPeca == null) {
             return;
@@ -118,6 +145,12 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativarGarantiaPorItemServico(Long idItemServico) {
         if (idItemServico == null) {
             return;
@@ -129,40 +162,79 @@ public class GarantiaService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de garantia conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public GarantiaPecaDTO buscarGarantiaPeca(Long id) {
         validation.validateId(id, "Garantia de Peça");
         return garantiaPecaMapper.toDto(buscarGarantiaPecaModel(id));
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de garantia conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public GarantiaServicoDTO buscarGarantiaServico(Long id) {
         validation.validateId(id, "Garantia de Serviço");
         return garantiaServicoMapper.toDto(buscarGarantiaServicoModel(id));
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de garantia aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<GarantiaPecaDTO> listarGarantiasPeca(Pageable pageable) {
         return garantiaPecaRepository.findAllByAtivoTrue(pageable).map(garantiaPecaMapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de garantia aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<GarantiaServicoDTO> listarGarantiasServico(Pageable pageable) {
         return garantiaServicoRepository.findAllByAtivoTrue(pageable).map(garantiaServicoMapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de garantia aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<GarantiaPecaDTO> listarGarantiasPecaPorOrdemServico(Long idOrdemServico, Pageable pageable) {
         validation.validateIdOrdemServico(idOrdemServico);
         return garantiaPecaRepository.findByOrdemServico(idOrdemServico, pageable).map(garantiaPecaMapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de garantia aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<GarantiaServicoDTO> listarGarantiasServicoPorOrdemServico(Long idOrdemServico, Pageable pageable) {
         validation.validateIdOrdemServico(idOrdemServico);
         return garantiaServicoRepository.findByOrdemServico(idOrdemServico, pageable).map(garantiaServicoMapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de garantia conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public GarantiaPecaDTO buscarGarantiaPorItemPeca(Long idItemPeca) {
         validation.validateId(idItemPeca, "Item de Peça");
         GarantiaPecaModel garantia = garantiaPecaRepository.findByItemPecaIdAndAtivoTrue(idItemPeca)
@@ -171,6 +243,11 @@ public class GarantiaService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de garantia conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public GarantiaServicoDTO buscarGarantiaPorItemServico(Long idItemServico) {
         validation.validateId(idItemServico, "Item de Serviço");
         GarantiaServicoModel garantia = garantiaServicoRepository.findByItemServicoIdAndAtivoTrue(idItemServico)
@@ -179,6 +256,11 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Registra o acionamento de uma garantia quando há defeito ou retorno dentro do prazo.
+     * Uso no sistema: rastreia a responsabilidade da oficina e, quando houver peça envolvida,
+     * possibilita identificar o fornecedor.
+     */
     public GarantiaPecaDTO acionarGarantiaPeca(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaPecaModel garantia = buscarGarantiaPecaModel(id);
         validarGarantiaPodeSerAcionada(garantia.getStatusGarantia(), garantia.getDataFim());
@@ -197,6 +279,11 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Registra o acionamento de uma garantia quando há defeito ou retorno dentro do prazo.
+     * Uso no sistema: rastreia a responsabilidade da oficina e, quando houver peça envolvida,
+     * possibilita identificar o fornecedor.
+     */
     public GarantiaServicoDTO acionarGarantiaServico(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaServicoModel garantia = buscarGarantiaServicoModel(id);
         validarGarantiaPodeSerAcionada(garantia.getStatusGarantia(), garantia.getDataFim());
@@ -212,6 +299,11 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Encerra uma ocorrência operacional, como garantia ou atendimento, registrando data e
+     * observação.
+     * Uso no sistema: deixa histórico claro do fechamento da situação acompanhada pela oficina.
+     */
     public GarantiaPecaDTO encerrarGarantiaPeca(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaPecaModel garantia = buscarGarantiaPecaModel(id);
         validarGarantiaPodeSerEncerrada(garantia.getStatusGarantia());
@@ -227,6 +319,11 @@ public class GarantiaService {
     }
 
     @Transactional
+    /**
+     * Função: Encerra uma ocorrência operacional, como garantia ou atendimento, registrando data e
+     * observação.
+     * Uso no sistema: deixa histórico claro do fechamento da situação acompanhada pela oficina.
+     */
     public GarantiaServicoDTO encerrarGarantiaServico(Long id, AcionamentoGarantiaDTO dto) {
         GarantiaServicoModel garantia = buscarGarantiaServicoModel(id);
         validarGarantiaPodeSerEncerrada(garantia.getStatusGarantia());
@@ -241,6 +338,10 @@ public class GarantiaService {
         return garantiaServicoMapper.toDto(garantiaServicoRepository.save(garantia));
     }
 
+    /**
+     * Função: Inicia a garantia vinculada a peças ou serviços após a finalização da Ordem de Serviço.
+     * Uso no sistema: aplica a regra de que a garantia começa somente depois do encerramento da OS.
+     */
     private void iniciarGarantiaPeca(GarantiaPecaModel garantia, ItemPecaModel itemPeca, LocalDate inicio) {
         if (StatusGarantia.ENCERRADA.equals(garantia.getStatusGarantia())) {
             return;
@@ -253,6 +354,10 @@ public class GarantiaService {
         garantia.setObservacao(combinarObservacao(garantia.getObservacao(), "Garantia iniciada automaticamente após finalização da OS."));
     }
 
+    /**
+     * Função: Inicia a garantia vinculada a peças ou serviços após a finalização da Ordem de Serviço.
+     * Uso no sistema: aplica a regra de que a garantia começa somente depois do encerramento da OS.
+     */
     private void iniciarGarantiaServico(GarantiaServicoModel garantia, ItemServicoModel itemServico, LocalDate inicio) {
         if (StatusGarantia.ENCERRADA.equals(garantia.getStatusGarantia())) {
             return;
@@ -265,18 +370,33 @@ public class GarantiaService {
         garantia.setObservacao(combinarObservacao(garantia.getObservacao(), "Garantia iniciada automaticamente após finalização da OS."));
     }
 
+    /**
+     * Função: Localiza informações de garantia conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private GarantiaPecaModel buscarGarantiaPecaModel(Long id) {
         validation.validateId(id, "Garantia de Peça");
         return garantiaPecaRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Garantia de peça não encontrada ou inativa."));
     }
 
+    /**
+     * Função: Localiza informações de garantia conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private GarantiaServicoModel buscarGarantiaServicoModel(Long id) {
         validation.validateId(id, "Garantia de Serviço");
         return garantiaServicoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Garantia de serviço não encontrada ou inativa."));
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar garantia pode ser
+     * acionada.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarGarantiaPodeSerAcionada(StatusGarantia status, LocalDate dataFim) {
         if (StatusGarantia.AGUARDANDO_FINALIZACAO_OS.equals(status)) {
             throw new RuleValidationException("A garantia ainda não pode ser acionada, pois a OS não foi finalizada.");
@@ -292,6 +412,11 @@ public class GarantiaService {
         }
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar garantia pode ser
+     * encerrada.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarGarantiaPodeSerEncerrada(StatusGarantia status) {
         if (StatusGarantia.ENCERRADA.equals(status)) {
             throw new RuleValidationException("Garantia já está encerrada.");
@@ -301,6 +426,10 @@ public class GarantiaService {
         }
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar dados acionamento.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarDadosAcionamento(AcionamentoGarantiaDTO dto, LocalDate dataInicioGarantia) {
         if (dto == null) {
             throw new FieldValidationException("Informe os dados do acionamento da garantia.");
@@ -317,6 +446,10 @@ public class GarantiaService {
         ValidationUtils.dateNotBefore(dataAcionamento, dataInicioGarantia, "data do acionamento", "data de início da garantia");
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar dados encerramento.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarDadosEncerramento(AcionamentoGarantiaDTO dto, LocalDate dataAcionamento) {
         if (dto == null) {
             throw new FieldValidationException("Informe os dados do encerramento da garantia.");
@@ -330,14 +463,28 @@ public class GarantiaService {
         ValidationUtils.dateNotBefore(dataEncerramento, dataAcionamento, "data do encerramento", "data do acionamento");
     }
 
+    /**
+     * Função: Define a data de acionamento da garantia, usando a data informada ou a data atual quando
+     * não houver valor.
+     * Uso no sistema: registra corretamente quando o cliente retornou com problema dentro da garantia.
+     */
     private LocalDate resolverDataAcionamento(AcionamentoGarantiaDTO dto) {
         return dto != null && dto.getDataAcionamento() != null ? dto.getDataAcionamento() : LocalDate.now();
     }
 
+    /**
+     * Função: Define a data de encerramento da garantia, usando a data informada ou a data atual
+     * quando não houver valor.
+     * Uso no sistema: mantém histórico claro do fechamento do atendimento em garantia.
+     */
     private LocalDate resolverDataEncerramento(AcionamentoGarantiaDTO dto) {
         return dto != null && dto.getDataEncerramento() != null ? dto.getDataEncerramento() : LocalDate.now();
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar observacao acionamento.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private String montarObservacaoAcionamento(AcionamentoGarantiaDTO dto, String titulo) {
         StringBuilder sb = new StringBuilder(titulo);
         sb.append(" Motivo: ").append(limpar(dto.getMotivoAcionamento()));
@@ -352,6 +499,10 @@ public class GarantiaService {
         return sb.toString();
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar observacao encerramento.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private String montarObservacaoEncerramento(AcionamentoGarantiaDTO dto, String titulo) {
         StringBuilder sb = new StringBuilder(titulo);
         sb.append(" Solução aplicada: ").append(limpar(dto.getSolucaoAplicada()));
@@ -367,10 +518,20 @@ public class GarantiaService {
         return sb.toString();
     }
 
+    /**
+     * Função: Remove espaços extras e transforma texto vazio em valor nulo.
+     * Uso no sistema: evita gravar observações e descrições com sujeira ou campos aparentemente
+     * preenchidos sem conteúdo real.
+     */
     private String limpar(String valor) {
         return ValidationUtils.trimToNull(valor);
     }
 
+    /**
+     * Função: Junta a observação anterior com uma nova informação de garantia sem perder o histórico
+     * textual.
+     * Uso no sistema: preserva comentários feitos durante o acionamento e o encerramento da garantia.
+     */
     private String combinarObservacao(String atual, String nova) {
         if (atual == null || atual.trim().isEmpty()) {
             return nova;

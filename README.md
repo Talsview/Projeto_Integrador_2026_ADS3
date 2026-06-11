@@ -1,1337 +1,1313 @@
 # AV CAR AUTO CENTER — Sistema de Gestão para Oficina Mecânica
 
-Sistema acadêmico e operacional para controle de uma oficina mecânica local, desenvolvido para registrar e acompanhar clientes, veículos, histórico de proprietários, colaboradores, funções, ordens de serviço, serviços, peças, fornecedores, garantias, pagamentos, fila de atendimento, relatórios, emissão de documento em PDF e evidências de padrões de projeto.
+Sistema monolítico para gestão operacional de uma oficina mecânica local, desenvolvido para controlar clientes, veículos, colaboradores, funções, ordens de serviço, peças, fornecedores, pagamentos, garantias, fila de atendimento e geração de documentos em PDF.
 
-O projeto foi construído com foco em rastreabilidade, integridade dos dados, histórico operacional, organização em camadas e funcionamento local, sem dependência obrigatória de internet para a operação principal.
-
----
-
-## Sumário
-
-- [1. Visão geral](#1-visão-geral)
-- [2. Objetivo do sistema](#2-objetivo-do-sistema)
-- [3. Contexto acadêmico e operacional](#3-contexto-acadêmico-e-operacional)
-- [4. Principais funcionalidades](#4-principais-funcionalidades)
-- [5. Fluxo operacional da Ordem de Serviço](#5-fluxo-operacional-da-ordem-de-serviço)
-- [6. Regras de negócio consolidadas](#6-regras-de-negócio-consolidadas)
-- [7. Arquitetura do sistema](#7-arquitetura-do-sistema)
-- [8. Tecnologias utilizadas](#8-tecnologias-utilizadas)
-- [9. Estrutura de pastas](#9-estrutura-de-pastas)
-- [10. Modelo de dados e entidades principais](#10-modelo-de-dados-e-entidades-principais)
-- [11. Banco de dados](#11-banco-de-dados)
-- [12. Como executar o projeto](#12-como-executar-o-projeto)
-- [13. Acesso às telas do frontend](#13-acesso-às-telas-do-frontend)
-- [14. Endpoints principais da API](#14-endpoints-principais-da-api)
-- [15. Padrões de projeto aplicados](#15-padrões-de-projeto-aplicados)
-- [16. Estruturas de Dados I](#16-estruturas-de-dados-i)
-- [17. Validações e tratamento de erros](#17-validações-e-tratamento-de-erros)
-- [18. Relatórios e documentos](#18-relatórios-e-documentos)
-- [19. Configurações e diagnóstico local](#19-configurações-e-diagnóstico-local)
-- [20. Scripts SQL e documentação](#20-scripts-sql-e-documentação)
-- [21. Testes e verificação](#21-testes-e-verificação)
-- [22. Problemas comuns e soluções](#22-problemas-comuns-e-soluções)
-- [23. Observações para GitHub](#23-observações-para-github)
-- [24. Status do projeto](#24-status-do-projeto)
-- [25. Créditos acadêmicos](#25-créditos-acadêmicos)
+O projeto foi desenvolvido com foco em rastreabilidade, integridade dos dados, organização acadêmica, arquitetura em camadas, uso de padrões de projeto e funcionamento local, sem dependência obrigatória de internet.
 
 ---
 
-## 1. Visão geral
+## 1. Visão Geral do Projeto
 
-O **AV CAR AUTO CENTER** é um sistema para gestão de oficina mecânica, voltado para o controle de Ordens de Serviço e dos dados envolvidos em cada atendimento.
+O sistema AV CAR AUTO CENTER tem como objetivo informatizar o controle das Ordens de Serviço de uma oficina mecânica, permitindo registrar todo o fluxo de atendimento desde o cadastro do cliente e do veículo até a finalização da OS, pagamento e emissão de documento em PDF.
 
-O sistema permite registrar o atendimento desde a identificação do cliente e do veículo até a finalização da Ordem de Serviço, mantendo vínculos entre:
+O sistema permite controlar:
 
-- Cliente;
-- Veículo;
-- Proprietário atual e histórico de proprietários;
-- Ordem de Serviço;
-- Serviços executados;
-- Colaborador responsável por cada serviço;
-- Peças utilizadas;
-- Fornecedor de cada peça aplicada;
-- Garantias de peças e serviços;
-- Pagamentos;
-- Histórico de status da OS;
-- Auditoria de notificações operacionais.
-
-A aplicação foi pensada para uma oficina local, com operação em ambiente interno, utilizando banco de dados PostgreSQL local e frontend Angular consumindo uma API REST Spring Boot.
+* Clientes pessoa física e pessoa jurídica;
+* Veículos atendidos pela oficina;
+* Histórico de proprietários dos veículos;
+* Colaboradores e suas funções;
+* Serviços internos e terceirizados;
+* Ordens de Serviço;
+* Peças aplicadas em Ordens de Serviço;
+* Fornecedores das peças;
+* Garantias de peças e serviços;
+* Pagamentos;
+* Fila de atendimento;
+* Geração de nota/recibo interno em PDF.
 
 ---
 
-## 2. Objetivo do sistema
+## 2. Objetivo do Sistema
 
-O objetivo principal do sistema é substituir controles manuais ou incompletos por um controle informatizado, rastreável e organizado das Ordens de Serviço da oficina.
+O principal objetivo do sistema é melhorar o controle das Ordens de Serviço da oficina, garantindo que cada atendimento seja registrado de forma organizada e rastreável.
 
-O sistema busca resolver problemas como:
+A aplicação busca resolver problemas como:
 
-- Falta de rastreabilidade entre cliente, veículo, serviço e peças;
-- Dificuldade de saber qual colaborador executou cada serviço;
-- Falta de histórico de proprietários dos veículos;
-- Falta de identificação do fornecedor da peça aplicada;
-- Falta de controle correto do fluxo da OS;
-- Falta de controle de garantias;
-- Falta de histórico de status da Ordem de Serviço;
-- Dificuldade para controlar pagamentos parciais e quitação;
-- Dificuldade para comprovar padrões de projeto e estrutura de dados no trabalho acadêmico.
-
----
-
-## 3. Contexto acadêmico e operacional
-
-Este projeto foi desenvolvido para o Projeto Integrador do curso de Análise e Desenvolvimento de Sistemas, com o tema **Sistema para o controle de uma Oficina Mecânica**.
-
-O sistema atende às exigências acadêmicas de:
-
-- Aplicação em Java;
-- Arquitetura monolítica em camadas;
-- Uso de Model, DTO, Repository, Validation, Service, Controller, Response e View;
-- Aplicação de Generics;
-- Uso de banco de dados relacional;
-- Implementação de padrões de projeto;
-- Implementação de estrutura de dados linear, algoritmo de ordenação e função recursiva;
-- Documentação técnica e decisões arquiteturais;
-- Interface gráfica web em Angular;
-- Funcionamento local em ambiente Windows ou Linux.
-
-O sistema foi modelado com base nas necessidades de uma oficina mecânica local, cujo objetivo é controlar corretamente as Ordens de Serviço e manter histórico das informações operacionais.
+* Falta de controle histórico das OS;
+* Dificuldade para identificar peças utilizadas em cada serviço;
+* Falta de vínculo entre peça, fornecedor e garantia;
+* Falta de controle sobre quem executou cada serviço;
+* Falta de organização no fluxo da OS;
+* Falta de registro adequado dos pagamentos;
+* Dificuldade para consultar garantias;
+* Dificuldade para gerar documentos padronizados da OS.
 
 ---
 
-## 4. Principais funcionalidades
+## 3. Principais Funcionalidades
 
-### 4.1 Dashboard
+### 3.1 Clientes
 
-Tela inicial com visão geral da oficina, permitindo acesso rápido aos módulos principais.
-
-Funcionalidades previstas:
-
-- Resumo operacional;
-- Atalhos para cadastros e operações;
-- Acesso às telas de OS, fila, pagamentos, garantias e relatórios;
-- Identidade visual da oficina.
-
----
-
-### 4.2 Clientes
-
-Permite cadastrar, listar, pesquisar, editar e inativar clientes.
+O módulo de clientes permite cadastrar e consultar clientes da oficina.
 
 O cliente pode ser:
 
-- Pessoa Física;
-- Pessoa Jurídica.
+* Pessoa Física;
+* Pessoa Jurídica.
 
-Dados tratados:
+Dados principais:
 
-- Nome;
-- Telefone;
-- E-mail;
-- Endereço;
-- CPF;
-- RG;
-- Data de nascimento;
-- CNPJ;
-- Razão social;
-- Nome fantasia;
-- Inscrição estadual;
-- Status ativo/inativo.
+* Nome;
+* Telefone;
+* E-mail;
+* Endereço;
+* CPF ou CNPJ;
+* RG;
+* Data de nascimento;
+* Razão social;
+* Nome fantasia;
+* Inscrição estadual;
+* Status.
 
-Regras importantes:
+Regras aplicadas:
 
-- Todo cliente deve ser Pessoa Física ou Pessoa Jurídica;
-- Um cliente pode solicitar várias Ordens de Serviço;
-- A inativação é lógica, preservando histórico.
-
-Padrão de projeto aplicado neste módulo:
-
-- **Factory Method**, usado para criar corretamente cliente PF ou PJ.
+* Todo cliente deve ser classificado como pessoa física ou pessoa jurídica;
+* Um cliente pode solicitar nenhuma, uma ou várias Ordens de Serviço;
+* O cadastro de cliente alimenta os módulos de veículos e ordens de serviço.
 
 ---
 
-### 4.3 Veículos
+### 3.2 Veículos
 
-Permite cadastrar veículos atendidos pela oficina.
+O módulo de veículos permite cadastrar os veículos atendidos pela oficina.
 
-Dados tratados:
+Dados principais:
 
-- Marca;
-- Modelo;
-- Placa;
-- Chassi;
-- Cor;
-- Ano de fabricação;
-- Ano do modelo;
-- Quilometragem;
-- Proprietário atual;
-- Observações;
-- Histórico de proprietários.
+* Marca;
+* Modelo;
+* Placa;
+* Chassi;
+* Cor;
+* Ano de fabricação;
+* Ano do modelo;
+* Quilometragem;
+* Proprietário atual;
+* Data de início da posse;
+* Observações.
 
-Regras importantes:
+Regras aplicadas:
 
-- Um veículo pode ter vários proprietários ao longo do tempo;
-- O sistema mantém o histórico de proprietários;
-- A Ordem de Serviço sempre pertence a um veículo;
-- A identificação de marca, modelo, ano do veículo e ano do modelo apoia a rastreabilidade das peças aplicadas.
-
-Padrão de projeto aplicado neste módulo:
-
-- **Adapter**, usado para transformar dados complexos de veículo, marca, modelo e histórico em DTOs adequados para o frontend.
+* Um veículo pode ter vários proprietários ao longo do tempo;
+* O sistema mantém histórico de proprietários;
+* Todo veículo deve estar vinculado a um proprietário;
+* O veículo pode receber várias Ordens de Serviço;
+* Marca e modelo são utilizados para auxiliar na rastreabilidade das peças aplicáveis.
 
 ---
 
-### 4.4 Histórico de proprietários
+### 3.3 Histórico de Proprietários
 
-Registra a relação entre cliente e veículo ao longo do tempo.
+O histórico de proprietários registra a relação entre cliente e veículo ao longo do tempo.
 
-Importância:
+Esse módulo é importante porque um mesmo veículo pode trocar de dono, mas ainda assim manter seu histórico de manutenção.
 
-- Preserva o histórico do veículo mesmo que ele troque de dono;
-- Permite identificar o proprietário atual;
-- Mantém rastreabilidade entre cliente, veículo e Ordens de Serviço.
+Dados principais:
 
-Regras importantes:
+* Cliente;
+* Veículo;
+* Data de início da posse;
+* Data de fim da posse;
+* Observações.
 
-- Todo veículo deve possuir pelo menos um histórico de proprietário;
-- Um cliente pode aparecer em vários históricos de posse;
-- O proprietário atual é identificado pelo histórico ativo ou sem data final.
+Regras aplicadas:
 
----
-
-### 4.5 Colaboradores
-
-Permite cadastrar pessoas que trabalham na oficina.
-
-Dados tratados:
-
-- Nome;
-- Telefone;
-- E-mail;
-- Endereço;
-- Data de admissão;
-- Funções vinculadas;
-- Status ativo/inativo.
-
-Regras importantes:
-
-- Todo colaborador pode ter uma ou mais funções;
-- Todo serviço executado em uma OS deve ter um colaborador responsável;
-- Mecânico, atendente, secretária, faxineiro, estoquista e gerente são registros de Função, e não entidades separadas.
+* Um veículo pode ter mais de um proprietário ao longo do tempo;
+* O proprietário atual é identificado pelo histórico ativo;
+* O histórico preserva a rastreabilidade entre cliente, veículo e OS.
 
 ---
 
-### 4.6 Funções
+### 3.4 Colaboradores
 
-Permite cadastrar funções exercidas pelos colaboradores.
+O módulo de colaboradores permite cadastrar os funcionários da oficina.
+
+Dados principais:
+
+* Nome;
+* Telefone;
+* E-mail;
+* Endereço;
+* Data de admissão;
+* Status;
+* Funções vinculadas.
+
+Regras aplicadas:
+
+* Todo colaborador pode ter uma ou mais funções;
+* Um colaborador pode ser responsável por vários serviços em Ordens de Serviço;
+* O sistema não cria entidades separadas para mecânico, atendente, gerente etc.;
+* Mecânico, atendente, secretária, faxineiro e gerente são registros da entidade Função.
+
+---
+
+### 3.5 Funções
+
+O módulo de funções permite cadastrar os cargos ou funções exercidas pelos colaboradores.
 
 Exemplos:
 
-- Mecânico;
-- Atendente;
-- Secretária;
-- Faxineiro;
-- Estoquista;
-- Gerente.
+* Mecânico;
+* Atendente;
+* Secretária;
+* Estoquista;
+* Gerente;
+* Faxineiro.
 
-Regras importantes:
+Regras aplicadas:
 
-- Uma função pode ser atribuída a vários colaboradores;
-- Um colaborador pode possuir várias funções;
-- A entidade associativa `ColaboradorFuncao` registra a relação entre colaborador e função.
-
----
-
-### 4.7 Marcas e modelos
-
-Permite organizar os veículos por marca e modelo.
-
-Regras importantes:
-
-- Uma marca pode possuir vários modelos;
-- Um modelo pertence a uma única marca;
-- O veículo deve estar vinculado a um modelo e, indiretamente, a uma marca.
+* Uma função pode ser atribuída a vários colaboradores;
+* Um colaborador deve possuir pelo menos uma função;
+* A entidade Função evita a criação incorreta de entidades separadas para cada cargo.
 
 ---
 
-### 4.8 Serviços
+### 3.6 Marcas e Modelos
 
-Permite cadastrar serviços prestados pela oficina.
+O módulo de marcas e modelos permite organizar os dados dos veículos.
 
-Tipos de serviço:
+Dados principais de Marca:
 
-- Serviço Interno;
-- Serviço Terceirizado.
+* Nome da marca.
 
-Dados tratados:
+Dados principais de Modelo:
 
-- Nome;
-- Descrição;
-- Tipo do serviço;
-- Valor base;
-- Prazo de garantia em dias;
-- Status.
+* Nome do modelo;
+* Marca vinculada.
 
-Regras importantes:
+Regras aplicadas:
 
-- Todo serviço deve ser interno ou terceirizado;
-- Todo item de serviço em uma OS deve ter colaborador responsável;
-- Todo serviço executado gera garantia;
-- O prazo da garantia varia conforme o tipo de serviço.
+* Uma marca pode possuir vários modelos;
+* Um modelo pertence a uma única marca;
+* O veículo deve ser classificado por marca e modelo.
 
 ---
 
-### 4.9 Empresas terceirizadas
+### 3.7 Serviços
 
-Permite cadastrar empresas externas que executam serviços para a oficina.
+O módulo de serviços permite cadastrar os serviços que a oficina executa.
 
-Regras importantes:
+O serviço pode ser:
 
-- Serviços terceirizados podem ser executados por empresas externas;
-- Mesmo terceirizando, a oficina continua responsável perante o cliente;
-- A execução terceirizada é registrada por meio da entidade `ExecucaoServicoTerceirizado`.
+* Interno;
+* Terceirizado.
 
----
+Dados principais:
 
-### 4.10 Peças e fornecedores
+* Nome;
+* Tipo do serviço;
+* Descrição;
+* Valor base;
+* Prazo de garantia em dias.
 
-Permite cadastrar peças e fornecedores.
+Regras aplicadas:
 
-Dados de peças:
-
-- Código;
-- Nome;
-- Descrição;
-- Marca;
-- Aplicação;
-- Valor;
-- Prazo de garantia.
-
-Dados de fornecedores:
-
-- Nome;
-- CNPJ;
-- Telefone;
-- E-mail;
-- Endereço;
-- Observações.
-
-Regras importantes:
-
-- Toda peça usada em OS deve estar cadastrada;
-- Toda peça usada em OS deve ter fornecedor identificado;
-- Toda peça aplicada gera garantia;
-- A garantia da peça começa após a finalização da OS.
+* Todo serviço deve ser classificado como interno ou terceirizado;
+* Todo serviço executado em uma OS deve possuir colaborador responsável;
+* Todo serviço gera garantia;
+* O prazo da garantia varia conforme o tipo de serviço.
 
 ---
 
-### 4.11 Ordens de Serviço
+### 3.8 Empresas Terceirizadas
 
-Módulo principal do sistema.
+O módulo de empresas terceirizadas registra empresas externas que executam serviços para a oficina.
 
-Permite:
+Dados principais:
 
-- Criar nova OS;
-- Selecionar cliente;
-- Selecionar veículo vinculado ao cliente;
-- Definir prioridade;
-- Consultar OS;
-- Editar dados principais;
-- Inativar OS sem apagar fisicamente;
-- Controlar status;
-- Manter histórico de status.
+* Nome;
+* CNPJ;
+* Telefone;
+* E-mail;
+* Endereço;
+* Observações.
 
-Regras importantes:
+Regras aplicadas:
 
-- A OS nasce no status `ORCAMENTO`;
-- O número da OS é automático e não deve ser reutilizado;
-- OS inativada mantém o número reservado;
-- Toda OS pertence a um único cliente;
-- Toda OS pertence a um único veículo;
-- Toda OS deve ter histórico de status.
+* Um serviço terceirizado pode ser executado por uma empresa externa;
+* Mesmo quando o serviço é terceirizado, a oficina continua responsável perante o cliente;
+* A execução terceirizada fica vinculada ao Item de Serviço da OS.
 
 ---
 
-### 4.12 Serviços e peças da OS
+### 3.9 Peças e Fornecedores
 
-Tela responsável pelo orçamento técnico da OS.
+O módulo de peças e fornecedores registra as peças usadas nas Ordens de Serviço e seus respectivos fornecedores.
 
-Permite:
+Dados principais de Peça:
 
-- Adicionar serviços à OS;
-- Vincular colaborador responsável ao serviço;
-- Adicionar peças utilizadas;
-- Identificar fornecedor da peça;
-- Calcular valores;
-- Enviar orçamento para execução.
+* Nome;
+* Código;
+* Marca;
+* Aplicação;
+* Valor;
+* Prazo de garantia.
 
-Regra atual corrigida:
+Dados principais de Fornecedor:
 
-```text
-ORCAMENTO → EXECUCAO
-```
+* Nome;
+* CNPJ;
+* Telefone;
+* E-mail;
+* Endereço.
 
-Depois que o orçamento é montado, a OS vai para execução e passa a aparecer na Fila de Atendimento.
+Regras aplicadas:
+
+* Toda peça utilizada em uma OS deve estar cadastrada;
+* Toda peça usada deve estar vinculada a um fornecedor;
+* A peça gera garantia após a finalização da OS;
+* O fornecedor pode ser responsável por defeitos de peça dentro do prazo de garantia;
+* A oficina continua atendendo o cliente, mesmo quando a responsabilidade é do fornecedor.
 
 ---
 
-### 4.13 Fila de atendimento
+### 3.10 Ordens de Serviço
 
-Representa a fila operacional das OS em execução.
+O módulo de Ordens de Serviço é o principal módulo operacional do sistema.
 
-A tela exibe somente Ordens de Serviço com status:
+A OS representa o atendimento realizado pela oficina em um veículo de um cliente.
 
-```text
-EXECUCAO
-```
+Dados principais:
 
-Essa fila representa clientes/veículos que já tiveram o orçamento montado e aguardam ou estão em execução do serviço.
+* Cliente;
+* Veículo;
+* Data de abertura;
+* Status;
+* Prioridade;
+* Observações;
+* Valor total;
+* Histórico de status.
+
+Fluxo da OS:
+
+1. Orçamento;
+2. Execução;
+3. Pagamento;
+4. Finalizado.
+
+Regras aplicadas:
+
+* Toda OS pertence a um único cliente;
+* Toda OS pertence a um único veículo;
+* Uma OS deve possuir pelo menos um serviço;
+* Uma OS pode ou não utilizar peças;
+* Toda OS possui histórico de status;
+* A OS só deve ser finalizada após o controle de pagamento;
+* A finalização da OS inicia a contagem das garantias.
+
+---
+
+### 3.11 Serviços e Peças da OS
+
+Esse módulo permite adicionar serviços e peças a uma Ordem de Serviço.
 
 Funcionalidades:
 
-- Listagem da fila de atendimento;
-- Ordenação manual por data;
-- Ordenação manual por valor;
-- Ordenação manual por prioridade;
-- Pesquisa linear;
-- Cálculo total recursivo da OS;
-- Envio da OS para pagamento ao finalizar a execução.
+* Selecionar uma OS;
+* Adicionar serviço à OS;
+* Definir colaborador responsável pelo serviço;
+* Adicionar peça utilizada na OS;
+* Informar fornecedor da peça;
+* Atualizar valor total da OS;
+* Consultar itens já vinculados.
 
-Regra operacional:
+Regras aplicadas:
 
-```text
-ORCAMENTO → EXECUCAO → PAGAMENTO → FINALIZADO
-```
+* Todo Item de Serviço deve possuir colaborador responsável;
+* Toda peça utilizada deve estar vinculada a uma Peça cadastrada;
+* Toda peça utilizada deve possuir Fornecedor identificado;
+* Item de Serviço gera Garantia de Serviço;
+* Item de Peça gera Garantia de Peça.
 
 ---
 
-### 4.14 Pagamentos
+### 3.12 Pagamentos
 
-Controla os pagamentos vinculados à OS.
+O módulo de pagamentos controla o recebimento financeiro das Ordens de Serviço.
+
+Dados principais:
+
+* Ordem de Serviço;
+* Forma de pagamento;
+* Valor pago;
+* Data do pagamento;
+* Status do pagamento;
+* Observação.
 
 Funcionalidades:
 
-- Registrar pagamento;
-- Editar pagamento;
-- Consultar pagamentos por OS;
-- Visualizar resumo financeiro;
-- Controlar pagamentos parciais;
-- Identificar quitação;
-- Finalizar OS após quitação.
+* Selecionar OS;
+* Carregar resumo financeiro;
+* Exibir total da OS;
+* Exibir valor já pago;
+* Exibir saldo pendente;
+* Registrar novo pagamento;
+* Atualizar tabela de pagamentos;
+* Atualizar resumo financeiro automaticamente.
 
-Regras importantes:
+Regras aplicadas:
 
-- Apenas OS em `PAGAMENTO` devem entrar no módulo de pagamentos;
-- A OS só deve ser finalizada após quitação financeira;
-- A OS pode ter nenhum, um ou vários pagamentos;
-- Ao quitar o valor total, a OS segue para `FINALIZADO`.
+* Uma OS pode não ter pagamento enquanto estiver em orçamento ou execução;
+* Uma OS pode ter um ou vários pagamentos;
+* O valor pendente é calculado com base no total da OS menos os pagamentos registrados;
+* Ao registrar pagamento suficiente para quitação, a OS pode avançar no fluxo conforme regra do backend.
 
 ---
 
-### 4.15 Garantias
+### 3.13 Garantias
 
-Controla garantias de peças e serviços.
+O módulo de garantias controla as garantias de peças e serviços.
+
+Tipos de garantia:
+
+* Garantia de peça;
+* Garantia de serviço.
+
+Dados principais:
+
+* Ordem de Serviço;
+* Cliente;
+* Item garantido;
+* Data de início;
+* Data de fim;
+* Status;
+* Responsabilidade;
+* Observações.
+
+Status possíveis:
+
+* Ativa;
+* Acionada;
+* Encerrada;
+* Expirada.
+
+Regras aplicadas:
+
+* Toda peça usada em OS gera garantia;
+* Todo serviço executado em OS gera garantia;
+* A garantia da peça começa após a finalização da OS;
+* A garantia do serviço varia conforme o tipo de serviço;
+* Se a peça apresentar defeito dentro da garantia, a oficina atende o cliente, mas a responsabilidade pode ser do fornecedor.
+
+---
+
+### 3.14 Fila de Atendimento
+
+A Fila de Atendimento representa a aplicação prática de estrutura de dados no sistema.
+
+Ela organiza as Ordens de Serviço aguardando atendimento ou execução.
 
 Funcionalidades:
 
-- Consultar garantias de peças;
-- Consultar garantias de serviços;
-- Acionar garantia;
-- Registrar motivo do acionamento;
-- Registrar defeito apresentado;
-- Registrar responsável pela análise;
-- Encerrar atendimento de garantia;
-- Registrar solução aplicada;
-- Registrar quem assumiu o custo.
+* Exibir OS aguardando atendimento;
+* Ordenar por data de abertura;
+* Ordenar por prioridade;
+* Ordenar por valor total;
+* Consultar OS na fila;
+* Apoiar o controle operacional da oficina.
 
-Regras importantes:
+Justificativa acadêmica:
 
-- Todo item de peça gera garantia de peça;
-- Todo item de serviço gera garantia de serviço;
-- A garantia da peça começa após finalização da OS;
-- A garantia de serviço varia conforme o tipo de serviço;
-- A oficina atende o cliente mesmo quando a responsabilidade pode ser do fornecedor.
+* A fila representa uma estrutura de dados linear;
+* O controle por ordem de chegada simula o atendimento real da oficina;
+* A ordenação manual permite aplicar algoritmo próprio sem depender de bibliotecas prontas.
 
 ---
 
-### 4.16 Relatórios
+### 3.15 Geração de Nota/Recibo em PDF
 
-Módulo de consultas gerenciais e exportação.
+O sistema possui geração de documento PDF baseado nos dados da Ordem de Serviço.
 
-Funcionalidades previstas/implementadas:
+Esse documento funciona como uma nota/recibo interno simplificado para controle da oficina.
 
-- Relatórios operacionais;
-- Relatórios de OS;
-- Relatórios de pagamentos;
-- Relatórios de garantias;
-- Exportação de dados para planilha;
-- Fallback de dados para evitar tela vazia quando algum endpoint não retorna registros.
+O PDF contém:
+
+* Cabeçalho da oficina;
+* Dados do cliente;
+* Dados do veículo;
+* Dados da OS;
+* Serviços executados;
+* Peças utilizadas;
+* Fornecedores;
+* Pagamentos;
+* Totais;
+* Saldo pendente;
+* Observações;
+* Campo de assinatura do cliente;
+* Campo de assinatura da oficina.
+
+Endpoint backend:
+
+```http
+GET /api/notas-fiscais/ordens-servico/{id}/pdf
+```
+
+No frontend, o botão fica em:
+
+```text
+Operação → Ordens de Serviço → Coluna Ações → Nota PDF
+```
+
+Observação importante:
+
+Este documento é uma nota/recibo interno simplificado para fins acadêmicos e de controle operacional. Ele não substitui uma Nota Fiscal Eletrônica oficial autorizada por prefeitura, SEFAZ ou órgão fiscal competente.
 
 ---
 
-### 4.17 Configurações
+## 4. Arquitetura do Sistema
 
-Tela para diagnóstico do ambiente local.
+O sistema utiliza arquitetura monolítica em camadas.
 
-Mostra informações relacionadas à conexão com o banco de dados, usando o Singleton reformulado como monitor operacional.
+A aplicação foi organizada para separar responsabilidades, facilitar manutenção e atender aos requisitos acadêmicos do Projeto Integrador.
 
-Informações exibidas:
+Camadas principais:
 
-- Status da conexão;
-- Tempo de resposta do PostgreSQL;
-- Quantidade de verificações realizadas;
-- Falhas consecutivas;
-- Última verificação;
-- Última mudança de status;
-- Último erro sanitizado;
-- Indicação de cache.
+```text
+Model
+DTO
+Repository
+Validation
+Service
+Controller
+Response
+View
+```
+
+### 4.1 Model
+
+A camada Model representa as entidades do domínio.
+
+Exemplos:
+
+* Pessoa;
+* Cliente;
+* PessoaFisica;
+* PessoaJuridica;
+* Colaborador;
+* Funcao;
+* Veiculo;
+* OrdemServico;
+* ItemServico;
+* ItemPeca;
+* Peca;
+* Fornecedor;
+* Pagamento;
+* GarantiaPeca;
+* GarantiaServico.
+
+Também existe uma estrutura genérica com BaseModel para padronizar entidades.
 
 ---
 
-### 4.18 Padrões de Projeto
+### 4.2 DTO
 
-Tela criada para evidenciar academicamente os padrões aplicados no sistema.
+A camada DTO é utilizada para transportar dados entre frontend e backend.
 
-Permite visualizar:
+Ela evita expor diretamente as entidades do banco na API.
 
-- Nome do padrão;
-- Classe principal;
-- Local de aplicação;
-- Justificativa;
-- Evidência funcional.
+DTOs podem ser usados para:
 
-Endpoint de apoio:
-
-```text
-GET /api/padroes-projeto
-```
+* Cadastro;
+* Atualização;
+* Consulta;
+* Resumo;
+* Resposta simplificada;
+* Geração de documentos.
 
 ---
 
-## 5. Fluxo operacional da Ordem de Serviço
+### 4.3 Repository
 
-O fluxo oficial da OS no sistema é:
+A camada Repository é responsável pela comunicação com o banco de dados.
 
-```text
-ORCAMENTO → EXECUCAO → PAGAMENTO → FINALIZADO
-```
+O projeto utiliza Spring Data JPA para simplificar operações de persistência.
 
-### 5.1 Criação da OS
+Funções da camada:
 
-Quando uma OS é cadastrada, ela nasce automaticamente como:
-
-```text
-ORCAMENTO
-```
-
-Neste momento, o cliente e o veículo são identificados, e o atendimento é registrado.
-
-### 5.2 Montagem do orçamento
-
-Na tela **Serviços e Peças da OS**, são adicionados:
-
-- Serviços necessários;
-- Colaborador responsável por cada serviço;
-- Peças a serem utilizadas;
-- Fornecedor de cada peça;
-- Valores.
-
-Ao concluir o orçamento, a OS vai para:
-
-```text
-EXECUCAO
-```
-
-### 5.3 Fila de atendimento
-
-A tela **Fila de Atendimento** lista as OS em:
-
-```text
-EXECUCAO
-```
-
-Essa tela representa a operação da oficina: serviços que já foram orçados e agora precisam ser executados.
-
-Após a execução, a OS segue para:
-
-```text
-PAGAMENTO
-```
-
-### 5.4 Pagamento
-
-Na tela **Pagamentos**, são registrados os pagamentos da OS.
-
-A OS pode receber:
-
-- Um pagamento único;
-- Vários pagamentos parciais.
-
-Quando o valor pago atinge o total da OS, o sistema pode finalizar a Ordem de Serviço.
-
-### 5.5 Finalização
-
-Após quitação, a OS segue para:
-
-```text
-FINALIZADO
-```
-
-A partir da finalização, inicia-se a contagem das garantias de peças e serviços.
+* Salvar registros;
+* Atualizar registros;
+* Buscar por ID;
+* Listar registros;
+* Consultar dados relacionados;
+* Verificar existência de registros.
 
 ---
 
-## 6. Regras de negócio consolidadas
+### 4.4 Validation
 
-Principais regras aplicadas no sistema:
+A camada Validation concentra validações de regra de negócio antes de salvar ou alterar dados.
 
-| Código | Regra |
-|---|---|
-| RN01 | Toda pessoa cadastrada deve ser Cliente, Colaborador ou ambos. |
-| RN02 | Todo cliente deve ser Pessoa Física ou Pessoa Jurídica. |
-| RN03 | Um veículo pode ter vários proprietários ao longo do tempo. |
-| RN04 | O histórico de proprietário registra Cliente e Veículo. |
-| RN05 | Todo veículo deve possuir pelo menos um histórico de proprietário. |
-| RN06 | Cliente pode solicitar várias Ordens de Serviço. |
-| RN07 | Toda OS pertence a um único Cliente. |
-| RN08 | Veículo pode receber várias Ordens de Serviço. |
-| RN09 | Toda OS pertence a um único Veículo. |
-| RN10 | Toda OS deve possuir histórico de status. |
-| RN11 | A OS segue o fluxo ORCAMENTO, EXECUCAO, PAGAMENTO e FINALIZADO. |
-| RN12 | Toda OS deve possuir pelo menos um item de serviço para avançar no fluxo. |
-| RN13 | Todo item de serviço possui colaborador responsável. |
-| RN14 | Colaborador pode possuir uma ou mais funções. |
-| RN15 | Funções como mecânico e atendente são registros de Função. |
-| RN16 | Todo serviço é Interno ou Terceirizado. |
-| RN17 | Serviço terceirizado gera execução terceirizada. |
-| RN18 | Empresa terceirizada pode executar várias terceirizações. |
-| RN19 | A oficina permanece responsável pelo serviço terceirizado perante o cliente. |
-| RN20 | OS pode ou não utilizar peças. |
-| RN21 | Peça usada na OS deve ser registrada como ItemPeca. |
-| RN22 | ItemPeca deve estar vinculado a uma peça cadastrada. |
-| RN23 | ItemPeca deve ter fornecedor identificado. |
-| RN24 | ItemPeca gera GarantiaPeca. |
-| RN25 | ItemServico gera GarantiaServico. |
-| RN26 | Garantia da peça começa após finalizar a OS. |
-| RN27 | Garantia do serviço varia conforme o tipo de serviço. |
-| RN28 | OS pode gerar nenhum, um ou vários pagamentos. |
-| RN29 | O sistema deve priorizar rastreabilidade entre cliente, veículo, OS, serviço, peça, fornecedor e garantia. |
-| RN30 | O sistema deve funcionar localmente, sem dependência obrigatória de internet. |
+Exemplos de validações:
+
+* Cliente deve ter tipo válido;
+* CPF/CNPJ não deve ser vazio quando obrigatório;
+* Colaborador deve ter pelo menos uma função;
+* OS deve ter cliente e veículo;
+* Serviço da OS deve ter colaborador responsável;
+* Peça da OS deve ter fornecedor;
+* Pagamento não pode violar regra financeira;
+* Garantia deve estar vinculada a item válido.
 
 ---
 
-## 7. Arquitetura do sistema
+### 4.5 Service
 
-O sistema segue uma arquitetura monolítica em camadas.
+A camada Service concentra as regras de negócio.
 
-### 7.1 Visão geral
+Responsabilidades:
 
-```text
-Frontend Angular
-        ↓
-API REST Spring Boot
-        ↓
-Camada Controller
-        ↓
-Camada Service
-        ↓
-Camada Repository
-        ↓
-Banco PostgreSQL
-```
+* Orquestrar operações;
+* Aplicar validações;
+* Chamar repositories;
+* Controlar fluxo de OS;
+* Calcular totais;
+* Registrar histórico;
+* Controlar garantias;
+* Gerar PDF;
+* Preparar respostas para controller.
 
-### 7.2 Camadas do backend
+---
 
-O backend foi organizado com as seguintes camadas:
+### 4.6 Controller
 
-| Camada | Responsabilidade |
-|---|---|
-| Model | Representa as entidades persistidas no banco. |
-| DTO | Transporta dados entre API e frontend. |
-| Mapper | Converte Model para DTO e DTO para Model. |
-| Repository | Acessa o banco de dados via Spring Data JPA. |
-| Validation | Centraliza validações de campos e regras. |
-| Service | Implementa regras de negócio. |
-| Controller | Expõe endpoints REST. |
-| Response | Padroniza respostas da API. |
-| View | Frontend Angular. |
+A camada Controller expõe os endpoints REST da aplicação.
 
-### 7.3 Uso de Generics
+Responsabilidades:
 
-O projeto possui estrutura genérica para reduzir repetição de CRUD:
+* Receber requisições HTTP;
+* Chamar services;
+* Retornar respostas padronizadas;
+* Disponibilizar endpoints para o Angular;
+* Expor geração de PDF.
 
-- `BaseModel`;
-- `BaseDTO`;
-- `IGenericRepository`;
-- `IGenericService`;
-- `GenericService`;
-- `IGenericMapper`;
-- `GenericController`;
-- `ApiResponse<T>`;
-- `PageResponse<T>`.
+---
 
-Exemplo de resposta padronizada:
+### 4.7 Response
+
+A camada Response padroniza o retorno da API.
+
+Ela ajuda o frontend a interpretar respostas de forma consistente.
+
+Exemplo de retorno esperado:
 
 ```json
 {
-  "success": true,
-  "status": 200,
-  "message": "Registro localizado com sucesso.",
-  "data": {},
-  "timestamp": "2026-06-10T20:00:00"
+  "sucesso": true,
+  "mensagem": "Registro salvo com sucesso.",
+  "dados": {}
 }
 ```
 
-### 7.4 Inativação lógica
+---
 
-A exclusão no sistema é lógica.
+### 4.8 View
 
-Quando um registro é inativado, ele não é removido fisicamente do banco. O campo `ativo` é alterado para `false`.
+A camada View é implementada em Angular.
 
-Isso preserva:
+Ela consome a API REST do backend e apresenta as telas para o usuário.
 
-- Histórico;
-- Rastreabilidade;
-- Integridade;
-- Numeração de OS;
-- Evidências de atendimento.
+Responsabilidades:
+
+* Exibir formulários;
+* Exibir tabelas;
+* Realizar consultas;
+* Enviar dados para API;
+* Exibir mensagens de sucesso e erro;
+* Baixar documentos PDF;
+* Manter interface responsiva.
 
 ---
 
-## 8. Tecnologias utilizadas
+## 5. Tecnologias Utilizadas
 
 ### Backend
 
-- Java 21;
-- Spring Boot 3.5.13;
-- Spring Web;
-- Spring Data JPA;
-- Hibernate;
-- PostgreSQL Driver;
-- Lombok;
-- OpenPDF;
-- Springdoc OpenAPI/Swagger;
-- Maven.
+* Java;
+* Spring Boot;
+* Spring Web;
+* Spring Data JPA;
+* Bean Validation;
+* Maven;
+* PostgreSQL;
+* OpenPDF para geração de documentos PDF.
 
 ### Frontend
 
-- Angular 22;
-- TypeScript;
-- RxJS;
-- HTML;
-- CSS;
-- Angular Router;
-- Angular Forms;
-- Proxy de desenvolvimento para integração com backend.
+* Angular;
+* TypeScript;
+* HTML;
+* CSS;
+* RxJS;
+* Angular Router;
+* Serviços HTTP;
+* Layout responsivo.
 
-### Banco de dados
+### Banco de Dados
 
-- PostgreSQL;
-- Scripts SQL versionados;
-- Criação manual de schema;
-- Seeds iniciais;
-- Scripts de verificação.
+* PostgreSQL;
+* Scripts SQL para criação, seed e verificações;
+* Funcionamento local.
 
-### Ferramentas recomendadas
+### Documentação
 
-- NetBeans ou IntelliJ IDEA para backend;
-- Visual Studio Code para frontend;
-- pgAdmin para banco;
-- Git e GitHub para versionamento;
-- Postman, Insomnia ou Swagger para testar API.
-
----
-
-## 9. Estrutura de pastas
-
-Estrutura principal do projeto:
-
-```text
-car-repair
-├── database
-│   ├── 01_schema
-│   ├── 02_seed
-│   ├── 03_verificacoes
-│   └── 04_completo
-├── docs
-│   ├── adr
-│   └── relatorios
-├── frontend
-│   └── oficina-web
-├── src
-│   ├── main
-│   │   ├── java
-│   │   │   └── br/com/avcar/oficina
-│   │   └── resources
-│   └── test
-├── pom.xml
-└── README.md
-```
-
-### 9.1 Backend
-
-```text
-src/main/java/br/com/avcar/oficina
-├── business
-│   ├── garantia
-│   ├── notafiscal
-│   ├── ordemservico
-│   ├── pagamento
-│   ├── peca
-│   ├── pessoa
-│   ├── servico
-│   └── veiculo
-├── core
-│   ├── config
-│   ├── controller
-│   ├── database
-│   ├── designpattern
-│   ├── dto
-│   ├── estrutura
-│   ├── exception
-│   ├── mapper
-│   ├── model
-│   ├── notification
-│   ├── repository
-│   ├── response
-│   ├── service
-│   └── validation
-└── view
-    └── api
-```
-
-### 9.2 Frontend
-
-```text
-frontend/oficina-web/src/app
-├── core
-│   ├── interceptors
-│   ├── models
-│   ├── services
-│   └── validation
-├── models
-├── pages
-│   ├── clientes
-│   ├── colaboradores
-│   ├── configuracoes
-│   ├── dashboard
-│   ├── empresas-terceirizadas
-│   ├── estrutura-dados
-│   ├── funcoes
-│   ├── garantias
-│   ├── itens-os
-│   ├── marcas-modelos
-│   ├── ordens-servico
-│   ├── padroes-projeto
-│   ├── pagamentos
-│   ├── pecas-fornecedores
-│   ├── relatorios
-│   ├── servicos
-│   └── veiculos
-├── app.component.*
-├── app.config.ts
-└── app.routes.ts
-```
+* README;
+* ADRs;
+* Documentação de banco;
+* Scripts de verificação;
+* Modelo conceitual, lógico e físico;
+* Documentos acadêmicos do projeto.
 
 ---
 
-## 10. Modelo de dados e entidades principais
+## 6. Estrutura Geral do Projeto
 
-Entidades principais do sistema:
-
-| Entidade | Finalidade |
-|---|---|
-| Pessoa | Dados comuns de pessoas. |
-| Cliente | Pessoa atendida pela oficina. |
-| PessoaFisica | Especialização de Cliente com CPF. |
-| PessoaJuridica | Especialização de Cliente com CNPJ. |
-| Colaborador | Pessoa que trabalha na oficina. |
-| Funcao | Função exercida pelo colaborador. |
-| ColaboradorFuncao | Entidade associativa entre colaborador e função. |
-| Veiculo | Veículo atendido pela oficina. |
-| Marca | Marca do veículo. |
-| Modelo | Modelo do veículo. |
-| HistoricoProprietario | Histórico de posse do veículo. |
-| OrdemServico | Registro principal do atendimento. |
-| StatusOrdemServico | Status possíveis da OS. |
-| HistoricoStatusOrdem | Histórico de evolução da OS. |
-| Servico | Cadastro geral de serviço. |
-| ServicoInterno | Especialização de serviço interno. |
-| ServicoTerceirizado | Especialização de serviço terceirizado. |
-| ItemServico | Serviço executado em uma OS. |
-| EmpresaTerceirizada | Empresa externa que executa serviço. |
-| ExecucaoServicoTerceirizado | Registro da execução terceirizada. |
-| Peca | Cadastro de peça. |
-| Fornecedor | Fornecedor de peça. |
-| ItemPeca | Peça aplicada em uma OS. |
-| GarantiaPeca | Garantia da peça aplicada. |
-| GarantiaServico | Garantia do serviço executado. |
-| Pagamento | Pagamento vinculado à OS. |
-| NotificacaoAuditoria | Auditoria persistente de notificações operacionais. |
-
-### 10.1 Generalizações e especializações
+Estrutura resumida:
 
 ```text
-Pessoa → Cliente / Colaborador
-Tipo: compartilhada e total
+car-repair/
+├── backend/
+│   └── src/
+│       └── main/
+│           ├── java/
+│           └── resources/
+│
+├── frontend/
+│   └── oficina-web/
+│       ├── src/
+│       │   ├── app/
+│       │   ├── assets/
+│       │   └── index.html
+│       ├── public/
+│       ├── angular.json
+│       └── package.json
+│
+├── database/
+│   ├── 01_schema/
+│   ├── 02_seed/
+│   ├── 03_verificacoes/
+│   └── README_BANCO.md
+│
+├── docs/
+│   ├── adr/
+│   └── relatorios/
+│
+├── scripts/
+│
+├── README.md
+└── pom.xml
 ```
 
-Uma pessoa cadastrada pode ser cliente, colaborador ou ambos.
+Observação:
 
-```text
-Cliente → PessoaFisica / PessoaJuridica
-Tipo: exclusiva e total
-```
-
-Todo cliente é pessoa física ou pessoa jurídica, nunca ambos.
-
-```text
-Servico → ServicoInterno / ServicoTerceirizado
-Tipo: exclusiva e total
-```
-
-Todo serviço é interno ou terceirizado, nunca ambos.
+A estrutura pode variar levemente conforme a versão do projeto, mas a organização principal segue backend, frontend, database, docs e scripts.
 
 ---
 
-## 11. Banco de dados
+## 7. Banco de Dados
 
-O projeto utiliza PostgreSQL local.
+O banco de dados foi pensado para funcionar localmente.
 
-### 11.1 Configuração padrão
+O sistema utiliza PostgreSQL.
 
-Arquivo:
+### 7.1 Criação do Banco
 
-```text
-src/main/resources/application.properties
-```
-
-Configuração padrão do projeto:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/car_repair
-spring.datasource.username=postgres
-spring.datasource.password=1234
-spring.jpa.hibernate.ddl-auto=validate
-```
-
-A senha deve ser ajustada conforme o PostgreSQL instalado na máquina.
-
-### 11.2 Criação do banco
-
-No pgAdmin ou psql, crie o banco:
+Crie o banco no PostgreSQL:
 
 ```sql
-CREATE DATABASE car_repair;
+CREATE DATABASE oficina_mecanica;
 ```
 
-### 11.3 Execução dos scripts
+Depois execute os scripts SQL do projeto.
 
-Forma recomendada para montar do zero:
+Organização recomendada:
 
 ```text
-1. database/01_schema/01_create_schema.sql
-2. database/02_seed/02_seed_inicial.sql
+database/
+├── 01_schema/
+│   └── criação das tabelas
+├── 02_seed/
+│   └── dados iniciais
+├── 03_verificacoes/
+│   └── consultas de verificação
+└── README_BANCO.md
 ```
 
-Se estiver atualizando uma base antiga para a Etapa 57, execute também:
+### 7.2 Estratégia de Scripts
 
-```text
-database/01_schema/03_create_notificacao_auditoria.sql
-```
+Como o banco será criado manualmente, o projeto mantém scripts SQL para:
 
-Alternativa para demonstração rápida:
+* Criar tabelas;
+* Criar constraints;
+* Criar relacionamentos;
+* Inserir dados iniciais;
+* Validar dados cadastrados;
+* Verificar comunicação com frontend;
+* Verificar geração de PDF.
 
-```text
-database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
-```
-
-### 11.4 Por que o Hibernate está como validate?
-
-O projeto usa:
-
-```properties
-spring.jpa.hibernate.ddl-auto=validate
-```
-
-Isso significa que o Hibernate não cria nem altera tabelas automaticamente. Ele apenas valida se o banco físico está compatível com os Models.
-
-Essa decisão foi adotada porque o banco faz parte da entrega acadêmica e deve ser criado por scripts SQL versionados.
+Essa abordagem permite recriar o banco em outro computador sem depender de internet.
 
 ---
 
-## 12. Como executar o projeto
+## 8. Configuração do Backend
 
-### 12.1 Pré-requisitos
+### 8.1 Pré-requisitos
 
-Instale:
+Instalar:
 
-- JDK 21;
-- Maven;
-- PostgreSQL;
-- Node.js compatível com Angular 22;
-- Angular CLI;
-- Git.
+* Java compatível com o projeto;
+* Maven;
+* PostgreSQL;
+* IDE de preferência, como NetBeans, IntelliJ ou VS Code.
 
-### 12.2 Configurar Java e Maven
+### 8.2 Configuração do Banco
 
-Confirme no terminal:
+No arquivo de configuração do Spring Boot, ajuste os dados do banco.
 
-```bash
-java -version
-javac -version
-mvn -version
+Exemplo:
+
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/oficina_mecanica
+spring.datasource.username=postgres
+spring.datasource.password=sua_senha
+
+spring.jpa.hibernate.ddl-auto=none
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 ```
 
-O Maven deve estar usando Java 21.
+Observação:
 
-Exemplo esperado:
+O projeto utiliza scripts SQL, portanto recomenda-se manter:
 
-```text
-Java version: 21
-Java home: C:\Program Files\Java\jdk-21
+```properties
+spring.jpa.hibernate.ddl-auto=none
 ```
 
-Se estiver usando NetBeans, confira também a configuração do Maven dentro da IDE. Caso o Maven esteja apontando para outro JDK, como JDK 26, o Lombok pode falhar e aparecerem erros do tipo `cannot find symbol` para getters e setters.
+Assim o Hibernate não tenta recriar o banco automaticamente.
 
-### 12.3 Executar backend
+---
+
+### 8.3 Rodando o Backend
 
 Na raiz do projeto:
 
-```bash
-cd car-repair
-mvn clean install -DskipTests
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair
 mvn spring-boot:run
 ```
 
-O backend sobe por padrão em:
+Após iniciar, a API deve ficar disponível em:
 
 ```text
-http://localhost:9081
+http://localhost:8080
 ```
 
-### 12.4 Acessar Swagger
-
-Com o backend rodando:
+Swagger:
 
 ```text
-http://localhost:9081/swagger-ui.html
+http://localhost:8080/swagger-ui/index.html
 ```
 
-Documentação OpenAPI:
+---
 
-```text
-http://localhost:9081/api-docs
+## 9. Configuração do Frontend
+
+### 9.1 Pré-requisitos
+
+Instalar:
+
+* Node.js;
+* npm;
+* Angular CLI.
+
+Como o projeto foi ajustado para Angular mais recente, recomenda-se usar Node compatível com a versão do Angular instalada.
+
+### 9.2 Caminho Correto do Angular
+
+O projeto Angular fica em:
+
+```powershell
+C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
 ```
 
-### 12.5 Executar frontend
+Erro comum:
 
-Em outro terminal:
+Rodar `npm.cmd start` dentro da pasta errada:
 
-```bash
-cd car-repair/frontend/oficina-web
-npm install
-npm start
+```powershell
+C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend
 ```
 
-O Angular sobe normalmente em:
+Essa pasta não contém `package.json`.
+
+O comando correto é:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd start
+```
+
+Ou, se estiver usando proxy:
+
+```powershell
+npm.cmd run start:proxy
+```
+
+---
+
+### 9.3 Acesso ao Frontend
+
+Após rodar o Angular, acesse:
 
 ```text
 http://localhost:4200
 ```
 
-O projeto usa proxy para redirecionar `/api` para o backend.
-
-Arquivo:
+Caso alterações visuais ou favicon não apareçam, pressione:
 
 ```text
-frontend/oficina-web/proxy.conf.json
+CTRL + F5
 ```
 
-### 12.6 Ordem correta de execução
+Isso força o navegador a limpar cache da aplicação.
+
+---
+
+## 10. Integração Angular com Backend
+
+O Angular se comunica com o backend por meio de services HTTP.
+
+A comunicação segue este fluxo:
 
 ```text
-1. Criar banco PostgreSQL.
-2. Executar schema.
-3. Executar seed.
-4. Conferir application.properties.
-5. Rodar backend Spring Boot.
-6. Rodar frontend Angular.
-7. Acessar http://localhost:4200.
+Componente Angular
+→ Service Angular
+→ API REST Spring Boot
+→ Service Backend
+→ Repository
+→ Banco de Dados PostgreSQL
+```
+
+Após o retorno da API:
+
+```text
+Banco de Dados
+→ Repository
+→ Service Backend
+→ Controller
+→ Response
+→ Service Angular
+→ Componente Angular
+→ Tela atualizada
+```
+
+Comportamento obrigatório das telas:
+
+* Carregar dados automaticamente ao abrir;
+* Atualizar listagem após salvar;
+* Atualizar listagem após editar;
+* Atualizar listagem após inativar;
+* Atualizar listagem após registrar pagamento;
+* Atualizar dados após adicionar serviço ou peça;
+* Evitar depender de clique manual para atualizar;
+* Exibir mensagens claras de erro ou sucesso.
+
+---
+
+## 11. Organização Visual do Sistema
+
+O frontend foi reformulado para parecer um sistema administrativo real de oficina.
+
+Características visuais:
+
+* Menu superior por categorias;
+* Paleta baseada na identidade da oficina;
+* Azul automotivo;
+* Laranja de destaque;
+* Cinza metálico;
+* Formulários organizados;
+* Tabelas profissionais;
+* Botões padronizados;
+* Badges de status;
+* Layout responsivo;
+* Logos responsivas.
+
+---
+
+## 12. Menu do Sistema
+
+O menu principal é organizado por categorias.
+
+### Início
+
+* Visão Geral da Oficina.
+
+### Operação
+
+* Ordens de Serviço;
+* Serviços e Peças da OS;
+* Fila de Atendimento;
+* Pagamentos;
+* Garantias.
+
+### Cadastros
+
+* Clientes;
+* Veículos;
+* Colaboradores;
+* Funções;
+* Marcas e Modelos;
+* Serviços;
+* Empresas Terceirizadas;
+* Peças e Fornecedores.
+
+### Gestão
+
+* Relatórios;
+* Configurações.
+
+---
+
+## 13. Tela Inicial — Visão Geral da Oficina
+
+A tela inicial exibe um resumo operacional da oficina.
+
+Indicadores:
+
+* Ordens abertas;
+* OS em execução;
+* OS aguardando pagamento;
+* Garantias ativas;
+* Clientes cadastrados;
+* Veículos cadastrados.
+
+Atalhos:
+
+* Nova OS;
+* Novo Cliente;
+* Novo Veículo;
+* Registrar Pagamento;
+* Consultar Garantia;
+* Fila de Atendimento.
+
+Também exibe uma tabela resumida de últimas Ordens de Serviço.
+
+---
+
+## 14. Fluxo Completo de Uso
+
+### 14.1 Cadastro Inicial
+
+Fluxo recomendado:
+
+1. Cadastrar funções;
+2. Cadastrar colaboradores;
+3. Cadastrar marcas;
+4. Cadastrar modelos;
+5. Cadastrar clientes;
+6. Cadastrar veículos;
+7. Cadastrar serviços;
+8. Cadastrar fornecedores;
+9. Cadastrar peças;
+10. Abrir Ordem de Serviço.
+
+---
+
+### 14.2 Abertura de OS
+
+Fluxo:
+
+1. Acessar Ordens de Serviço;
+2. Selecionar cliente;
+3. Selecionar veículo;
+4. Informar data de abertura;
+5. Informar observações;
+6. Salvar OS.
+
+A OS inicia no status:
+
+```text
+Orçamento
 ```
 
 ---
 
-## 13. Acesso às telas do frontend
+### 14.3 Inclusão de Serviços e Peças
 
-Rotas principais:
+Fluxo:
 
-| Tela | Rota |
-|---|---|
-| Dashboard | `/` |
-| Clientes | `/clientes` |
-| Funções | `/funcoes` |
-| Colaboradores | `/colaboradores` |
-| Marcas e Modelos | `/marcas-modelos` |
-| Veículos | `/veiculos` |
-| Serviços | `/servicos` |
-| Empresas Terceirizadas | `/empresas-terceirizadas` |
-| Peças e Fornecedores | `/pecas-fornecedores` |
-| Ordens de Serviço | `/ordens-servico` |
-| Serviços e Peças da OS | `/itens-os` |
-| Fila de Atendimento | `/fila-atendimento` |
-| Pagamentos | `/pagamentos` |
-| Garantias | `/garantias` |
-| Relatórios | `/relatorios` |
-| Configurações | `/configuracoes` |
-| Padrões de Projeto | `/padroes-projeto` |
+1. Acessar Serviços e Peças da OS;
+2. Selecionar Ordem de Serviço;
+3. Adicionar serviço;
+4. Selecionar colaborador responsável;
+5. Adicionar peça se necessário;
+6. Selecionar fornecedor da peça;
+7. Salvar itens.
+
+O sistema atualiza o valor da OS.
 
 ---
 
-## 14. Endpoints principais da API
+### 14.4 Execução
 
-### 14.1 Clientes
+Após aprovação do orçamento, a OS pode avançar para execução.
 
-```text
-POST   /api/clientes/pessoa-fisica
-POST   /api/clientes/pessoa-juridica
-PUT    /api/clientes/pessoa-fisica/{id}
-PUT    /api/clientes/pessoa-juridica/{id}
-GET    /api/clientes/{id}
-GET    /api/clientes
-GET    /api/clientes/pesquisar
-DELETE /api/clientes/{id}
-```
-
-### 14.2 Colaboradores e funções
+Status:
 
 ```text
-/api/colaboradores
-/api/funcoes
+Execução
 ```
 
-### 14.3 Veículos
-
-```text
-POST   /api/veiculos
-PUT    /api/veiculos/{id}
-PATCH  /api/veiculos/{id}/transferir-proprietario
-GET    /api/veiculos/{id}
-GET    /api/veiculos
-GET    /api/veiculos/pesquisar
-DELETE /api/veiculos/{id}
-```
-
-### 14.4 Marcas e modelos
-
-```text
-/api/marcas
-/api/modelos
-GET /api/modelos/marca/{marcaId}
-```
-
-### 14.5 Serviços e empresas terceirizadas
-
-```text
-/api/servicos
-GET /api/servicos/tipo/{tipoServico}
-/api/empresas-terceirizadas
-```
-
-### 14.6 Peças e fornecedores
-
-```text
-/api/pecas
-/api/fornecedores
-/api/itens-peca
-GET /api/itens-peca/ordem-servico/{idOrdemServico}
-```
-
-### 14.7 Ordem de Serviço
-
-```text
-POST   /api/ordens-servico
-PUT    /api/ordens-servico/{id}
-PATCH  /api/ordens-servico/{id}/status
-PATCH  /api/ordens-servico/{id}/enviar-para-execucao
-PATCH  /api/ordens-servico/{id}/enviar-para-pagamento
-GET    /api/ordens-servico/{id}
-GET    /api/ordens-servico
-GET    /api/ordens-servico/pesquisar
-DELETE /api/ordens-servico/{id}
-```
-
-### 14.8 Itens de serviço
-
-```text
-/api/itens-servico
-GET /api/itens-servico/ordem-servico/{idOrdemServico}
-GET /api/itens-servico/ordem-servico/{idOrdemServico}/pesquisar
-```
-
-### 14.9 Fila, ordenação, busca e recursividade
-
-```text
-GET /api/estrutura-dados/ordens-servico/fila-atendimento
-GET /api/estrutura-dados/ordens-servico/ordenar
-GET /api/estrutura-dados/ordens-servico/pesquisar-linear
-GET /api/estrutura-dados/ordens-servico/{idOrdemServico}/total-recursivo
-```
-
-### 14.10 Pagamentos
-
-```text
-POST   /api/pagamentos
-PUT    /api/pagamentos/{id}
-PATCH  /api/pagamentos/{id}/status
-GET    /api/pagamentos/{id}
-GET    /api/pagamentos
-GET    /api/pagamentos/ordem-servico/{idOrdemServico}
-GET    /api/pagamentos/ordem-servico/{idOrdemServico}/resumo
-DELETE /api/pagamentos/{id}
-```
-
-### 14.11 Garantias
-
-```text
-GET   /api/garantias/pecas
-GET   /api/garantias/pecas/{id}
-GET   /api/garantias/pecas/item-peca/{idItemPeca}
-GET   /api/garantias/pecas/ordem-servico/{idOrdemServico}
-PATCH /api/garantias/pecas/{id}/acionar
-PATCH /api/garantias/pecas/{id}/encerrar
-
-GET   /api/garantias/servicos
-GET   /api/garantias/servicos/{id}
-GET   /api/garantias/servicos/item-servico/{idItemServico}
-GET   /api/garantias/servicos/ordem-servico/{idOrdemServico}
-PATCH /api/garantias/servicos/{id}/acionar
-PATCH /api/garantias/servicos/{id}/encerrar
-```
-
-### 14.12 Nota/recibo em PDF
-
-```text
-GET /api/notas-fiscais/ordens-servico/{id}/pdf
-```
-
-### 14.13 Configuração e diagnóstico
-
-```text
-GET /api/database/status
-```
-
-### 14.14 Notificações e auditoria
-
-```text
-POST /api/notificacoes/simular
-GET  /api/notificacoes/auditoria
-GET  /api/notificacoes/auditoria/referencia?referencia={numeroOs}
-```
-
-### 14.15 Padrões de projeto
-
-```text
-GET /api/padroes-projeto
-```
+Nesse momento, a oficina realiza os serviços e aplica as peças.
 
 ---
 
-## 15. Padrões de projeto aplicados
+### 14.5 Pagamento
 
-O sistema implementa seis padrões de projeto com aplicação funcional.
+Após conclusão da execução, a OS entra em controle de pagamento.
+
+Status:
+
+```text
+Pagamento
+```
+
+Fluxo:
+
+1. Acessar Pagamentos;
+2. Selecionar OS;
+3. Ver total da OS;
+4. Ver valor já pago;
+5. Ver valor pendente;
+6. Registrar pagamento;
+7. Salvar.
+
+---
+
+### 14.6 Finalização
+
+Após pagamento suficiente, a OS pode ser finalizada.
+
+Status:
+
+```text
+Finalizado
+```
+
+Ao finalizar:
+
+* A garantia das peças passa a contar;
+* A garantia dos serviços passa a contar;
+* A OS fica disponível para emissão de documento em PDF.
+
+---
+
+### 14.7 Geração de PDF
+
+Fluxo:
+
+1. Acessar Ordens de Serviço;
+2. Localizar a OS;
+3. Ir na coluna Ações;
+4. Clicar em Nota PDF;
+5. O navegador abre ou baixa o PDF.
+
+---
+
+## 15. Padrões de Projeto Aplicados
+
+O sistema AV CAR AUTO CENTER implementa os seis padrões de projeto exigidos pela disciplina:
+
+```text
+Singleton
+Adapter
+Iterator
+Template Method
+Factory Method
+Decorator
+```
+
+Cada padrão foi aplicado em uma parte específica do sistema, com objetivo funcional e justificativa técnica. As classes possuem comentários no código identificando o padrão aplicado, facilitando a avaliação e apresentação do projeto.
+
+---
 
 ### 15.1 Singleton
 
-Classe principal:
+#### Localização no projeto
+
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/singleton/DatabaseConnectionSingleton.java
+```
+
+#### Classe principal
 
 ```text
 DatabaseConnectionSingleton
 ```
 
-Local:
+#### Onde é aplicado
+
+O padrão Singleton foi aplicado na verificação centralizada da conexão local com o banco de dados PostgreSQL.
+
+Embora o sistema utilize Spring Data JPA para persistência, essa classe foi criada para demonstrar o padrão Singleton e permitir uma verificação técnica da disponibilidade do banco local.
+
+#### Justificativa
+
+Como o sistema da oficina deve funcionar localmente, sem dependência obrigatória de internet, é importante existir um ponto único para verificar se o banco de dados está disponível.
+
+O Singleton garante que exista apenas uma instância responsável por essa verificação, evitando duplicidade de configuração e espalhamento da lógica de conexão pelo sistema.
+
+#### Responsabilidade no sistema
 
 ```text
-src/main/java/br/com/avcar/oficina/core/designpattern/singleton
+Centralizar a checagem técnica da conexão local com PostgreSQL.
 ```
-
-Aplicação:
-
-- Monitor único do ambiente local de banco de dados;
-- Registra último estado da conexão;
-- Mede tempo de resposta;
-- Conta verificações realizadas;
-- Conta falhas consecutivas;
-- Registra última mudança de status;
-- Usa cache operacional para evitar conexões repetidas.
-
-Valor funcional:
-
-- Ajuda a diagnosticar problemas ao executar o sistema em computadores diferentes;
-- Apoia a exigência de funcionamento local;
-- Evita espalhar lógica de diagnóstico de banco pela aplicação.
 
 ---
 
 ### 15.2 Factory Method
 
-Classes principais:
+#### Localização no projeto
 
 ```text
-ClienteFactoryMethod
-ClientePessoaFisicaFactory
-ClientePessoaJuridicaFactory
+src/main/java/br/com/avcar/oficina/business/pessoa/designpattern/factory/
+```
+
+#### Classes principais
+
+```text
+ClienteFactoryMethod.java
+ClienteCadastroFactory.java
+ClientePessoaFisicaFactory.java
+ClientePessoaJuridicaFactory.java
+```
+
+#### Onde é aplicado
+
+O padrão Factory Method foi aplicado no cadastro de clientes, especificamente na criação de Cliente Pessoa Física e Cliente Pessoa Jurídica.
+
+O sistema possui a regra de que todo cliente deve ser classificado como Pessoa Física ou Pessoa Jurídica, nunca os dois ao mesmo tempo. Dessa forma, a criação do cliente não deve ficar espalhada diretamente no Controller ou no Service.
+
+#### Funcionamento
+
+O fluxo de criação é organizado da seguinte forma:
+
+```text
+ClienteService
+        ↓
 ClienteCadastroFactory
+        ↓
+ClienteFactoryMethod
+        ↓
+ClientePessoaFisicaFactory ou ClientePessoaJuridicaFactory
+        ↓
+PessoaModel + ClienteModel + Especialização PF/PJ
 ```
 
-Local:
+#### Justificativa
+
+O Factory Method foi escolhido porque o cadastro de cliente possui especializações diferentes.
+
+A fábrica permite criar corretamente a estrutura de objetos conforme o tipo do cliente informado:
 
 ```text
-src/main/java/br/com/avcar/oficina/business/pessoa/designpattern/factory
+Pessoa Física → PessoaModel + ClienteModel + PessoaFisicaModel
+Pessoa Jurídica → PessoaModel + ClienteModel + PessoaJuridicaModel
 ```
 
-Aplicação:
+Isso melhora a organização, reduz duplicidade e respeita a generalização/especialização definida no modelo de banco de dados.
 
-- Cadastro de Cliente Pessoa Física;
-- Cadastro de Cliente Pessoa Jurídica;
-- Criação organizada das entidades Pessoa, Cliente, PessoaFisica e PessoaJuridica.
+#### Responsabilidade no sistema
 
-Valor funcional:
-
-- Evita duplicação de lógica de criação;
-- Garante que PF e PJ sejam criadas respeitando regras diferentes;
-- Representa corretamente a especialização exclusiva e total de Cliente.
+```text
+Criar clientes Pessoa Física e Pessoa Jurídica de forma organizada, extensível e compatível com o modelo conceitual.
+```
 
 ---
 
 ### 15.3 Adapter
 
-Classe principal:
+#### Localização no projeto
+
+```text
+src/main/java/br/com/avcar/oficina/business/veiculo/adapter/VeiculoResponseAdapter.java
+```
+
+#### Classe principal
 
 ```text
 VeiculoResponseAdapter
 ```
 
-Local:
+#### Onde é aplicado
+
+O padrão Adapter foi aplicado na montagem das respostas de veículo enviadas para o frontend Angular.
+
+No banco de dados e no domínio, os dados de veículo estão distribuídos entre várias entidades:
 
 ```text
-src/main/java/br/com/avcar/oficina/business/veiculo/adapter
+VeiculoModel
+ModeloModel
+MarcaModel
+HistoricoProprietarioModel
+ClienteModel
+PessoaModel
 ```
 
-Aplicação:
+Porém, para a tela Angular, é mais adequado receber uma resposta consolidada com:
 
-- Adaptação de dados complexos de veículo para resposta consumível pelo Angular.
+```text
+placa
+marca
+modelo
+proprietário atual
+histórico de proprietários
+dados resumidos do veículo
+```
 
-Valor funcional:
+#### Justificativa
 
-- Converte dados de veículo, marca, modelo, cliente e histórico de proprietário em DTOs claros;
-- Reduz complexidade no frontend;
-- Melhora a apresentação do proprietário atual e do histórico.
+O Adapter foi escolhido porque a estrutura interna do domínio não deve ser exposta diretamente para a View.
+
+Ele converte entidades internas complexas em DTOs mais adequados para consumo pelo frontend.
+
+#### DTOs gerados pelo Adapter
+
+```text
+VeiculoDTO
+VeiculoResumoDTO
+HistoricoProprietarioDTO
+```
+
+#### Responsabilidade no sistema
+
+```text
+Adaptar os dados internos de veículo, modelo, marca e histórico de proprietário para respostas apropriadas ao Angular.
+```
 
 ---
 
 ### 15.4 Iterator
 
-Classes principais:
+#### Localização no projeto
+
+```text
+src/main/java/br/com/avcar/oficina/core/estrutura/iterator/OficinaIterator.java
+src/main/java/br/com/avcar/oficina/core/estrutura/fila/FilaAtendimentoIterator.java
+src/main/java/br/com/avcar/oficina/core/estrutura/lista/ListaLinearIterator.java
+```
+
+#### Classes principais
 
 ```text
 OficinaIterator
@@ -1339,577 +1315,1024 @@ FilaAtendimentoIterator
 ListaLinearIterator
 ```
 
-Local:
+#### Onde é aplicado
+
+O padrão Iterator foi aplicado nas estruturas lineares utilizadas no controle operacional da oficina, principalmente na Fila de Atendimento das Ordens de Serviço.
+
+A fila organiza as OS aguardando atendimento, respeitando uma lógica próxima ao funcionamento real de uma oficina mecânica.
+
+#### Funcionamento
+
+O Iterator permite percorrer a estrutura sem expor sua implementação interna.
+
+Exemplo conceitual:
 
 ```text
-src/main/java/br/com/avcar/oficina/core/estrutura
+Fila de Atendimento
+        ↓
+FilaAtendimentoIterator
+        ↓
+hasNext()
+        ↓
+next()
+        ↓
+reset()
 ```
 
-Aplicação:
+#### Justificativa
 
-- Percurso da fila de atendimento;
-- Percurso de lista linear de busca.
+O Iterator foi escolhido porque o sistema utiliza estruturas lineares customizadas e precisa percorrer seus elementos de forma controlada.
 
-Valor funcional:
+Com isso, o Service ou Controller não precisa conhecer os nós internos da fila ou da lista.
 
-- Permite percorrer estruturas lineares próprias sem expor nós internos;
-- Atende à exigência acadêmica de estrutura de dados;
-- Apoia busca e listagem na tela Fila de Atendimento.
+#### Responsabilidade no sistema
+
+```text
+Percorrer filas e listas lineares de Ordens de Serviço sem expor a estrutura interna.
+```
 
 ---
 
 ### 15.5 Template Method
 
-Classe principal:
+#### Localização no projeto
+
+```text
+src/main/java/br/com/avcar/oficina/core/estrutura/ordenacao/OrdenadorTemplate.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/estrutura/ordenacao/
+```
+
+#### Classes principais
+
+```text
+OrdenadorTemplate.java
+OrdenadorOrdemServicoPorDataAbertura.java
+OrdenadorOrdemServicoPorPrioridade.java
+OrdenadorOrdemServicoPorValorTotal.java
+```
+
+#### Onde é aplicado
+
+O padrão Template Method foi aplicado no algoritmo manual de ordenação das Ordens de Serviço.
+
+O sistema permite ordenar a fila/listagem de OS por diferentes critérios:
+
+```text
+Data de abertura
+Prioridade
+Valor total
+```
+
+#### Funcionamento
+
+A classe abstrata `OrdenadorTemplate` define o esqueleto fixo do algoritmo de ordenação.
+
+As subclasses alteram apenas o critério de comparação.
+
+Fluxo conceitual:
 
 ```text
 OrdenadorTemplate
+        ↓
+Método ordenar()
+        ↓
+Algoritmo de ordenação manual
+        ↓
+comparar()
+        ↓
+Subclasse define o critério
 ```
 
-Implementações:
+#### Justificativa
+
+Esse padrão foi escolhido porque permite reaproveitar o mesmo algoritmo de ordenação, alterando somente a regra de comparação.
+
+Além disso, atende ao requisito acadêmico de implementar um algoritmo de ordenação manual, sem depender de bibliotecas prontas como `Collections.sort()` ou `Stream.sorted()`.
+
+#### Responsabilidade no sistema
 
 ```text
-OrdenadorOrdemServicoPorDataAbertura
-OrdenadorOrdemServicoPorValorTotal
-OrdenadorOrdemServicoPorPrioridade
+Definir o esqueleto do algoritmo de ordenação manual e permitir variação do critério por subclasses.
 ```
-
-Aplicação:
-
-- Ordenação manual das Ordens de Serviço.
-
-Valor funcional:
-
-- Define o esqueleto do algoritmo de ordenação;
-- Permite trocar apenas o critério de comparação;
-- Evita duplicação do algoritmo para data, valor e prioridade.
 
 ---
 
 ### 15.6 Decorator
 
-Classes principais:
+#### Localização no projeto
 
 ```text
-Notificador
+src/main/java/br/com/avcar/oficina/core/designpattern/decorator/
+```
+
+#### Classes principais
+
+```text
+Notificador.java
+NotificadorOperacional.java
+NotificadorDecorator.java
+NotificadorAuditoriaDecorator.java
+```
+
+#### Classes de apoio
+
+```text
+src/main/java/br/com/avcar/oficina/core/notification/dto/NotificacaoDTO.java
+src/main/java/br/com/avcar/oficina/core/notification/dto/NotificacaoResultadoDTO.java
+src/main/java/br/com/avcar/oficina/core/notification/service/NotificacaoService.java
+src/main/java/br/com/avcar/oficina/core/notification/controller/NotificacaoController.java
+```
+
+#### Onde é aplicado
+
+O padrão Decorator foi aplicado no mecanismo de notificação interna com auditoria operacional.
+
+Quando ocorre uma operação importante, como alteração de status de Ordem de Serviço, o sistema pode gerar uma notificação interna e adicionar informações de auditoria sem modificar a classe principal de notificação.
+
+#### Funcionamento
+
+A composição ocorre da seguinte forma:
+
+```text
 NotificadorOperacional
-NotificadorDecorator
+        ↓ decorado por
 NotificadorAuditoriaDecorator
+        ↓
+Notificação com auditoria
 ```
 
-Local:
+#### Justificativa
+
+O Decorator foi escolhido porque permite adicionar comportamento extra a uma notificação sem alterar diretamente a classe base.
+
+Isso respeita o princípio de extensão sem modificação e melhora a rastreabilidade do sistema.
+
+#### Responsabilidade no sistema
 
 ```text
-src/main/java/br/com/avcar/oficina/core/designpattern/decorator
+Adicionar auditoria a notificações internas sem alterar a classe principal de notificação.
 ```
-
-Aplicação:
-
-- Notificação operacional com auditoria persistente.
-
-Valor funcional:
-
-- Adiciona auditoria à notificação sem alterar a classe base;
-- Registra auditoria em banco na tabela `notificacao_auditoria`;
-- Gera rastreabilidade para mudanças de status da OS.
 
 ---
 
-## 16. Estruturas de Dados I
+## 16. Resumo dos Padrões de Projeto
 
-O sistema implementa recursos exigidos pela disciplina de Estrutura de Dados I.
-
-### 16.1 Estrutura linear
-
-Estrutura:
-
-```text
-FilaAtendimento
-```
-
-Aplicação:
-
-- Representa a fila de OS em execução;
-- Exibe OS no status `EXECUCAO`;
-- Permite organizar o atendimento operacional da oficina.
-
-### 16.2 Busca linear
-
-Estrutura:
-
-```text
-ListaLinearBusca
-```
-
-Aplicação:
-
-- Pesquisa por número da OS, placa ou cliente;
-- Demonstra busca linear em coleção própria.
-
-### 16.3 Ordenação manual
-
-Algoritmo:
-
-```text
-Ordenação por inserção
-```
-
-Critérios:
-
-- Data de abertura;
-- Valor total;
-- Prioridade.
-
-### 16.4 Função recursiva
-
-Aplicação:
-
-- Cálculo total da OS;
-- Soma recursiva dos itens de serviço e itens de peça.
-
-A tela exibe o resultado de forma organizada, com:
-
-- Total de serviços;
-- Total de peças;
-- Total geral;
-- Quantidade de itens de serviço;
-- Quantidade de itens de peça;
-- Função utilizada;
-- Justificativa acadêmica.
+| Padrão          | Localização                                                              | Classes principais                                                                                                                      | Aplicação no sistema                                            |
+| --------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| Singleton       | `core/designpattern/singleton`                                           | `DatabaseConnectionSingleton`                                                                                                           | Verificação centralizada da conexão local com PostgreSQL        |
+| Factory Method  | `business/pessoa/designpattern/factory`                                  | `ClienteFactoryMethod`, `ClienteCadastroFactory`, `ClientePessoaFisicaFactory`, `ClientePessoaJuridicaFactory`                          | Criação de clientes Pessoa Física e Pessoa Jurídica             |
+| Adapter         | `business/veiculo/adapter`                                               | `VeiculoResponseAdapter`                                                                                                                | Adaptação de dados de veículo para DTOs consumidos pelo Angular |
+| Iterator        | `core/estrutura/iterator`, `core/estrutura/fila`, `core/estrutura/lista` | `OficinaIterator`, `FilaAtendimentoIterator`, `ListaLinearIterator`                                                                     | Percurso de fila e lista linear sem expor implementação interna |
+| Template Method | `core/estrutura/ordenacao`, `business/ordemservico/estrutura/ordenacao`  | `OrdenadorTemplate`, `OrdenadorOrdemServicoPorDataAbertura`, `OrdenadorOrdemServicoPorPrioridade`, `OrdenadorOrdemServicoPorValorTotal` | Ordenação manual de Ordens de Serviço por critérios diferentes  |
+| Decorator       | `core/designpattern/decorator`                                           | `Notificador`, `NotificadorOperacional`, `NotificadorDecorator`, `NotificadorAuditoriaDecorator`                                        | Notificação interna com auditoria operacional                   |
 
 ---
 
-## 17. Validações e tratamento de erros
+## 17. Endpoint de Apoio para Demonstração dos Padrões
 
-O sistema possui camada de validação para impedir dados inconsistentes.
+O sistema também possui um endpoint acadêmico para listar os padrões de projeto aplicados.
 
-Exemplos de validação:
-
-- CPF válido;
-- CNPJ válido;
-- Telefone numérico;
-- Campos obrigatórios;
-- Relações obrigatórias;
-- Cliente vinculado à OS;
-- Veículo vinculado à OS;
-- Colaborador responsável por ItemServico;
-- Fornecedor obrigatório para ItemPeca;
-- Pagamento compatível com OS;
-- Garantia com dados de acionamento e encerramento.
-
-### 17.1 Resposta padronizada
-
-As respostas da API seguem o padrão:
-
-```json
-{
-  "success": true,
-  "status": 200,
-  "message": "Mensagem da operação.",
-  "data": {},
-  "timestamp": "2026-06-10T20:00:00"
-}
+```http
+GET /api/padroes-projeto
 ```
 
-### 17.2 Tratamento no frontend
+Esse endpoint pode ser acessado pelo Swagger e ajuda na apresentação do projeto, pois mostra diretamente pela API quais padrões foram utilizados e onde estão aplicados.
 
-O frontend possui interceptor para erros de API:
+Localização do controller:
 
 ```text
-frontend/oficina-web/src/app/core/interceptors/api-error.interceptor.ts
+src/main/java/br/com/avcar/oficina/core/designpattern/catalog/controller/PadraoProjetoController.java
 ```
 
-Ele centraliza mensagens e evita que falhas técnicas sejam exibidas de forma bruta ao usuário.
+DTO utilizado:
+
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/catalog/dto/PadraoProjetoDTO.java
+```
+
+Esse recurso não faz parte da operação diária da oficina. Ele foi criado como apoio acadêmico para facilitar a validação dos padrões de projeto exigidos pela disciplina.
 
 ---
 
-## 18. Relatórios e documentos
+## 18. Relação dos Padrões com os Requisitos do Projeto
 
-### 18.1 PDF da Ordem de Serviço
+A aplicação dos padrões de projeto contribui para a organização e manutenção do sistema.
 
-O sistema gera documento PDF para Ordem de Serviço por meio de OpenPDF.
+### Singleton
 
-Endpoint:
+Contribui para o requisito de funcionamento local, pois centraliza a verificação da conexão com o banco PostgreSQL.
 
-```text
-GET /api/notas-fiscais/ordens-servico/{id}/pdf
-```
+### Factory Method
 
-O PDF utiliza dados da OS, cliente, veículo, serviços, peças, fornecedores e pagamentos.
+Contribui para a regra de negócio de clientes, garantindo que o cliente seja corretamente criado como Pessoa Física ou Pessoa Jurídica.
 
-### 18.2 Exportação de relatórios
+### Adapter
 
-O frontend possui recursos de relatório e exportação para apoio gerencial.
+Contribui para a integração entre backend e frontend, adaptando dados complexos do domínio para respostas simples e adequadas à tela.
 
-Objetivos:
+### Iterator
 
-- Facilitar conferência de dados;
-- Apoiar apresentação acadêmica;
-- Organizar informações de OS, pagamentos e garantias.
+Contribui para a estrutura de dados da Fila de Atendimento, permitindo percorrer Ordens de Serviço sem expor a implementação interna.
 
----
+### Template Method
 
-## 19. Configurações e diagnóstico local
+Contribui para o algoritmo de ordenação manual, permitindo ordenar Ordens de Serviço por data, prioridade ou valor total.
 
-A tela de Configurações utiliza o endpoint:
+### Decorator
 
-```text
-GET /api/database/status
-```
-
-Esse endpoint usa o Singleton reformulado para monitorar a conexão local.
-
-Informações apresentadas:
-
-- Banco disponível ou indisponível;
-- URL do banco;
-- Usuário;
-- Tempo de resposta;
-- Último erro sanitizado;
-- Falhas consecutivas;
-- Quantidade de verificações;
-- Última verificação;
-- Última mudança de status;
-- Uso de cache.
-
-Esse recurso é útil principalmente porque o sistema pode ser executado em computadores diferentes, com configurações diferentes de PostgreSQL, JDK e Maven.
+Contribui para rastreabilidade e auditoria, adicionando comportamento extra às notificações internas sem modificar a classe base.
 
 ---
 
-## 20. Scripts SQL e documentação
+## 19. Evidência dos Comentários no Código
 
-### 20.1 Scripts SQL
+As classes relacionadas aos padrões de projeto possuem comentários identificando explicitamente sua aplicação.
 
-```text
-database/01_schema
-```
-
-Contém scripts de criação e alteração estrutural.
+Exemplos de comentários presentes no código:
 
 ```text
-database/02_seed
+PADRÃO DE PROJETO: SINGLETON
+PADRÃO DE PROJETO: ADAPTER
+PADRÃO DE PROJETO: ITERATOR
+PADRÃO DE PROJETO: TEMPLATE METHOD
+PADRÃO DE PROJETO: FACTORY METHOD
+PADRÃO DE PROJETO: DECORATOR
 ```
 
-Contém dados iniciais.
+Esses comentários foram adicionados para facilitar a correção acadêmica e demonstrar claramente onde cada padrão está aplicado no sistema.
 
-```text
-database/03_verificacoes
-```
+Também recomendo trocar a numeração das próximas seções do README, porque essa versão expande bastante a parte dos padrões.
 
-Contém consultas para conferência.
+## 20. Estrutura de Dados Aplicada
 
-```text
-database/04_completo
-```
+O projeto aplica estrutura de dados no módulo de Fila de Atendimento.
 
-Contém script completo opcional para montagem rápida.
+### 16.1 Fila
 
-### 20.2 Documentação técnica
+Uso:
 
-```text
-docs
-```
+* Controle de Ordens de Serviço aguardando atendimento.
 
-Contém README por etapa, documentação de endpoints e relatórios técnicos.
+Justificativa:
 
-```text
-docs/adr
-```
-
-Contém ADRs, ou seja, registros de decisão arquitetural.
-
-Exemplos de decisões registradas:
-
-- Monolito em camadas;
-- Factory Method para cliente PF/PJ;
-- Adapter para resposta de veículo;
-- Fluxo da Ordem de Serviço;
-- Garantias após finalização da OS;
-- Estrutura de dados para fila de atendimento;
-- Decorator para notificação com auditoria;
-- Correção do fluxo `ORCAMENTO → EXECUCAO → PAGAMENTO → FINALIZADO`;
-- Reformulação do Singleton e Decorator.
+* Representa a ordem de chegada dos veículos;
+* Facilita priorização;
+* Simula funcionamento real de oficina.
 
 ---
 
-## 21. Testes e verificação
+### 16.2 Ordenação Manual
 
-### 21.1 Build do backend
+Uso:
 
-```bash
-mvn clean install -DskipTests
+* Ordenar OS por data;
+* Ordenar OS por prioridade;
+* Ordenar OS por valor.
+
+Justificativa:
+
+* Atende ao requisito acadêmico de algoritmo manual;
+* Evita uso exclusivo de bibliotecas prontas;
+* Ajuda no gerenciamento operacional.
+
+---
+
+### 16.3 Pesquisa
+
+Uso:
+
+* Buscar OS por cliente;
+* Buscar OS por veículo;
+* Buscar OS por placa;
+* Buscar OS por número.
+
+Justificativa:
+
+* Facilita localização de registros;
+* Apoia atendimento rápido;
+* Reduz tempo de consulta.
+
+---
+
+## 21. Regras de Negócio Consolidadas
+
+Principais regras:
+
+1. Toda pessoa cadastrada deve ser Cliente, Colaborador ou ambos;
+2. Todo cliente deve ser Pessoa Física ou Pessoa Jurídica;
+3. Um veículo pode ter vários proprietários ao longo do tempo;
+4. Todo veículo deve possuir histórico de proprietário;
+5. Cliente pode solicitar várias OS;
+6. Toda OS pertence a um único cliente;
+7. Toda OS pertence a um único veículo;
+8. Toda OS deve possuir histórico de status;
+9. A OS segue o fluxo Orçamento, Execução, Pagamento e Finalizado;
+10. Toda OS deve possuir ao menos um serviço;
+11. Todo serviço da OS deve possuir colaborador responsável;
+12. Colaborador pode possuir uma ou mais funções;
+13. Mecânico é uma função, não uma entidade separada;
+14. Todo serviço é interno ou terceirizado;
+15. Serviço terceirizado gera execução terceirizada;
+16. Mesmo terceirizando, a oficina continua responsável perante o cliente;
+17. OS pode ou não utilizar peças;
+18. Toda peça usada deve estar registrada como ItemPeca;
+19. Toda peça usada deve ter fornecedor identificado;
+20. ItemPeca gera GarantiaPeca;
+21. ItemServico gera GarantiaServico;
+22. Garantia da peça começa após finalização da OS;
+23. Garantia do serviço varia conforme o tipo;
+24. OS pode gerar nenhum, um ou vários pagamentos;
+25. O sistema deve priorizar rastreabilidade;
+26. O sistema deve funcionar localmente.
+
+---
+
+## 22. Principais Endpoints
+
+Os endpoints podem variar conforme implementação, mas seguem a organização REST.
+
+Exemplos:
+
+```http
+GET    /api/clientes
+POST   /api/clientes
+PUT    /api/clientes/{id}
+GET    /api/clientes/{id}
+
+GET    /api/veiculos
+POST   /api/veiculos
+PUT    /api/veiculos/{id}
+
+GET    /api/colaboradores
+POST   /api/colaboradores
+
+GET    /api/funcoes
+POST   /api/funcoes
+
+GET    /api/ordens-servico
+POST   /api/ordens-servico
+PUT    /api/ordens-servico/{id}
+
+GET    /api/pagamentos
+POST   /api/pagamentos
+
+GET    /api/garantias
+
+GET    /api/notas-fiscais/ordens-servico/{id}/pdf
 ```
 
-### 21.2 Rodar backend
+Documentação interativa:
 
-```bash
+```text
+http://localhost:8080/swagger-ui/index.html
+```
+
+---
+
+## 23. Geração de PDF
+
+A geração de PDF usa o backend.
+
+Biblioteca utilizada:
+
+```xml
+<dependency>
+    <groupId>com.github.librepdf</groupId>
+    <artifactId>openpdf</artifactId>
+    <version>1.3.43</version>
+</dependency>
+```
+
+Fluxo:
+
+```text
+Angular
+→ chama endpoint de PDF
+→ backend busca dados da OS
+→ backend monta documento
+→ backend retorna application/pdf
+→ navegador baixa ou abre o arquivo
+```
+
+Formato do documento:
+
+* Cabeçalho;
+* Dados da oficina;
+* Dados do cliente;
+* Dados do veículo;
+* Itens da OS;
+* Serviços;
+* Peças;
+* Pagamentos;
+* Totais;
+* Assinaturas.
+
+---
+
+## 24. Logos e Identidade Visual
+
+O sistema utiliza logos responsivas para diferentes tamanhos de tela.
+
+Arquivos principais:
+
+```text
+src/assets/branding/
+├── av-car-logo-horizontal.png
+├── av-car-logo-header.png
+├── av-car-logo-header-sm.png
+├── av-car-logo-icon.png
+├── av-car-logo-stacked.png
+├── favicon.ico
+├── favicon-16x16.png
+├── favicon-32x32.png
+├── apple-touch-icon.png
+├── android-chrome-192x192.png
+└── android-chrome-512x512.png
+```
+
+Uso:
+
+* Logo horizontal para telas grandes;
+* Logo reduzida para telas médias;
+* Ícone para telas pequenas;
+* Favicon para aba do navegador.
+
+---
+
+## 25. Paleta Visual
+
+A paleta visual foi pensada para parecer com uma oficina mecânica moderna.
+
+Cores principais:
+
+```css
+Azul automotivo escuro
+Laranja de destaque
+Cinza metálico
+Grafite
+Branco
+```
+
+Objetivo:
+
+* Passar identidade automotiva;
+* Melhorar contraste;
+* Deixar o sistema mais profissional;
+* Facilitar leitura;
+* Manter aparência moderna.
+
+---
+
+## 26. Responsividade
+
+O sistema foi ajustado para funcionar em:
+
+* Desktop;
+* Notebook;
+* Telas médias;
+* Telas menores.
+
+Comportamentos:
+
+* Menu superior por categorias;
+* Tabelas com rolagem horizontal;
+* Formulários adaptáveis;
+* Logos responsivas;
+* Cards reorganizados;
+* Botões acessíveis.
+
+---
+
+## 27. Como Testar o Sistema
+
+### 23.1 Teste do Backend
+
+1. Iniciar PostgreSQL;
+2. Verificar banco criado;
+3. Rodar scripts SQL;
+4. Iniciar Spring Boot;
+5. Abrir Swagger;
+6. Testar endpoint de clientes ou OS.
+
+Comando:
+
+```powershell
 mvn spring-boot:run
 ```
 
-### 21.3 Testar API
+---
 
-Acesse:
+### 23.2 Teste do Frontend
 
-```text
-http://localhost:9081/swagger-ui.html
+1. Entrar na pasta correta;
+2. Instalar dependências;
+3. Rodar Angular;
+4. Acessar navegador.
+
+Comandos:
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd start
 ```
-
-### 21.4 Testar banco
-
-No pgAdmin, execute:
-
-```text
-database/03_verificacoes/03_verificacao_geral_sistema.sql
-```
-
-Esse script ajuda a conferir se os dados principais estão presentes.
-
-### 21.5 Testar frontend
-
-```bash
-cd frontend/oficina-web
-npm install
-npm start
-```
-
-Acesse:
-
-```text
-http://localhost:4200
-```
-
-### 21.6 Roteiro de teste do fluxo principal
-
-1. Cadastre ou selecione um cliente;
-2. Cadastre ou selecione um veículo vinculado ao cliente;
-3. Crie uma Ordem de Serviço;
-4. Confirme que ela nasceu em `ORCAMENTO`;
-5. Acesse Serviços e Peças da OS;
-6. Adicione serviços e peças;
-7. Envie o orçamento para execução;
-8. Acesse a Fila de Atendimento;
-9. Confirme que a OS aparece como `EXECUCAO`;
-10. Envie para pagamento;
-11. Registre pagamento;
-12. Quite a OS;
-13. Confirme que a OS foi finalizada;
-14. Consulte garantias geradas.
 
 ---
 
-## 22. Problemas comuns e soluções
+### 23.3 Teste de Cadastro
 
-### 22.1 Erro de Lombok: cannot find symbol em getters/setters
+Teste recomendado:
 
-Sintoma:
-
-```text
-cannot find symbol: method getId()
-cannot find symbol: method setAtivo()
-```
-
-Causa comum:
-
-- Maven usando JDK diferente do projeto;
-- NetBeans configurado com Maven em JDK incorreto;
-- Annotation Processing desativado.
-
-Solução:
-
-- Configure o Maven para usar JDK 21;
-- Confira `mvn -version`;
-- Ative Annotation Processing na IDE.
+1. Cadastrar cliente;
+2. Verificar se aparece na tabela;
+3. Cadastrar veículo;
+4. Verificar vínculo com cliente;
+5. Cadastrar serviço;
+6. Cadastrar colaborador;
+7. Abrir OS;
+8. Adicionar serviço;
+9. Adicionar peça;
+10. Registrar pagamento;
+11. Gerar PDF.
 
 ---
 
-### 22.2 Erro: password authentication failed for user postgres
+## 28. Problemas Comuns
 
-Sintoma:
+### 24.1 Erro: package.json não encontrado
+
+Erro:
 
 ```text
-FATAL: password authentication failed for user "postgres"
+Could not read package.json
 ```
 
 Causa:
 
-- Senha do PostgreSQL local diferente da senha configurada no projeto.
+O comando npm foi executado na pasta errada.
 
 Solução:
 
-Edite:
-
-```text
-src/main/resources/application.properties
-```
-
-Ajuste:
-
-```properties
-spring.datasource.username=postgres
-spring.datasource.password=SUA_SENHA
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd start
 ```
 
 ---
 
-### 22.3 Erro de tabela inexistente
+### 24.2 Dados não aparecem na tela
 
-Sintoma:
+Possíveis causas:
+
+* Backend desligado;
+* Banco sem dados;
+* Endpoint com erro;
+* Cache do navegador;
+* Angular rodando versão antiga.
+
+Soluções:
 
 ```text
-relation "nome_tabela" does not exist
+1. Verificar se backend está rodando.
+2. Verificar se PostgreSQL está ligado.
+3. Verificar console do navegador.
+4. Usar CTRL + F5.
+5. Rodar scripts de verificação.
 ```
+
+---
+
+### 24.3 PDF não abre
+
+Possíveis causas:
+
+* Backend desligado;
+* OS inexistente;
+* Endpoint de PDF com erro;
+* Bloqueio de popup/download no navegador.
+
+Soluções:
+
+```text
+1. Verificar se a OS existe.
+2. Testar endpoint no Swagger.
+3. Verificar console do navegador.
+4. Permitir download no navegador.
+```
+
+---
+
+### 24.4 Favicon ou logo antiga aparece
 
 Causa:
 
-- Banco não foi criado;
-- Scripts SQL não foram executados;
-- Tabela nova da Etapa 57 não foi aplicada.
+Cache do navegador.
 
 Solução:
 
-Execute os scripts:
-
 ```text
-database/01_schema/01_create_schema.sql
-database/02_seed/02_seed_inicial.sql
+CTRL + F5
 ```
 
-Se estiver atualizando uma base antiga:
+Ou limpar cache manualmente.
+
+---
+
+### 24.5 Erro de conexão com banco
+
+Verificar:
 
 ```text
+1. PostgreSQL está iniciado.
+2. Banco existe.
+3. Usuário e senha estão corretos.
+4. application.properties está configurado.
+5. Scripts foram executados.
+```
+
+---
+
+## 29. Documentação Técnica
+
+A documentação do projeto inclui:
+
+```text
+docs/
+├── adr/
+├── relatorios/
+└── README_ETAPAS...
+```
+
+As ADRs registram decisões arquiteturais importantes, como:
+
+* Uso de arquitetura monolítica;
+* Uso de Angular no frontend;
+* Uso de Spring Boot no backend;
+* Uso de PostgreSQL;
+* Organização dos scripts SQL;
+* Reformulação visual;
+* Geração de PDF;
+* Logos responsivas.
+
+---
+
+## 30. Observações Acadêmicas
+
+O projeto atende aos seguintes pontos acadêmicos:
+
+* Levantamento de requisitos;
+* Modelagem de banco de dados;
+* MER;
+* Modelo lógico;
+* Modelo físico;
+* Arquitetura monolítica;
+* Implementação em camadas;
+* Uso de Generics;
+* Uso de DTO;
+* Repository;
+* Validation;
+* Service;
+* Controller;
+* Response;
+* View;
+* Padrões de projeto;
+* Estrutura de dados;
+* Algoritmo de ordenação;
+* Pesquisa;
+* Documentação do projeto;
+* Geração de artefatos;
+* Sistema funcionando.
+
+
+---
+
+## Atualização — Etapa 54: correção da busca da OS sem duplicidade visual
+
+Foi corrigida a tela **Ordens de Serviço** para evitar que o cliente e o veículo selecionados apareçam duplicados no campo de busca e no campo de seleção.
+
+### Ajustes realizados
+
+* O campo de busca do cliente agora é usado apenas para pesquisa.
+* O campo de busca do veículo agora é usado apenas para pesquisa.
+* Após selecionar cliente ou veículo, o texto da busca é limpo automaticamente.
+* O valor selecionado permanece somente no `select` de cliente ou veículo.
+* A edição de OS também não preenche mais os campos de pesquisa com os dados selecionados.
+* A regra cliente → veículo foi preservada.
+* A ação de inativação da OS foi mantida no componente para compatibilidade com o botão existente na interface.
+
+### Arquivo alterado
+
+```text
+frontend/oficina-web/src/app/pages/ordens-servico/ordens-servico.component.ts
+```
+
+---
+
+## 31. Limitações Conhecidas
+
+O sistema é um projeto acadêmico e possui algumas limitações:
+
+* Não emite NF-e ou NFS-e oficial;
+* O PDF gerado é um documento interno simplificado;
+* Não possui integração fiscal real com prefeitura ou SEFAZ;
+* Não possui autenticação completa por perfil de usuário, caso ainda não esteja implementada;
+* Não possui controle avançado de estoque, salvo se expandido;
+* Depende do backend local para funcionamento completo;
+* Depende do PostgreSQL local configurado.
+
+---
+
+## 32. Possíveis Melhorias Futuras
+
+Melhorias que podem ser implementadas futuramente:
+
+* Login com controle de permissões;
+* Perfis de usuário;
+* Dashboard gerencial avançado;
+* Relatórios financeiros;
+* Controle de estoque de peças;
+* Emissão fiscal oficial;
+* Integração com WhatsApp;
+* Integração com e-mail;
+* Backup automático do banco;
+* Histórico de alterações por usuário;
+* Impressão direta de OS;
+* Upload de fotos do veículo;
+* Laudos técnicos;
+* Assinatura digital;
+* Módulo de orçamento separado;
+* Controle de agendamento;
+* Controle de fornecedores por histórico de garantia.
+
+---
+
+## 33. Comandos Principais
+
+### Backend
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair
+mvn spring-boot:run
+```
+
+### Frontend
+
+```powershell
+cd C:\Users\Davi\Documents\NetBeansProjects\car-repair\frontend\oficina-web
+npm.cmd install
+npm.cmd start
+```
+
+### Frontend com proxy
+
+```powershell
+npm.cmd run start:proxy
+```
+
+### Limpar cache visual
+
+```text
+CTRL + F5
+```
+
+---
+
+## 34. Resumo Final
+
+O AV CAR AUTO CENTER é um sistema de gestão de oficina mecânica desenvolvido com arquitetura monolítica em camadas, backend em Spring Boot, frontend em Angular e banco PostgreSQL.
+
+O sistema controla todo o ciclo operacional da oficina:
+
+```text
+Cliente
+→ Veículo
+→ Ordem de Serviço
+→ Serviços
+→ Peças
+→ Fornecedores
+→ Pagamentos
+→ Garantias
+→ Documento PDF
+```
+
+A aplicação prioriza:
+
+* Rastreabilidade;
+* Integridade dos dados;
+* Organização;
+* Histórico;
+* Clareza operacional;
+* Funcionamento local;
+* Interface profissional;
+* Atendimento aos requisitos acadêmicos.
+
+---
+
+---
+
+## 35. Etapa 55 — Correção da seleção da OS com campo de busca limpo
+
+A Etapa 55 reforça a correção visual da tela **Ordens de Serviço**. O objetivo foi eliminar o caso em que o nome do cliente ou a identificação do veículo ainda permanecia no campo superior de busca depois da seleção na combobox.
+
+A regra adotada é:
+
+```text
+Campo de busca = apenas localizar registros
+Combobox = registrar a escolha da Ordem de Serviço
+```
+
+Alterações aplicadas:
+
+* seleção de cliente tratada por método específico com `ngModelChange`;
+* seleção de veículo tratada por método específico com `ngModelChange`;
+* limpeza do campo de busca ao selecionar cliente;
+* limpeza do campo de busca ao selecionar veículo;
+* limpeza do campo de busca ao clicar ou focar na combobox;
+* preservação da regra de vínculo entre cliente e veículo;
+* nenhuma alteração no banco de dados ou no backend.
+
+Arquivos alterados:
+
+```text
+frontend/oficina-web/src/app/pages/ordens-servico/ordens-servico.component.ts
+frontend/oficina-web/src/app/pages/ordens-servico/ordens-servico.component.html
+docs/README_ETAPA55_CORRECAO_SELECAO_OS_CAMPO_BUSCA_LIMPO.md
+docs/adr/ADR-059-correcao-selecao-os-campo-busca-limpo.md
+```
+
+
+---
+
+## 36. Etapa 56 — Correção da Fila de Atendimento e do fluxo de execução da OS
+
+A Etapa 56 corrige o fluxo operacional da Ordem de Serviço e a regra da tela **Fila de Atendimento**.
+
+Fluxo adotado:
+
+```text
+ORÇAMENTO → EXECUÇÃO → PAGAMENTO → FINALIZADO
+```
+
+Antes desta etapa, ao concluir o orçamento na tela **Itens da OS**, a ordem era enviada diretamente para **PAGAMENTO**, pulando a etapa de **EXECUÇÃO**. Isso fazia a Fila de Atendimento não representar corretamente os serviços que deveriam ser executados.
+
+Alterações aplicadas:
+
+* o botão da tela **Itens da OS** passou a enviar o orçamento para **EXECUÇÃO**;
+* a OS não vai mais diretamente de orçamento para pagamento;
+* a **Fila de Atendimento** agora lista somente OS em **EXECUÇÃO**;
+* a fila recebeu ação para enviar a OS para **PAGAMENTO** após a execução do serviço;
+* o resultado do cálculo recursivo deixou de ser exibido como JSON bruto;
+* o cálculo recursivo agora aparece em cards com serviços, peças, total geral e justificativa acadêmica;
+* o endpoint antigo de envio para pagamento foi mantido por compatibilidade, mas executa a regra correta de envio para execução.
+
+Arquivos alterados:
+
+```text
+src/main/java/br/com/avcar/oficina/business/ordemservico/controller/OrdemServicoController.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/service/OrdemServicoService.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/estrutura/service/EstruturaDadosOrdemServicoService.java
+src/main/java/br/com/avcar/oficina/business/pagamento/service/PagamentoService.java
+frontend/oficina-web/src/app/core/services/ordem-servico-api.service.ts
+frontend/oficina-web/src/app/models/ordem-servico.model.ts
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.ts
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.html
+frontend/oficina-web/src/app/pages/estrutura-dados/estrutura-dados.component.ts
+frontend/oficina-web/src/app/pages/estrutura-dados/estrutura-dados.component.html
+frontend/oficina-web/src/styles.css
+docs/README_ETAPA56_CORRECAO_FILA_FLUXO_EXECUCAO.md
+docs/adr/ADR-060-correcao-fila-fluxo-execucao.md
+```
+
+
+---
+
+## 37. Etapa 57 — Reformulação do Singleton e do Decorator
+
+A Etapa 57 fortalece dois padrões de projeto que estavam corretos tecnicamente, mas poderiam agregar mais valor operacional ao sistema: **Singleton** e **Decorator**.
+
+### Singleton
+
+O `DatabaseConnectionSingleton` foi reformulado para atuar como monitor único do ambiente local de banco de dados. Agora, além de verificar se o PostgreSQL responde, ele registra:
+
+* último resultado da verificação;
+* tempo de resposta;
+* quantidade de verificações realizadas;
+* falhas consecutivas;
+* data e hora da última verificação;
+* data e hora da última mudança de status;
+* último erro sanitizado;
+* uso de cache operacional para evitar conexões repetidas em curto intervalo.
+
+Essa alteração torna o padrão útil para execução local em computadores diferentes, facilitando o diagnóstico de problemas de ambiente.
+
+### Decorator
+
+O `NotificadorAuditoriaDecorator` foi reformulado para persistir auditoria em banco. Antes, a auditoria existia apenas no resultado da notificação. Agora, notificações operacionais, principalmente mudanças de status da Ordem de Serviço, geram registros na tabela:
+
+```text
+notificacao_auditoria
+```
+
+Endpoints adicionados ou reforçados:
+
+```text
+GET  /api/notificacoes/auditoria
+GET  /api/notificacoes/auditoria/referencia?referencia={numeroOs}
+POST /api/notificacoes/simular
+```
+
+Também foi liberada a tela **Padrões de Projeto** no menu de Gestão, com evidência funcional de cada padrão.
+
+Arquivos principais alterados:
+
+```text
+src/main/java/br/com/avcar/oficina/core/designpattern/singleton/DatabaseConnectionSingleton.java
+src/main/java/br/com/avcar/oficina/core/database/DatabaseConnectionChecker.java
+src/main/java/br/com/avcar/oficina/core/database/DatabaseStatusResult.java
+src/main/java/br/com/avcar/oficina/core/designpattern/decorator/NotificadorAuditoriaDecorator.java
+src/main/java/br/com/avcar/oficina/core/notification/model/NotificacaoAuditoriaModel.java
+src/main/java/br/com/avcar/oficina/core/notification/repository/INotificacaoAuditoriaRepository.java
+src/main/java/br/com/avcar/oficina/core/notification/service/NotificacaoService.java
+src/main/java/br/com/avcar/oficina/core/notification/controller/NotificacaoController.java
+src/main/java/br/com/avcar/oficina/core/designpattern/catalog/controller/PadraoProjetoController.java
+frontend/oficina-web/src/app/pages/configuracoes/configuracoes.component.html
+frontend/oficina-web/src/app/pages/padroes-projeto/padroes-projeto.component.html
 database/01_schema/03_create_notificacao_auditoria.sql
+docs/README_ETAPA57_REFORMULACAO_SINGLETON_DECORATOR.md
+docs/adr/ADR-061-reformulacao-singleton-decorator.md
 ```
 
----
-
-### 22.4 Frontend não atualiza após alteração
-
-Solução:
-
-- Pare o `npm start`;
-- Inicie novamente;
-- No navegador, use `CTRL + F5`;
-- Limpe cache se necessário.
+Observação importante: como o projeto usa `spring.jpa.hibernate.ddl-auto=validate`, a tabela `notificacao_auditoria` deve ser criada no banco antes de iniciar o backend atualizado.
 
 ---
 
-### 22.5 Angular com erro de versão do Node
+## 38. Etapa 58 — Atualizações em peças, fornecedores, veículos, orçamento e pagamentos
 
-Causa:
+A Etapa 58 realizou ajustes operacionais importantes para melhorar a usabilidade e a rastreabilidade do sistema.
 
-- Versão do Node incompatível com Angular 22.
+Principais alterações:
 
-Solução:
+* Peça agora possui fornecedor padrão vinculado no cadastro.
+* Peça agora possui valor unitário padrão.
+* Ao selecionar uma peça na OS, o sistema preenche automaticamente o fornecedor e o valor unitário.
+* Ao selecionar um serviço na OS, o sistema preenche automaticamente o valor base cadastrado.
+* Ao alterar a quantidade de serviço ou peça, o total é recalculado automaticamente.
+* Cadastro de veículo recebeu campo de busca de cliente acima do proprietário atual.
+* Quilometragem do veículo não inicia mais com zero no formulário; fica em branco até ser informada.
+* Tela de pagamentos teve o botão `Marcar pago` removido, deixando o fluxo financeiro mais limpo.
 
-- Instale uma versão de Node compatível com Angular 22;
-- Rode novamente:
-
-```bash
-npm install
-npm start
-```
-
----
-
-## 23. Observações para GitHub
-
-### 23.1 O que deve subir
-
-Suba para o GitHub:
-
-- Código Java;
-- Código Angular;
-- Scripts SQL;
-- Documentação;
-- ADRs;
-- README;
-- Assets do frontend;
-- Arquivos de configuração do projeto.
-
-### 23.2 O que não deve subir
-
-Não suba:
+Script incremental necessário para bancos já existentes:
 
 ```text
-node_modules
-target
-.git
-.idea
-.vscode com configurações pessoais
-arquivos temporários
-logs locais
-backups pessoais
+database/01_schema/04_alter_peca_fornecedor_valor.sql
 ```
 
-### 23.3 Senha do banco
+Arquivos principais alterados:
 
-O arquivo `application.properties` contém senha local de desenvolvimento. Para projeto acadêmico local, isso pode ser aceitável, mas para repositório público o ideal é documentar que cada usuário deve ajustar a senha conforme o próprio PostgreSQL.
+```text
+src/main/java/br/com/avcar/oficina/business/peca/model/PecaModel.java
+src/main/java/br/com/avcar/oficina/business/peca/dto/PecaDTO.java
+src/main/java/br/com/avcar/oficina/business/peca/mapper/PecaMapper.java
+src/main/java/br/com/avcar/oficina/business/peca/service/PecaService.java
+src/main/java/br/com/avcar/oficina/business/peca/service/ItemPecaService.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/service/ItemServicoService.java
+src/main/java/br/com/avcar/oficina/business/veiculo/model/VeiculoModel.java
+src/main/java/br/com/avcar/oficina/business/veiculo/mapper/VeiculoMapper.java
+frontend/oficina-web/src/app/pages/pecas-fornecedores/pecas-fornecedores.component.ts
+frontend/oficina-web/src/app/pages/pecas-fornecedores/pecas-fornecedores.component.html
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.ts
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.html
+frontend/oficina-web/src/app/pages/veiculos/veiculos.component.ts
+frontend/oficina-web/src/app/pages/veiculos/veiculos.component.html
+frontend/oficina-web/src/app/pages/pagamentos/pagamentos.component.html
+database/01_schema/04_alter_peca_fornecedor_valor.sql
+docs/README_ETAPA58_ATUALIZACOES_PECAS_VEICULOS_ORCAMENTO_PAGAMENTO.md
+docs/adr/ADR-062-atualizacoes-pecas-veiculos-orcamento-pagamento.md
+```
 
-Sugestão para projetos futuros:
+## 39. Autor
 
-- Usar variáveis de ambiente;
-- Criar `application-example.properties`;
-- Não versionar senhas reais.
+Projeto desenvolvido para fins acadêmicos no contexto do Projeto Integrador.
+
+Sistema: AV CAR AUTO CENTER — Gestão de Oficina.
 
 ---
 
-## 24. Status do projeto
+## Atualização — Etapa 59
 
-Estado atual:
+A Etapa 59 removeu a tela visual de **Padrões de Projeto** do menu do sistema e simplificou as mensagens de conclusão das telas. Os padrões de projeto continuam implementados e documentados, mas não aparecem mais como página operacional. As mensagens agora usam textos objetivos, como `Salvo.`, `Inativado.`, `PDF gerado.`, `Enviado para execução.` e `Enviado para pagamento.`.
 
-```text
-Etapa 57 — Reformulação do Singleton e do Decorator
-```
+## Atualização final — Etapa 60: comentários no código
 
-Principais entregas já contempladas:
+Nesta etapa, o código-fonte recebeu comentários explicativos nos métodos do backend e do frontend. Os comentários descrevem de forma simples a função de cada método no sistema.
 
-- Backend Spring Boot em camadas;
-- Frontend Angular integrado;
-- Banco PostgreSQL com scripts;
-- Cadastros principais;
-- Fluxo completo de OS;
-- Fila de Atendimento corrigida;
-- Pagamento e finalização;
-- Garantias de peças e serviços;
-- PDF de OS;
-- Relatórios;
-- Padrões de projeto;
-- Estrutura de dados;
-- Auditoria de notificações;
-- Diagnóstico local do banco;
-- Documentação técnica por etapa.
+Também foram reforçados os comentários nos pontos onde os padrões de projeto são aplicados, especialmente Singleton, Factory Method, Adapter, Iterator, Template Method e Decorator. Nos padrões, além da função do método, o código também informa a justificativa de uso do padrão e sua contribuição funcional para o sistema.
 
----
+## Atualização — Etapa 61
 
-## 25. Créditos acadêmicos
+Foi adicionada a recuperação de cadastros inativados em todas as telas que possuem inativação lógica. Cada módulo com botão **Inativar** agora possui também a opção **Ver inativos**, com filtros por texto e data, além do botão **Ativar** para recuperar o cadastro sem apagar histórico. A tela **Ordens de Serviço** também recebeu filtros melhores na consulta, incluindo status, período de abertura e botão rápido para visualizar OS finalizadas.
 
-Projeto desenvolvido para fins acadêmicos no contexto do Projeto Integrador de Análise e Desenvolvimento de Sistemas.
+## Etapa 63 — Correção do componente de Pagamentos
 
-Tema:
-
-```text
-Sistema para o controle de uma Oficina Mecânica
-```
-
-Oficina usada como contexto:
-
-```text
-AV CAR AUTO CENTER
-```
-
-Objetivo acadêmico:
-
-- Aplicar modelagem de banco de dados;
-- Aplicar arquitetura em camadas;
-- Aplicar padrões de projeto;
-- Aplicar estrutura de dados;
-- Implementar backend e frontend integrados;
-- Documentar decisões técnicas;
-- Demonstrar software funcional.
-
----
-
-## Licença
-
-Este projeto foi desenvolvido para fins acadêmicos. Caso seja reutilizado ou evoluído, recomenda-se incluir uma licença formal no repositório, como MIT, Apache 2.0 ou outra licença definida pelo grupo.
-
+Foi corrigido o erro de compilação `TS2339` no `PagamentosComponent`, adicionando o método `atualizarTela()` utilizado nas operações de carregamento e reativação de registros inativos. A alteração não modifica regras de negócio nem banco de dados; apenas corrige a consistência do componente Angular.

@@ -19,11 +19,22 @@ public class NotaFiscalController {
 
     private final NotaFiscalPdfService notaFiscalPdfService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public NotaFiscalController(NotaFiscalPdfService notaFiscalPdfService) {
         this.notaFiscalPdfService = notaFiscalPdfService;
     }
 
     @GetMapping(value = "/ordens-servico/{id}/pdf", produces = MediaType.APPLICATION_PDF_VALUE)
+    /**
+     * Função: Gera o PDF da OS a partir dos dados do cliente, veículo, serviços, peças, pagamentos e
+     * status atual.
+     * Uso no sistema: produz um comprovante/nota interna do atendimento sem alterar os registros da
+     * Ordem de Serviço.
+     */
     public ResponseEntity<byte[]> gerarNotaFiscalOrdemServico(@PathVariable Long id) {
         byte[] pdf = notaFiscalPdfService.gerarNotaFiscalOrdemServico(id);
         String nomeArquivo = notaFiscalPdfService.montarNomeArquivo(id);

@@ -12,8 +12,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IItemPecaRepository extends IGenericRepository<ItemPecaModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ItemPecaModel> findAllByIdOrdemServicoAndAtivoTrue(Long idOrdemServico, Pageable pageable);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     List<ItemPecaModel> findByIdOrdemServicoAndAtivoTrue(Long idOrdemServico);
 
     @Query("""

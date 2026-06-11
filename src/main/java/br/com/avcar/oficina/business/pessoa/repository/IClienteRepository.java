@@ -15,10 +15,22 @@ public interface IClienteRepository extends IGenericRepository<ClienteModel> {
 
     @Override
     @EntityGraph(attributePaths = "pessoa")
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<ClienteModel> findByIdAndAtivoTrue(Long id);
 
     @Override
     @EntityGraph(attributePaths = "pessoa")
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ClienteModel> findAllByAtivoTrue(Pageable pageable);
 
     @EntityGraph(attributePaths = "pessoa")
@@ -34,5 +46,11 @@ public interface IClienteRepository extends IGenericRepository<ClienteModel> {
                  OR LOWER(COALESCE(p.telefone, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ClienteModel> searchByPessoa(@Param("termo") String termo, Pageable pageable);
 }

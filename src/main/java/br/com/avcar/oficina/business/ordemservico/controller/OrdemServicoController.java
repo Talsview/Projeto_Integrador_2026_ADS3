@@ -30,11 +30,22 @@ public class OrdemServicoController {
 
     private final OrdemServicoService ordemServicoService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public OrdemServicoController(OrdemServicoService ordemServicoService) {
         this.ordemServicoService = ordemServicoService;
     }
 
     @PostMapping
+    /**
+     * Função: Recebe a requisição de cadastro de ordemservico, encaminha os dados para o serviço e
+     * retorna a resposta da operação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<OrdemServicoDTO>> cadastrar(@RequestBody OrdemServicoDTO dto) {
         OrdemServicoDTO saved = ordemServicoService.cadastrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -42,6 +53,12 @@ public class OrdemServicoController {
     }
 
     @PutMapping("/{id}")
+    /**
+     * Função: Recebe a requisição de atualização de ordemservico, preservando a validação e a regra de
+     * negócio no serviço.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<OrdemServicoDTO>> atualizar(@PathVariable Long id,
                                                                   @RequestBody OrdemServicoDTO dto) {
         OrdemServicoDTO updated = ordemServicoService.atualizar(id, dto);
@@ -49,6 +66,12 @@ public class OrdemServicoController {
     }
 
     @PatchMapping("/{id}/status")
+    /**
+     * Função: Atende a rota HTTP responsável por alterar status e repassa a regra ao serviço
+     * correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<OrdemServicoDTO>> alterarStatus(@PathVariable Long id,
                                                                       @RequestBody AlterarStatusOrdemServicoDTO dto) {
         OrdemServicoDTO updated = ordemServicoService.alterarStatusManual(id, dto);
@@ -56,31 +79,87 @@ public class OrdemServicoController {
     }
 
     @PatchMapping({"/{id}/enviar-para-execucao", "/{id}/enviar-para-pagamento"})
+    /**
+     * Função: Atende a rota HTTP responsável por enviar orcamento para execucao e repassa a regra ao
+     * serviço correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<OrdemServicoDTO>> enviarOrcamentoParaExecucao(@PathVariable Long id) {
         OrdemServicoDTO updated = ordemServicoService.enviarOrcamentoParaExecucao(id);
         return ResponseEntity.ok(ApiResponse.success("Orçamento enviado para execução com sucesso.", updated));
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<OrdemServicoDTO>> buscar(@PathVariable Long id) {
         OrdemServicoDTO ordemServico = ordemServicoService.buscar(id);
         return ResponseEntity.ok(ApiResponse.success("Ordem de Serviço localizada com sucesso.", ordemServico));
     }
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<OrdemServicoResumoDTO>>> listar(Pageable pageable) {
         Page<OrdemServicoResumoDTO> ordens = ordemServicoService.listar(pageable);
         return ResponseEntity.ok(ApiResponse.success("Ordens de Serviço localizadas com sucesso.", PageResponse.from(ordens)));
     }
 
     @GetMapping("/pesquisar")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<OrdemServicoResumoDTO>>> pesquisar(@RequestParam String termo,
                                                                                        Pageable pageable) {
         Page<OrdemServicoResumoDTO> ordens = ordemServicoService.pesquisar(termo, pageable);
         return ResponseEntity.ok(ApiResponse.success("Pesquisa de Ordens de Serviço executada com sucesso.", PageResponse.from(ordens)));
     }
 
+
+
+    @GetMapping("/inativos")
+    /**
+     * Função: Atende a requisição de consulta de registros inativados e devolve os dados para a tela
+     * de reativação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<PageResponse<OrdemServicoResumoDTO>>> listarInativos(Pageable pageable) {
+        Page<OrdemServicoResumoDTO> registros = ordemServicoService.listarInativos(pageable);
+        return ResponseEntity.ok(ApiResponse.success("Ordens de Serviço inativos localizados.", PageResponse.from(registros)));
+    }
+
+    @PatchMapping("/{id}/ativar")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<OrdemServicoResumoDTO>> ativar(@PathVariable Long id) {
+        OrdemServicoResumoDTO registro = ordemServicoService.ativar(id);
+        return ResponseEntity.ok(ApiResponse.success("Ordem de Serviço ativado.", registro));
+    }
+
     @DeleteMapping("/{id}")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<Void>> inativar(@PathVariable Long id) {
         ordemServicoService.inativar(id);
         return ResponseEntity.ok(ApiResponse.success("Ordem de Serviço inativada com sucesso.", null));

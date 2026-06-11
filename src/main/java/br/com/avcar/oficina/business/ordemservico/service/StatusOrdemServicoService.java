@@ -22,6 +22,11 @@ public class StatusOrdemServicoService {
     private final StatusOrdemServicoValidation validation;
     private final StatusOrdemServicoMapper mapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public StatusOrdemServicoService(IStatusOrdemServicoRepository statusRepository,
                                      StatusOrdemServicoValidation validation,
                                      StatusOrdemServicoMapper mapper) {
@@ -31,17 +36,34 @@ public class StatusOrdemServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public StatusOrdemServicoDTO buscar(Long id) {
         validation.validateId(id);
         return mapper.toDto(buscarModelAtivo(id));
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<StatusOrdemServicoDTO> listar(Pageable pageable) {
         return statusRepository.findAllActiveOrderByFluxo(pageable).map(mapper::toDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<StatusOrdemServicoDTO> pesquisar(String termo, Pageable pageable) {
         if (termo == null || termo.isBlank()) {
             return listar(pageable);
@@ -49,11 +71,21 @@ public class StatusOrdemServicoService {
         return statusRepository.search(termo.trim(), pageable).map(mapper::toDto);
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public StatusOrdemServicoModel buscarPorFluxo(StatusFluxoOrdemServico status) {
         return statusRepository.findByNomeStatusAndAtivoTrue(status.name())
                 .orElseThrow(() -> new BusinessException("Status de Ordem de Serviço não encontrado: " + status.name()));
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public StatusOrdemServicoModel buscarModelAtivo(Long id) {
         return statusRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Status de Ordem de Serviço não encontrado ou inativo."));

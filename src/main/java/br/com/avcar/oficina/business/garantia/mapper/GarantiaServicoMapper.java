@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class GarantiaServicoMapper {
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação criar aguardando finalizacao.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public GarantiaServicoModel criarAguardandoFinalizacao(ItemServicoModel itemServico) {
         GarantiaServicoModel model = new GarantiaServicoModel();
         model.setItemServico(itemServico);
@@ -21,6 +25,11 @@ public class GarantiaServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public GarantiaServicoDTO toDto(GarantiaServicoModel model) {
         if (model == null) {
             return null;
@@ -28,6 +37,8 @@ public class GarantiaServicoMapper {
         GarantiaServicoDTO dto = new GarantiaServicoDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         dto.setPrazoDias(model.getPrazoDias());
         dto.setDataInicio(model.getDataInicio());
         dto.setDataFim(model.getDataFim());
@@ -62,6 +73,10 @@ public class GarantiaServicoMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação resolver prazo dias.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public Integer resolverPrazoDias(ItemServicoModel itemServico) {
         if (itemServico != null
                 && itemServico.getServico() != null

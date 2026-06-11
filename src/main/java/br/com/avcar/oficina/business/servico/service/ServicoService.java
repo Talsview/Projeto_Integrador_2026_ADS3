@@ -34,6 +34,11 @@ public class ServicoService {
     private final ServicoValidation validation;
     private final ServicoMapper mapper;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ServicoService(IServicoRepository servicoRepository,
                           IServicoInternoRepository servicoInternoRepository,
                           IServicoTerceirizadoRepository servicoTerceirizadoRepository,
@@ -47,6 +52,11 @@ public class ServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de servico.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public ServicoDTO cadastrar(ServicoDTO dto) {
         validation.validateInsert(dto);
 
@@ -58,6 +68,12 @@ public class ServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Busca o registro ativo, aplica as alterações permitidas e salva a atualização de
+     * servico.
+     * Uso no sistema: garante que alterações passem por validação e não quebrem vínculos já existentes
+     * no sistema.
+     */
     public ServicoDTO atualizar(Long id, ServicoDTO dto) {
         validation.validateUpdate(id, dto);
 
@@ -70,6 +86,11 @@ public class ServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de servico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public ServicoDTO buscar(Long id) {
         validation.validateId(id);
         ServicoModel servico = buscarModelAtivo(id);
@@ -77,11 +98,23 @@ public class ServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de servico aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<ServicoDTO> listar(Pageable pageable) {
         return servicoRepository.findAllByAtivoTrue(pageable).map(this::montarDto);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de servico aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<ServicoDTO> listarPorTipo(TipoServico tipoServico, Pageable pageable) {
         if (tipoServico == null) {
             throw new RuleValidationException("O tipo do serviço é obrigatório para a consulta.");
@@ -94,6 +127,12 @@ public class ServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de servico aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<ServicoDTO> pesquisar(String termo, Pageable pageable) {
         if (termo == null || termo.isBlank()) {
             return listar(pageable);
@@ -102,6 +141,12 @@ public class ServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativar(Long id) {
         validation.validateId(id);
         ServicoModel servico = buscarModelAtivo(id);
@@ -119,11 +164,61 @@ public class ServicoService {
         });
     }
 
+
+
+    @Transactional(readOnly = true)
+    /**
+     * Função: Lista cadastros inativados para que o usuário possa localizar e reativar registros sem
+     * recriá-los.
+     * Uso no sistema: reforça a rastreabilidade, pois registros antigos continuam no banco e podem
+     * voltar a ficar ativos.
+     */
+    public Page<ServicoDTO> listarInativos(Pageable pageable) {
+        return servicoRepository.findAllByAtivoFalse(pageable).map(this::montarDtoInativo);
+    }
+
+    @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
+    public ServicoDTO ativar(Long id) {
+        validation.validateId(id);
+        ServicoModel servico = servicoRepository.findByIdAndAtivoFalse(id)
+                .orElseThrow(() -> new BusinessException("Serviço não encontrado entre os inativos."));
+        servico.setAtivo(Boolean.TRUE);
+        servicoRepository.save(servico);
+
+        servicoInternoRepository.findByIdAndAtivoFalse(id).ifPresent(interno -> {
+            interno.setAtivo(Boolean.TRUE);
+            servicoInternoRepository.save(interno);
+        });
+
+        servicoTerceirizadoRepository.findByIdAndAtivoFalse(id).ifPresent(terceirizado -> {
+            terceirizado.setAtivo(Boolean.TRUE);
+            servicoTerceirizadoRepository.save(terceirizado);
+        });
+
+        return montarDtoInativo(servico);
+    }
+
+    /**
+     * Função: Localiza informações de servico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public ServicoModel buscarModelAtivo(Long id) {
         return servicoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Serviço não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de servico.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     private void salvarEspecializacao(ServicoModel servico, ServicoDTO dto) {
         if (dto.getTipoServico() == TipoServico.INTERNO) {
             servicoInternoRepository.save(mapper.toServicoInternoModel(servico, dto));
@@ -132,6 +227,12 @@ public class ServicoService {
         servicoTerceirizadoRepository.save(mapper.toServicoTerceirizadoModel(servico, dto));
     }
 
+    /**
+     * Função: Busca o registro ativo, aplica as alterações permitidas e salva a atualização de
+     * servico.
+     * Uso no sistema: garante que alterações passem por validação e não quebrem vínculos já existentes
+     * no sistema.
+     */
     private void atualizarEspecializacao(ServicoModel servico, ServicoDTO dto) {
         if (dto.getTipoServico() == TipoServico.INTERNO) {
             inativarEspecializacaoTerceirizada(servico.getId());
@@ -149,6 +250,12 @@ public class ServicoService {
         servicoTerceirizadoRepository.save(terceirizado);
     }
 
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     private void inativarEspecializacaoInterna(Long idServico) {
         servicoInternoRepository.findByIdAndAtivoTrue(idServico).ifPresent(interno -> {
             interno.setAtivo(Boolean.FALSE);
@@ -156,6 +263,12 @@ public class ServicoService {
         });
     }
 
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     private void inativarEspecializacaoTerceirizada(Long idServico) {
         servicoTerceirizadoRepository.findByIdAndAtivoTrue(idServico).ifPresent(terceirizado -> {
             terceirizado.setAtivo(Boolean.FALSE);
@@ -163,9 +276,24 @@ public class ServicoService {
         });
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar dto.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private ServicoDTO montarDto(ServicoModel servico) {
         Optional<ServicoInternoModel> interno = servicoInternoRepository.findByIdAndAtivoTrue(servico.getId());
         Optional<ServicoTerceirizadoModel> terceirizado = servicoTerceirizadoRepository.findByIdAndAtivoTrue(servico.getId());
         return mapper.toDto(servico, interno.orElse(null), terceirizado.orElse(null));
     }
+
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar dto inativo.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
+    private ServicoDTO montarDtoInativo(ServicoModel servico) {
+        Optional<ServicoInternoModel> interno = servicoInternoRepository.findByIdAndAtivoFalse(servico.getId());
+        Optional<ServicoTerceirizadoModel> terceirizado = servicoTerceirizadoRepository.findByIdAndAtivoFalse(servico.getId());
+        return mapper.toDto(servico, interno.orElse(null), terceirizado.orElse(null));
+    }
+
 }

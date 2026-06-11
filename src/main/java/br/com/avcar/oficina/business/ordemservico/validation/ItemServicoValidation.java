@@ -12,27 +12,57 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemServicoValidation {
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(ItemServicoDTO dto) {
         validateDto(dto);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, ItemServicoDTO dto) {
         validateId(id);
         validateDto(dto);
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new RuleValidationException("ID inválido para Item de Serviço.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateIdOrdemServico(Long idOrdemServico) {
         if (idOrdemServico == null || idOrdemServico <= 0) {
             throw new RuleValidationException("ID da Ordem de Serviço inválido para consulta de itens de serviço.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateDto(ItemServicoDTO dto) {
         if (dto == null) {
             throw new RuleValidationException("Os dados do Item de Serviço são obrigatórios.");

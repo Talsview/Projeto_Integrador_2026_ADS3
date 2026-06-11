@@ -50,5 +50,9 @@ public class ColaboradorModel extends BaseModel {
     private StatusColaborador statusColaborador = StatusColaborador.ATIVO;
 
     @OneToMany(mappedBy = "colaborador", cascade = CascadeType.ALL, orphanRemoval = false)
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<ColaboradorFuncaoModel> funcoes = new ArrayList<>();
 }

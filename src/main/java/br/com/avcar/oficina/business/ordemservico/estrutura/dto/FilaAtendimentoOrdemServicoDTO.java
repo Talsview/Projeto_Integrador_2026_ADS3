@@ -13,5 +13,9 @@ public class FilaAtendimentoOrdemServicoDTO {
     private String estruturaUtilizada;
     private String justificativa;
     private Integer quantidadeNaFila;
+    /**
+     * Função: Representa ou apoia os dados usados na operação array list.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private List<OrdemServicoResumoDTO> ordens = new ArrayList<>();
 }

@@ -56,6 +56,11 @@ export class RelatoriosComponent implements OnInit {
   private totalClientes = 0;
   private totalVeiculos = 0;
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(
     private readonly clienteApi: ClienteApiService,
     private readonly veiculoApi: VeiculoApiService,
@@ -65,11 +70,19 @@ export class RelatoriosComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void {
     this.definirPeriodoPadrao();
     this.carregarRelatorio();
   }
 
+  /**
+   * Função: Controla na tela a etapa obter nome garantia.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   obterNomeGarantia(garantia: GarantiaPeca | GarantiaServico): string {
     if (this.ehGarantiaPeca(garantia)) {
       return garantia.nomePeca || 'Peça não informada';
@@ -78,6 +91,10 @@ export class RelatoriosComponent implements OnInit {
     return garantia.nomeServico || 'Serviço não informado';
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar relatorio.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   carregarRelatorio(): void {
     this.carregando = true;
     this.erro = undefined;
@@ -129,6 +146,10 @@ export class RelatoriosComponent implements OnInit {
     );
   }
 
+  /**
+   * Função: Controla na tela a etapa exportar planilha excel.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   exportarPlanilhaExcel(): void {
     const ordensPeriodo = this.ordensFiltradas();
     const pagamentosPeriodo = this.pagamentosFiltrados();
@@ -154,14 +175,26 @@ export class RelatoriosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa ordens filtradas.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   ordensFiltradas(): OrdemServicoResumo[] {
     return this.ordens.filter(os => this.estaNoPeriodo(os.dataAbertura));
   }
 
+  /**
+   * Função: Aciona a mudança de etapa da Ordem de Serviço conforme o fluxo operacional permitido.
+   * Uso no sistema: impede salto indevido entre Orçamento, Execução, Pagamento e Finalizado.
+   */
   pagamentosFiltrados(): Pagamento[] {
     return this.pagamentos.filter(p => this.estaNoPeriodo(p.dataPagamento));
   }
 
+  /**
+   * Função: Controla na tela a etapa montar relatorio.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarRelatorio(): void {
     const ordensPeriodo = this.ordensFiltradas();
     const pagamentosPeriodo = this.pagamentosFiltrados();
@@ -188,6 +221,10 @@ export class RelatoriosComponent implements OnInit {
     this.garantiasAtivas = garantiasAtivas.slice(0, 8);
   }
 
+  /**
+   * Função: Controla na tela a etapa montar resumo status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarResumoStatus(ordens: OrdemServicoResumo[]): StatusResumo[] {
     const status: StatusFluxoOrdemServico[] = ['ORCAMENTO', 'EXECUCAO', 'PAGAMENTO', 'FINALIZADO'];
     return status.map(item => {
@@ -197,6 +234,10 @@ export class RelatoriosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa esta no periodo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private estaNoPeriodo(data?: string): boolean {
     if (!data) return true;
     const valor = this.normalizarData(data);
@@ -206,6 +247,10 @@ export class RelatoriosComponent implements OnInit {
     return valor >= inicio && valor <= fim;
   }
 
+  /**
+   * Função: Controla na tela a etapa definir periodo padrao.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private definirPeriodoPadrao(): void {
     const hoje = new Date();
     const inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
@@ -213,25 +258,45 @@ export class RelatoriosComponent implements OnInit {
     this.dataFim = hoje.toISOString().slice(0, 10);
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar data.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private normalizarData(data: string): number | null {
     const parsed = new Date(data).getTime();
     return Number.isNaN(parsed) ? null : parsed;
   }
 
+  /**
+   * Função: Controla na tela a etapa data ms.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private dataMs(data?: string): number {
     return data ? (this.normalizarData(data) ?? 0) : 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa formatar moeda.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private formatarMoeda(valor: number): string {
     return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
   }
 
+  /**
+   * Função: Controla na tela a etapa formatar data curta.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private formatarDataCurta(data?: string): string {
     if (!data) return 'Não informado';
     const parsed = new Date(`${data}T00:00:00`);
     return Number.isNaN(parsed.getTime()) ? data : parsed.toLocaleDateString('pt-BR');
   }
 
+  /**
+   * Função: Controla na tela a etapa montar aba resumo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarAbaResumo(periodo: string, geradoEm: string): string {
     const linhasIndicadores = this.indicadores.map(indicador => this.row([
       this.cell(indicador.titulo, 'Text'),
@@ -265,6 +330,10 @@ export class RelatoriosComponent implements OnInit {
     ]);
   }
 
+  /**
+   * Função: Controla na tela a etapa montar aba ordens.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarAbaOrdens(ordens: OrdemServicoResumo[]): string {
     const linhas = ordens.map(os => this.row([
       this.cell(os.numeroOs ?? '', 'TextCenter'),
@@ -286,6 +355,10 @@ export class RelatoriosComponent implements OnInit {
     ]);
   }
 
+  /**
+   * Função: Aciona a mudança de etapa da Ordem de Serviço conforme o fluxo operacional permitido.
+   * Uso no sistema: impede salto indevido entre Orçamento, Execução, Pagamento e Finalizado.
+   */
   private montarAbaPagamentos(pagamentos: Pagamento[]): string {
     const totalPago = pagamentos.filter(p => p.statusPagamento === 'PAGO').reduce((total, p) => total + Number(p.valorPago ?? 0), 0);
     const linhas = pagamentos.map(p => this.row([
@@ -306,6 +379,10 @@ export class RelatoriosComponent implements OnInit {
     ]);
   }
 
+  /**
+   * Função: Controla na tela a etapa montar aba garantias.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarAbaGarantias(garantias: Array<GarantiaPeca | GarantiaServico>): string {
     const linhas = garantias.map(g => {
       const garantiaPeca = this.ehGarantiaPeca(g);
@@ -333,10 +410,18 @@ export class RelatoriosComponent implements OnInit {
     ]);
   }
 
+  /**
+   * Função: Controla na tela a etapa eh garantia peca.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private ehGarantiaPeca(garantia: GarantiaPeca | GarantiaServico): garantia is GarantiaPeca {
     return 'idItemPeca' in garantia || 'idPeca' in garantia || 'nomePeca' in garantia;
   }
 
+  /**
+   * Função: Controla na tela a etapa montar workbook excel xml.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private montarWorkbookExcelXml(worksheets: string[]): string {
     return `<?xml version="1.0" encoding="UTF-8"?>
 <?mso-application progid="Excel.Sheet"?>
@@ -372,34 +457,62 @@ export class RelatoriosComponent implements OnInit {
 </Workbook>`;
   }
 
+  /**
+   * Função: Controla na tela a etapa worksheet.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private worksheet(nome: string, conteudo: string[]): string {
     return `<Worksheet ss:Name="${this.xml(nome)}"><Table>${conteudo.join('\n')}</Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>2</SplitHorizontal><TopRowBottomPane>2</TopRowBottomPane><ProtectObjects>False</ProtectObjects><ProtectScenarios>False</ProtectScenarios></WorksheetOptions></Worksheet>`;
   }
 
+  /**
+   * Função: Controla na tela a etapa columns.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private columns(widths: number[]): string {
     return widths.map(width => `<Column ss:AutoFitWidth="0" ss:Width="${width}"/>`).join('');
   }
 
+  /**
+   * Função: Controla na tela a etapa row.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private row(cells: string[]): string {
     return `<Row ss:Height="24">${cells.join('')}</Row>`;
   }
 
+  /**
+   * Função: Controla na tela a etapa cell.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private cell(valor: string | number, estilo = 'Text', tipo: 'String' | 'Number' = 'String', mergeAcross = 0): string {
     const merge = mergeAcross > 0 ? ` ss:MergeAcross="${mergeAcross - 1}"` : '';
     const valorSeguro = tipo === 'Number' ? String(Number(valor) || 0) : this.xml(String(valor ?? ''));
     return `<Cell ss:StyleID="${estilo}"${merge}><Data ss:Type="${tipo}">${valorSeguro}</Data></Cell>`;
   }
 
+  /**
+   * Função: Controla na tela a etapa xml.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private xml(valor: string): string {
     return valor.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
   }
 
+  /**
+   * Função: Controla na tela a etapa formatar data hora.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private formatarDataHora(data?: string): string {
     if (!data) return '';
     const parsed = new Date(data);
     return Number.isNaN(parsed.getTime()) ? data : parsed.toLocaleString('pt-BR');
   }
 
+  /**
+   * Função: Controla na tela a etapa estilo status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private estiloStatus(status?: string): string {
     if (status === 'FINALIZADO') return 'StatusOk';
     if (status === 'PAGAMENTO') return 'StatusWarn';
@@ -407,12 +520,20 @@ export class RelatoriosComponent implements OnInit {
     return 'StatusDanger';
   }
 
+  /**
+   * Função: Aciona a mudança de etapa da Ordem de Serviço conforme o fluxo operacional permitido.
+   * Uso no sistema: impede salto indevido entre Orçamento, Execução, Pagamento e Finalizado.
+   */
   private estiloPagamento(status?: string): string {
     if (status === 'PAGO') return 'StatusOk';
     if (status === 'PENDENTE') return 'StatusWarn';
     return 'StatusDanger';
   }
 
+  /**
+   * Função: Controla na tela a etapa estilo garantia.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private estiloGarantia(status?: string): string {
     if (status === 'VIGENTE') return 'StatusOk';
     if (status === 'ACIONADA') return 'StatusWarn';
@@ -420,5 +541,9 @@ export class RelatoriosComponent implements OnInit {
     return 'StatusInfo';
   }
 
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

@@ -38,6 +38,11 @@ export class ItensOsComponent implements OnInit {
   itemServicoForm: ItemServico = this.itemServicoInicial();
   itemPecaForm: ItemPeca = this.itemPecaInicial();
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(
     private readonly ordemApi: OrdemServicoApiService,
     private readonly servicoApi: ServicoApiService,
@@ -50,6 +55,10 @@ export class ItensOsComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void { this.carregarApoio(); }
 
   carregarApoio(): void {
@@ -67,6 +76,10 @@ export class ItensOsComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar itens.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   carregarItens(): void {
     this.mensagem = undefined; this.erro = undefined;
     if (!this.idOrdemSelecionada) { this.itensServico = []; this.itensPeca = []; this.atualizarTela(); return; }
@@ -81,6 +94,11 @@ export class ItensOsComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvarItemServico(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir serviço.'; this.atualizarTela(); return; }
     if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Serviços só podem ser incluídos enquanto a OS está em ORÇAMENTO.'; this.atualizarTela(); return; }
@@ -94,6 +112,11 @@ export class ItensOsComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvarItemPeca(): void {
     if (!this.idOrdemSelecionada) { this.erro = 'Selecione uma OS antes de incluir peça.'; this.atualizarTela(); return; }
     if (!this.ordemSelecionadaEhStatusPermitido()) { this.erro = 'Peças só podem ser incluídas enquanto a OS está em ORÇAMENTO.'; this.atualizarTela(); return; }
@@ -107,11 +130,19 @@ export class ItensOsComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa servico selecionado terceirizado.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   servicoSelecionadoTerceirizado(): boolean {
     const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
     return servico?.tipoServico === 'TERCEIRIZADO';
   }
 
+  /**
+   * Função: Controla na tela a etapa ao alterar servico.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   aoAlterarServico(): void {
     const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
     if (servico) {
@@ -130,6 +161,10 @@ export class ItensOsComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa ao alterar peca.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   aoAlterarPeca(): void {
     const peca = this.pecas.find(p => Number(p.id) === Number(this.itemPecaForm.idPeca));
     if (peca) {
@@ -147,6 +182,11 @@ export class ItensOsComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Recalcula valores exibidos na tela conforme quantidade, peça, serviço ou valor unitário
+   * informado.
+   * Uso no sistema: mantém o orçamento visual coerente antes de enviar os itens para a API.
+   */
   recalcularTotalServico(atualizar = true): void {
     const quantidade = Number(this.itemServicoForm.quantidade ?? 0);
     const valorUnitario = Number(this.itemServicoForm.valorUnitario ?? 0);
@@ -154,6 +194,11 @@ export class ItensOsComponent implements OnInit {
     if (atualizar) this.atualizarTela();
   }
 
+  /**
+   * Função: Recalcula valores exibidos na tela conforme quantidade, peça, serviço ou valor unitário
+   * informado.
+   * Uso no sistema: mantém o orçamento visual coerente antes de enviar os itens para a API.
+   */
   recalcularTotalPeca(atualizar = true): void {
     const quantidade = Number(this.itemPecaForm.quantidade ?? 0);
     const valorUnitario = Number(this.itemPecaForm.valorUnitario ?? 0);
@@ -161,6 +206,10 @@ export class ItensOsComponent implements OnInit {
     if (atualizar) this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa fornecedor peca selecionado.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   fornecedorPecaSelecionado(): string {
     const fornecedor = this.fornecedores.find(f => Number(f.id) === Number(this.itemPecaForm.idFornecedor));
     return fornecedor?.nomeFornecedor ?? 'Nenhum fornecedor vinculado à peça selecionada';
@@ -169,6 +218,10 @@ export class ItensOsComponent implements OnInit {
   excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   excluirItemPeca(item: ItemPeca): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemPecaApi.excluir(item.id).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensPeca = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
+  /**
+   * Função: Aciona a mudança de etapa da Ordem de Serviço conforme o fluxo operacional permitido.
+   * Uso no sistema: impede salto indevido entre Orçamento, Execução, Pagamento e Finalizado.
+   */
   enviarOrcamentoParaExecucao(): void {
     if (!this.idOrdemSelecionada) {
       this.erro = 'Selecione uma OS em orçamento antes de enviar para execução.';
@@ -207,6 +260,10 @@ export class ItensOsComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Aciona a mudança de etapa da Ordem de Serviço conforme o fluxo operacional permitido.
+   * Uso no sistema: impede salto indevido entre Orçamento, Execução, Pagamento e Finalizado.
+   */
   podeEnviarOrcamentoParaExecucao(): boolean {
     return !!this.idOrdemSelecionada
       && this.ordemSelecionadaEhStatusPermitido()
@@ -214,12 +271,21 @@ export class ItensOsComponent implements OnInit {
       && !this.processando;
   }
 
+  /**
+   * Função: Recalcula valores exibidos na tela conforme quantidade, peça, serviço ou valor unitário
+   * informado.
+   * Uso no sistema: mantém o orçamento visual coerente antes de enviar os itens para a API.
+   */
   totalOrcamentoSelecionado(): number {
     const totalServicos = this.itensServico.reduce((soma, item) => soma + Number(item.valorTotal ?? 0), 0);
     const totalPecas = this.itensPeca.reduce((soma, item) => soma + Number(item.valorTotal ?? 0), 0);
     return totalServicos + totalPecas;
   }
 
+  /**
+   * Função: Controla na tela a etapa validar item servico.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarItemServico(): boolean {
     this.errosServico = {};
     if (!this.itemServicoForm.idServico || Number(this.itemServicoForm.idServico) <= 0) this.errosServico['idServico'] = 'Selecione o serviço da OS.';
@@ -237,6 +303,10 @@ export class ItensOsComponent implements OnInit {
     return Object.keys(this.errosServico).length === 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa validar item peca.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarItemPeca(): boolean {
     this.errosPeca = {};
     if (!this.itemPecaForm.idPeca || Number(this.itemPecaForm.idPeca) <= 0) this.errosPeca['idPeca'] = 'Selecione a peça aplicada na OS.';
@@ -246,15 +316,27 @@ export class ItensOsComponent implements OnInit {
     return Object.keys(this.errosPeca).length === 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa ordem selecionada eh status permitido.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private ordemSelecionadaEhStatusPermitido(): boolean {
     const ordem = this.ordens.find(os => Number(os.id) === Number(this.idOrdemSelecionada));
     return !!ordem && this.normalizarStatus(ordem.statusAtual) === this.statusPermitido;
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   private filtrarOrdensPorStatus(ordens: OrdemServicoResumo[], status: StatusFluxoOrdemServico): OrdemServicoResumo[] {
     return [...(ordens ?? [])].filter(os => this.normalizarStatus(os.statusAtual) === status);
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private normalizarStatus(status?: string): StatusFluxoOrdemServico | '' {
     return (status ?? '')
       .normalize('NFD')
@@ -264,6 +346,10 @@ export class ItensOsComponent implements OnInit {
       .replace(/\s+/g, '_') as StatusFluxoOrdemServico | '';
   }
 
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   private limparSelecaoOrdem(): void {
     this.idOrdemSelecionada = 0;
     this.itensServico = [];
@@ -272,7 +358,15 @@ export class ItensOsComponent implements OnInit {
     this.itemPecaForm = this.itemPecaInicial();
   }
 
+  /**
+   * Função: Controla na tela a etapa item servico inicial.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private itemServicoInicial(): ItemServico { return { idOrdemServico: this.idOrdemSelecionada, idServico: 0, idColaborador: 0, quantidade: 1, valorUnitario: 0, valorTotal: 0, descricaoExecucao: '' }; }
   private itemPecaInicial(): ItemPeca { return { idOrdemServico: this.idOrdemSelecionada, idPeca: 0, idFornecedor: 0, quantidade: 1, valorUnitario: 0, valorTotal: 0, observacao: '' }; }
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

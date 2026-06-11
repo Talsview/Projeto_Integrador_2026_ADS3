@@ -22,23 +22,46 @@ public class StatusOrdemServicoController {
 
     private final StatusOrdemServicoService statusService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public StatusOrdemServicoController(StatusOrdemServicoService statusService) {
         this.statusService = statusService;
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<StatusOrdemServicoDTO>> buscar(@PathVariable Long id) {
         StatusOrdemServicoDTO status = statusService.buscar(id);
         return ResponseEntity.ok(ApiResponse.success("Status de Ordem de Serviço localizado com sucesso.", status));
     }
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<StatusOrdemServicoDTO>>> listar(Pageable pageable) {
         Page<StatusOrdemServicoDTO> status = statusService.listar(pageable);
         return ResponseEntity.ok(ApiResponse.success("Status de Ordem de Serviço localizados com sucesso.", PageResponse.from(status)));
     }
 
     @GetMapping("/pesquisar")
+    /**
+     * Função: Recebe filtros de consulta de ordemservico, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<StatusOrdemServicoDTO>>> pesquisar(@RequestParam String termo,
                                                                                        Pageable pageable) {
         Page<StatusOrdemServicoDTO> status = statusService.pesquisar(termo, pageable);

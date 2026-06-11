@@ -2,6 +2,10 @@
 <p class="page-subtitle">
   Cadastro das funções exercidas pelos colaboradores. Mecânico, atendente, secretária, faxineiro e gerente são registros de Função, não entidades separadas.
 </p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 
 <div class="grid two">
   <section class="card">
@@ -49,3 +53,18 @@
     </div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Funções inativas"
+  descricao="Pesquisar funções inativas por nome, descrição ou data."
+  [registros]="funcoesInativos"
+  [camposTexto]="['nomeFuncao','descricao']"
+  campoPrincipal="nomeFuncao"
+  campoSecundario="descricao"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

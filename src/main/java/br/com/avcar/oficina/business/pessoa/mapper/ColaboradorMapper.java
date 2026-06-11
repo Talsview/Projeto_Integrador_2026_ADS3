@@ -20,12 +20,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class ColaboradorMapper {
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação criar pessoa.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public PessoaModel criarPessoa(ColaboradorDTO dto) {
         PessoaModel pessoa = new PessoaModel();
         atualizarPessoa(pessoa, dto);
         return pessoa;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação criar colaborador.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ColaboradorModel criarColaborador(PessoaModel pessoa, ColaboradorDTO dto) {
         ColaboradorModel colaborador = new ColaboradorModel();
         colaborador.setPessoa(pessoa);
@@ -34,6 +42,10 @@ public class ColaboradorMapper {
         return colaborador;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação criar colaborador funcao.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ColaboradorFuncaoModel criarColaboradorFuncao(ColaboradorModel colaborador, FuncaoModel funcao, LocalDate dataInicio) {
         ColaboradorFuncaoModel colaboradorFuncao = new ColaboradorFuncaoModel();
         colaboradorFuncao.setColaborador(colaborador);
@@ -42,6 +54,11 @@ public class ColaboradorMapper {
         return colaboradorFuncao;
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public ColaboradorDTO toDto(ColaboradorModel colaborador, List<ColaboradorFuncaoModel> funcoesAtivas) {
         if (colaborador == null) {
             return null;
@@ -52,6 +69,8 @@ public class ColaboradorMapper {
         dto.setId(colaborador.getId());
         dto.setPessoaId(pessoa.getId());
         dto.setAtivo(colaborador.getAtivo());
+        dto.setDataHoraCriacao(colaborador.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(colaborador.getDataHoraAtualizacao());
         dto.setNome(pessoa.getNome());
         dto.setTelefone(pessoa.getTelefone());
         dto.setEmail(pessoa.getEmail());
@@ -63,6 +82,10 @@ public class ColaboradorMapper {
         return dto;
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ColaboradorResumoDTO toResumo(ColaboradorModel colaborador, List<ColaboradorFuncaoModel> funcoesAtivas) {
         PessoaModel pessoa = colaborador.getPessoa();
 
@@ -70,6 +93,8 @@ public class ColaboradorMapper {
         dto.setId(colaborador.getId());
         dto.setPessoaId(pessoa.getId());
         dto.setAtivo(colaborador.getAtivo());
+        dto.setDataHoraCriacao(colaborador.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(colaborador.getDataHoraAtualizacao());
         dto.setNome(pessoa.getNome());
         dto.setTelefone(pessoa.getTelefone());
         dto.setEmail(pessoa.getEmail());
@@ -79,10 +104,16 @@ public class ColaboradorMapper {
         return dto;
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ColaboradorFuncaoDTO toColaboradorFuncaoDto(ColaboradorFuncaoModel model) {
         ColaboradorFuncaoDTO dto = new ColaboradorFuncaoDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         dto.setColaboradorId(model.getColaborador().getId());
         dto.setFuncaoId(model.getFuncao().getId());
         dto.setNomeFuncao(model.getFuncao().getNomeFuncao());
@@ -91,6 +122,10 @@ public class ColaboradorMapper {
         return dto;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarPessoa(PessoaModel pessoa, ColaboradorDTO dto) {
         pessoa.setNome(dto.getNome());
         pessoa.setTelefone(dto.getTelefone());
@@ -98,11 +133,19 @@ public class ColaboradorMapper {
         pessoa.setEndereco(dto.getEndereco());
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarColaborador(ColaboradorModel colaborador, ColaboradorDTO dto) {
         colaborador.setDataAdmissao(dto.getDataAdmissao());
         colaborador.setStatusColaborador(dto.getStatusColaborador() == null ? StatusColaborador.ATIVO : dto.getStatusColaborador());
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação formatar funcoes.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String formatarFuncoes(List<ColaboradorFuncaoModel> funcoesAtivas) {
         if (funcoesAtivas == null || funcoesAtivas.isEmpty()) {
             return "";

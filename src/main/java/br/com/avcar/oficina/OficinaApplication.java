@@ -14,6 +14,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class OficinaApplication {
 
+    /**
+     * Função: Ponto de entrada da aplicação Spring Boot.
+     * Uso no sistema: inicia o backend local responsável pela API da oficina.
+     */
     public static void main(String[] args) {
         SpringApplication.run(OficinaApplication.class, args);
     }

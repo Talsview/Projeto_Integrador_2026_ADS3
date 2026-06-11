@@ -44,6 +44,11 @@ public class VeiculoService {
     private final HistoricoProprietarioMapper historicoMapper;
     private final VeiculoResponseAdapter responseAdapter;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public VeiculoService(IVeiculoRepository veiculoRepository,
                           IModeloRepository modeloRepository,
                           IClienteRepository clienteRepository,
@@ -63,6 +68,11 @@ public class VeiculoService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de veiculo.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public VeiculoDTO cadastrar(VeiculoDTO dto) {
         validation.validateInsert(dto);
 
@@ -79,6 +89,12 @@ public class VeiculoService {
     }
 
     @Transactional
+    /**
+     * Função: Busca o registro ativo, aplica as alterações permitidas e salva a atualização de
+     * veiculo.
+     * Uso no sistema: garante que alterações passem por validação e não quebrem vínculos já existentes
+     * no sistema.
+     */
     public VeiculoDTO atualizar(Long id, VeiculoDTO dto) {
         validation.validateUpdate(id, dto);
 
@@ -92,18 +108,35 @@ public class VeiculoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de veiculo conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public VeiculoDTO buscar(Long id) {
         validation.validateId(id);
         return montarDetalhe(id);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de veiculo aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<VeiculoResumoDTO> listar(Pageable pageable) {
         return veiculoRepository.findAllByAtivoTrue(pageable)
                 .map(this::montarResumo);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de veiculo aplicando filtros, paginação ou critérios de busca quando
+     * informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<VeiculoResumoDTO> pesquisar(String termo, Pageable pageable) {
         if (termo == null || termo.isBlank()) {
             return listar(pageable);
@@ -113,6 +146,10 @@ public class VeiculoService {
     }
 
     @Transactional
+    /**
+     * Função: Encerra o vínculo anterior e registra novo proprietário para o veículo.
+     * Uso no sistema: preserva o histórico de proprietários ao longo do tempo.
+     */
     public VeiculoDTO transferirProprietario(Long veiculoId, TransferenciaProprietarioDTO dto) {
         VeiculoModel veiculo = buscarVeiculoAtivo(veiculoId);
         HistoricoProprietarioModel proprietarioAtual = buscarHistoricoAtualOuNulo(veiculoId);
@@ -135,6 +172,12 @@ public class VeiculoService {
     }
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativar(Long id) {
         validation.validateId(id);
         VeiculoModel veiculo = buscarVeiculoAtivo(id);
@@ -142,6 +185,40 @@ public class VeiculoService {
         veiculoRepository.save(veiculo);
     }
 
+
+
+    @Transactional(readOnly = true)
+    /**
+     * Função: Lista cadastros inativados para que o usuário possa localizar e reativar registros sem
+     * recriá-los.
+     * Uso no sistema: reforça a rastreabilidade, pois registros antigos continuam no banco e podem
+     * voltar a ficar ativos.
+     */
+    public Page<VeiculoResumoDTO> listarInativos(Pageable pageable) {
+        return veiculoRepository.findAllByAtivoFalse(pageable)
+                .map(this::montarResumo);
+    }
+
+    @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
+    public VeiculoResumoDTO ativar(Long id) {
+        validation.validateId(id);
+        VeiculoModel veiculo = veiculoRepository.findByIdAndAtivoFalse(id)
+                .orElseThrow(() -> new BusinessException("Veículo não encontrado entre os inativos."));
+        veiculo.setAtivo(Boolean.TRUE);
+        VeiculoModel saved = veiculoRepository.save(veiculo);
+        return montarResumo(saved);
+    }
+
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar detalhe.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private VeiculoDTO montarDetalhe(Long id) {
         VeiculoModel veiculo = buscarVeiculoAtivo(id);
         HistoricoProprietarioModel proprietarioAtual = buscarHistoricoAtualOuNulo(id);
@@ -149,31 +226,60 @@ public class VeiculoService {
         return responseAdapter.adaptarParaDetalhe(veiculo, proprietarioAtual, historico);
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar resumo.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private VeiculoResumoDTO montarResumo(VeiculoModel veiculo) {
         HistoricoProprietarioModel proprietarioAtual = buscarHistoricoAtualOuNulo(veiculo.getId());
         return responseAdapter.adaptarParaResumo(veiculo, proprietarioAtual);
     }
 
+    /**
+     * Função: Localiza informações de veiculo conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private VeiculoModel buscarVeiculoAtivo(Long id) {
         return veiculoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Veículo não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Localiza informações de veiculo conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private ModeloModel buscarModeloAtivo(Long id) {
         return modeloRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Modelo não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Localiza informações de veiculo conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private ClienteModel buscarClienteAtivo(Long id) {
         return clienteRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Cliente não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Localiza informações de veiculo conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private HistoricoProprietarioModel buscarHistoricoAtualOuNulo(Long veiculoId) {
         return historicoRepository.findFirstByVeiculoIdAndAtivoTrueAndProprietarioAtualTrue(veiculoId)
                 .orElse(null);
     }
 
+    /**
+     * Função: Normaliza o termo digitado pelo usuário antes de pesquisar.
+     * Uso no sistema: melhora a busca por nome, documento, placa ou código independentemente de
+     * acentos e letras maiúsculas.
+     */
     private String normalizeTermoPesquisa(String termo) {
         String trimmed = termo.trim();
         String apenasPlaca = veiculoMapper.normalizePlaca(trimmed);

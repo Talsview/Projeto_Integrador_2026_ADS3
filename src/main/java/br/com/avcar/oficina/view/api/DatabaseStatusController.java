@@ -14,11 +14,21 @@ public class DatabaseStatusController {
 
     private final DatabaseConnectionChecker databaseConnectionChecker;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public DatabaseStatusController(DatabaseConnectionChecker databaseConnectionChecker) {
         this.databaseConnectionChecker = databaseConnectionChecker;
     }
 
     @GetMapping("/status")
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     public ResponseEntity<ApiResponse<DatabaseStatusResult>> status() {
         DatabaseStatusResult result = databaseConnectionChecker.checkStatus();
         return ResponseEntity.ok(ApiResponse.success(result.getMensagem(), result));

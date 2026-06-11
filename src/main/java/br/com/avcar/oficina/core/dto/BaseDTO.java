@@ -1,6 +1,7 @@
 package br.com.avcar.oficina.core.dto;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -13,4 +14,6 @@ public abstract class BaseDTO implements Serializable {
 
     private Long id;
     private Boolean ativo;
+    private LocalDateTime dataHoraCriacao;
+    private LocalDateTime dataHoraAtualizacao;
 }

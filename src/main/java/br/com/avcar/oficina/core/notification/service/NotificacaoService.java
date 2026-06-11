@@ -29,15 +29,31 @@ public class NotificacaoService {
     private final Notificador notificador;
     private final INotificacaoAuditoriaRepository auditoriaRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public NotificacaoService(INotificacaoAuditoriaRepository auditoriaRepository) {
         this.auditoriaRepository = auditoriaRepository;
         this.notificador = new NotificadorAuditoriaDecorator(new NotificadorOperacional(), auditoriaRepository);
     }
 
+    /**
+     * Função: Envia uma notificação operacional e registra a auditoria do envio quando o decorador
+     * está aplicado.
+     * Uso no sistema: apoia a rastreabilidade de eventos importantes, principalmente mudanças de
+     * status da OS.
+     */
     public NotificacaoResultadoDTO notificar(NotificacaoDTO dto) {
         return notificador.notificar(dto);
     }
 
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     public NotificacaoResultadoDTO notificarMudancaStatusOrdemServico(String numeroOs,
                                                                        String novoStatus,
                                                                        String observacao) {
@@ -50,11 +66,23 @@ public class NotificacaoService {
         return notificar(dto);
     }
 
+    /**
+     * Função: Consulta registros de notificacao aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<NotificacaoAuditoriaDTO> listarAuditorias(Pageable pageable) {
         return auditoriaRepository.findAllByAtivoTrueOrderByDataHoraAuditoriaDesc(pageable)
                 .map(this::toDto);
     }
 
+    /**
+     * Função: Consulta registros de notificacao aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public java.util.List<NotificacaoAuditoriaDTO> listarAuditoriasPorReferencia(String referencia) {
         return auditoriaRepository.findTop20ByReferenciaIgnoreCaseAndAtivoTrueOrderByDataHoraAuditoriaDesc(referencia)
                 .stream()
@@ -62,6 +90,11 @@ public class NotificacaoService {
                 .toList();
     }
 
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     private String montarMensagemMudancaStatus(String numeroOs, String novoStatus, String observacao) {
         StringBuilder mensagem = new StringBuilder();
         mensagem.append("A Ordem de Serviço ").append(numeroOs)
@@ -72,6 +105,11 @@ public class NotificacaoService {
         return mensagem.toString();
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     private NotificacaoAuditoriaDTO toDto(NotificacaoAuditoriaModel model) {
         NotificacaoAuditoriaDTO dto = new NotificacaoAuditoriaDTO();
         dto.setId(model.getId());

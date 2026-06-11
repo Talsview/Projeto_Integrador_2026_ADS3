@@ -37,6 +37,10 @@ public class HistoricoStatusOrdemModel extends BaseModel {
     private StatusOrdemServicoModel statusOrdemServico;
 
     @Column(name = "data_status", nullable = false)
+    /**
+     * Função: Representa ou apoia os dados usados na operação local date time.now.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private LocalDateTime dataStatus = LocalDateTime.now();
 
     @Column(name = "observacao", columnDefinition = "TEXT")

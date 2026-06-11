@@ -34,11 +34,23 @@ public abstract class BaseModel implements Serializable {
     @Column(name = "data_hora_atualizacao")
     private LocalDateTime dataHoraAtualizacao;
 
+    /**
+     * Função: Representa ou apoia os dados usados na operação get id.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     public abstract Long getId();
 
+    /**
+     * Função: Representa ou apoia os dados usados na operação set id.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     public abstract void setId(Long id);
 
     @PrePersist
+    /**
+     * Função: Representa ou apoia os dados usados na operação pre persist.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     public void prePersist() {
         if (this.ativo == null) {
             this.ativo = Boolean.TRUE;
@@ -48,6 +60,10 @@ public abstract class BaseModel implements Serializable {
     }
 
     @PreUpdate
+    /**
+     * Função: Representa ou apoia os dados usados na operação pre update.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     public void preUpdate() {
         this.dataHoraAtualizacao = LocalDateTime.now();
     }

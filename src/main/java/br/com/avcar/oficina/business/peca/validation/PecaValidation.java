@@ -14,10 +14,21 @@ public class PecaValidation {
 
     private final IPecaRepository pecaRepository;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public PecaValidation(IPecaRepository pecaRepository) {
         this.pecaRepository = pecaRepository;
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateInsert(PecaDTO dto) {
         validateFields(dto);
         String codigoNacional = normalizeUpper(dto.getCodigoNacional());
@@ -26,6 +37,12 @@ public class PecaValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateUpdate(Long id, PecaDTO dto) {
         validateId(id);
         validateFields(dto);
@@ -35,12 +52,24 @@ public class PecaValidation {
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     public void validateId(Long id) {
         if (id == null || id <= 0) {
             throw new FieldValidationException("O identificador da peça é obrigatório.");
         }
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateFields(PecaDTO dto) {
         if (dto == null) {
             throw new FieldValidationException("Os dados da peça são obrigatórios.");
@@ -66,12 +95,23 @@ public class PecaValidation {
         ValidationUtils.maxLength(dto.getDescricao(), 2000, "descrição da peça");
     }
 
+    /**
+     * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou
+     * alteração.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private void validateAno(Integer ano, String campo) {
         if (ano != null && ano < 1900) {
             throw new FieldValidationException("O " + campo + " da peça deve ser maior ou igual a 1900.");
         }
     }
 
+    /**
+     * Função: Valida os dados necessários para a operação normalize upper.
+     * Uso no sistema: impede que dados incompletos ou inconsistentes avancem para a camada de serviço
+     * e banco de dados.
+     */
     private String normalizeUpper(String value) {
         if (value == null) {
             return null;

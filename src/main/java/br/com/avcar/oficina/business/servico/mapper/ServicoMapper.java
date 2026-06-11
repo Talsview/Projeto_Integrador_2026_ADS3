@@ -14,6 +14,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ServicoMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ServicoModel toServicoModel(ServicoDTO dto) {
         if (dto == null) {
             return null;
@@ -23,6 +27,10 @@ public class ServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarServicoModel(ServicoModel model, ServicoDTO dto) {
         model.setNomeServico(normalize(dto.getNomeServico()));
         model.setDescricao(normalize(dto.getDescricao()));
@@ -30,6 +38,10 @@ public class ServicoMapper {
         model.setValorBase(dto.getValorBase() == null ? BigDecimal.ZERO : dto.getValorBase());
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ServicoInternoModel toServicoInternoModel(ServicoModel servico, ServicoDTO dto) {
         ServicoInternoModel model = new ServicoInternoModel();
         model.setServico(servico);
@@ -37,6 +49,10 @@ public class ServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ServicoTerceirizadoModel toServicoTerceirizadoModel(ServicoModel servico, ServicoDTO dto) {
         ServicoTerceirizadoModel model = new ServicoTerceirizadoModel();
         model.setServico(servico);
@@ -44,18 +60,31 @@ public class ServicoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarServicoInternoModel(ServicoInternoModel model, ServicoModel servico, ServicoDTO dto) {
         model.setServico(servico);
         model.setObservacaoInterna(normalize(dto.getObservacaoInterna()));
         model.setAtivo(Boolean.TRUE);
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarServicoTerceirizadoModel(ServicoTerceirizadoModel model, ServicoModel servico, ServicoDTO dto) {
         model.setServico(servico);
         model.setObservacaoTerceirizacao(normalize(dto.getObservacaoTerceirizacao()));
         model.setAtivo(Boolean.TRUE);
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public ServicoDTO toDto(ServicoModel servico,
                             ServicoInternoModel servicoInterno,
                             ServicoTerceirizadoModel servicoTerceirizado) {
@@ -65,17 +94,19 @@ public class ServicoMapper {
         ServicoDTO dto = new ServicoDTO();
         dto.setId(servico.getId());
         dto.setAtivo(servico.getAtivo());
+        dto.setDataHoraCriacao(servico.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(servico.getDataHoraAtualizacao());
         dto.setNomeServico(servico.getNomeServico());
         dto.setDescricao(servico.getDescricao());
         dto.setPrazoGarantiaDias(servico.getPrazoGarantiaDias());
         dto.setValorBase(servico.getValorBase());
 
-        if (servicoInterno != null && Boolean.TRUE.equals(servicoInterno.getAtivo())) {
+        if (servicoInterno != null) {
             dto.setTipoServico(TipoServico.INTERNO);
             dto.setObservacaoInterna(servicoInterno.getObservacaoInterna());
         }
 
-        if (servicoTerceirizado != null && Boolean.TRUE.equals(servicoTerceirizado.getAtivo())) {
+        if (servicoTerceirizado != null) {
             dto.setTipoServico(TipoServico.TERCEIRIZADO);
             dto.setObservacaoTerceirizacao(servicoTerceirizado.getObservacaoTerceirizacao());
         }
@@ -83,6 +114,10 @@ public class ServicoMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String normalize(String value) {
         if (value == null) {
             return null;

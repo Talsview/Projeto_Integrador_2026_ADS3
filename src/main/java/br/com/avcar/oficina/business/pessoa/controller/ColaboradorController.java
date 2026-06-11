@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,11 +32,22 @@ public class ColaboradorController {
 
     private final ColaboradorService colaboradorService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ColaboradorController(ColaboradorService colaboradorService) {
         this.colaboradorService = colaboradorService;
     }
 
     @PostMapping
+    /**
+     * Função: Recebe a requisição de cadastro de colaborador, encaminha os dados para o serviço e
+     * retorna a resposta da operação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ColaboradorDTO>> cadastrar(@RequestBody ColaboradorDTO dto) {
         ColaboradorDTO saved = colaboradorService.cadastrar(dto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -43,30 +55,86 @@ public class ColaboradorController {
     }
 
     @PutMapping("/{id}")
+    /**
+     * Função: Recebe a requisição de atualização de colaborador, preservando a validação e a regra de
+     * negócio no serviço.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ColaboradorDTO>> atualizar(@PathVariable Long id, @RequestBody ColaboradorDTO dto) {
         ColaboradorDTO updated = colaboradorService.atualizar(id, dto);
         return ResponseEntity.ok(ApiResponse.success("Colaborador atualizado com sucesso.", updated));
     }
 
     @GetMapping("/{id}")
+    /**
+     * Função: Recebe filtros de consulta de colaborador, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<ColaboradorDTO>> buscar(@PathVariable Long id) {
         ColaboradorDTO colaborador = colaboradorService.buscar(id);
         return ResponseEntity.ok(ApiResponse.success("Colaborador localizado com sucesso.", colaborador));
     }
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de colaborador, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ColaboradorResumoDTO>>> listar(Pageable pageable) {
         Page<ColaboradorResumoDTO> colaboradores = colaboradorService.listar(pageable);
         return ResponseEntity.ok(ApiResponse.success("Colaboradores localizados com sucesso.", PageResponse.from(colaboradores)));
     }
 
     @GetMapping("/pesquisar")
+    /**
+     * Função: Recebe filtros de consulta de colaborador, delega a busca ao serviço e devolve os dados
+     * no formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<PageResponse<ColaboradorResumoDTO>>> pesquisar(@RequestParam String termo, Pageable pageable) {
         Page<ColaboradorResumoDTO> colaboradores = colaboradorService.pesquisar(termo, pageable);
         return ResponseEntity.ok(ApiResponse.success("Pesquisa de colaboradores executada com sucesso.", PageResponse.from(colaboradores)));
     }
 
+
+
+    @GetMapping("/inativos")
+    /**
+     * Função: Atende a requisição de consulta de registros inativados e devolve os dados para a tela
+     * de reativação.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<PageResponse<ColaboradorResumoDTO>>> listarInativos(Pageable pageable) {
+        Page<ColaboradorResumoDTO> registros = colaboradorService.listarInativos(pageable);
+        return ResponseEntity.ok(ApiResponse.success("Colaboradores inativos localizados.", PageResponse.from(registros)));
+    }
+
+    @PatchMapping("/{id}/ativar")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
+    public ResponseEntity<ApiResponse<ColaboradorResumoDTO>> ativar(@PathVariable Long id) {
+        ColaboradorResumoDTO registro = colaboradorService.ativar(id);
+        return ResponseEntity.ok(ApiResponse.success("Colaborador ativado.", registro));
+    }
+
     @DeleteMapping("/{id}")
+    /**
+     * Função: Atende a requisição de reativação e delega ao serviço a recuperação do cadastro
+     * inativado.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<Void>> inativar(@PathVariable Long id) {
         colaboradorService.inativar(id);
         return ResponseEntity.ok(ApiResponse.success("Colaborador inativado com sucesso.", null));

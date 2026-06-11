@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { finalize, forkJoin } from 'rxjs';
+import { InativosPanelComponent } from '../../shared/components/inativos-panel/inativos-panel.component';
+import { finalize, forkJoin, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { MarcaApiService } from '../../core/services/marca-api.service';
 import { ModeloApiService } from '../../core/services/modelo-api.service';
@@ -10,9 +11,12 @@ import { chassiValido, dataFutura, anoVeiculoValido, numeroNaoNegativo, placaVal
 import { ClienteResumo } from '../../models/cliente.model';
 import { Marca, Modelo, VeiculoResumo } from '../../models/veiculo.model';
 
-@Component({ selector: 'app-veiculos', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './veiculos.component.html' })
+@Component({ selector: 'app-veiculos', standalone: true, imports: [CommonModule, FormsModule, InativosPanelComponent], templateUrl: './veiculos.component.html' })
 export class VeiculosComponent implements OnInit {
   veiculos: VeiculoResumo[] = [];
+  veiculosInativos: VeiculoResumo[] = [];
+  mostrarInativos = false;
+  carregandoInativos = false;
   marcas: Marca[] = [];
   modelos: Modelo[] = [];
   clientes: ClienteResumo[] = [];
@@ -27,6 +31,11 @@ export class VeiculosComponent implements OnInit {
 
   form: any = this.formularioInicial();
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(
     private readonly veiculoApi: VeiculoApiService,
     private readonly marcaApi: MarcaApiService,
@@ -35,10 +44,18 @@ export class VeiculosComponent implements OnInit {
     private readonly cdr: ChangeDetectorRef
   ) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void {
     this.carregarTelaInicial();
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar tela inicial.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   carregarTelaInicial(): void {
     this.carregando = true;
     this.erro = undefined;
@@ -68,6 +85,10 @@ export class VeiculosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa carregar apoio.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   carregarApoio(): void {
     forkJoin({
       marcas: this.marcaApi.listar(),
@@ -88,6 +109,10 @@ export class VeiculosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa listar.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   listar(): void {
     this.carregando = true;
     this.erro = undefined;
@@ -108,6 +133,10 @@ export class VeiculosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   pesquisar(): void {
     const c = this.termo.trim();
     if (!c) { this.listar(); return; }
@@ -130,6 +159,11 @@ export class VeiculosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvar(): void {
     this.mensagem = undefined;
     this.erro = undefined;
@@ -159,6 +193,10 @@ export class VeiculosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Carrega os dados selecionados para o formulário, permitindo conferência ou alteração.
+   * Uso no sistema: evita redigitação e mantém a edição vinculada ao registro correto.
+   */
   editar(v: VeiculoResumo): void {
     this.form = { ...v, modeloId: v.modeloId ?? 0, marcaId: v.marcaId ?? 0, proprietarioAtualId: v.proprietarioAtualId ?? 0, quilometragemAtual: v.quilometragemAtual ?? undefined };
     this.termoClienteProprietario = '';
@@ -167,6 +205,10 @@ export class VeiculosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Solicita confirmação e envia a inativação do registro para a API.
+   * Uso no sistema: remove o item da listagem principal sem apagar seu histórico no banco.
+   */
   excluir(v: VeiculoResumo): void {
     if (!v.id) return;
     this.processando = true;
@@ -191,6 +233,68 @@ export class VeiculosComponent implements OnInit {
     });
   }
 
+
+  /**
+   * Função: Controla na tela a etapa abrir inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  abrirInativos(): void {
+    this.mostrarInativos = true;
+    this.carregarInativos();
+  }
+
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
+  fecharInativos(): void {
+    this.mostrarInativos = false;
+    this.atualizarTela();
+  }
+
+  /**
+   * Função: Controla na tela a etapa carregar inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  carregarInativos(): void {
+    this.carregandoInativos = true;
+    this.erro = undefined;
+    this.atualizarTela();
+    this.veiculoApi.listarInativos()
+      .pipe(finalize(() => { this.carregandoInativos = false; this.atualizarTela(); }))
+      .subscribe({
+        next: registros => { this.veiculosInativos = [...registros]; this.atualizarTela(); },
+        error: e => { this.erro = e.message ?? 'Não foi possível carregar os inativos.'; this.atualizarTela(); }
+      });
+  }
+
+  /**
+   * Função: Envia à API a reativação do registro escolhido na tela de inativos.
+   * Uso no sistema: permite recuperar cadastros sem criar duplicidade.
+   */
+  ativarInativo(registro: VeiculoResumo): void {
+    if (!registro.id) return;
+    this.processando = true;
+    this.erro = undefined;
+    this.mensagem = undefined;
+    this.atualizarTela();
+    this.veiculoApi.ativar(registro.id)
+      .pipe(switchMap(() => this.veiculoApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); }))
+      .subscribe({
+        next: registros => {
+          this.veiculos = [...registros];
+          this.mensagem = 'Cadastro ativado.';
+          this.carregarInativos();
+          this.atualizarTela();
+        },
+        error: e => { this.erro = e.message ?? 'Não foi possível ativar o cadastro.'; this.atualizarTela(); }
+      });
+  }
+
+  /**
+   * Função: Limpa formulário, filtros ou estados temporários usados na tela.
+   * Uso no sistema: permite iniciar um novo cadastro ou consulta sem dados anteriores interferindo.
+   */
   limpar(): void {
     this.form = this.formularioInicial();
     this.termoClienteProprietario = '';
@@ -199,6 +303,10 @@ export class VeiculosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar placa campo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   normalizarPlacaCampo(): void {
     this.form.placa = normalizarPlaca(this.form.placa);
     if (this.form.placa && !placaValida(this.form.placa)) {
@@ -209,6 +317,10 @@ export class VeiculosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar chassi campo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   normalizarChassiCampo(): void {
     this.form.chassi = normalizarChassi(this.form.chassi);
     if (this.form.chassi && !chassiValido(this.form.chassi)) {
@@ -219,12 +331,20 @@ export class VeiculosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa modelos da marca selecionada.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   modelosDaMarcaSelecionada(): Modelo[] {
     const marcaId = Number(this.form.marcaId ?? 0);
     if (!marcaId) return this.modelos;
     return this.modelos.filter(modelo => Number(modelo.marcaId) === marcaId);
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   pesquisarClientesProprietario(): void {
     const termo = this.termoClienteProprietario.trim().toLowerCase();
     if (!termo) {
@@ -240,6 +360,10 @@ export class VeiculosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Carrega os dados selecionados para o formulário, permitindo conferência ou alteração.
+   * Uso no sistema: evita redigitação e mantém a edição vinculada ao registro correto.
+   */
   selecionarClienteProprietario(cliente: ClienteResumo): void {
     this.form.proprietarioAtualId = cliente.id ?? 0;
     this.termoClienteProprietario = '';
@@ -248,11 +372,19 @@ export class VeiculosComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa nome proprietario selecionado.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   nomeProprietarioSelecionado(): string {
     const cliente = this.clientes.find(c => Number(c.id) === Number(this.form.proprietarioAtualId));
     return cliente ? `${cliente.nome} — ${cliente.documento ?? ''}` : 'Nenhum proprietário selecionado';
   }
 
+  /**
+   * Função: Controla na tela a etapa validar formulario.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarFormulario(): boolean {
     this.errosCampo = {};
     if (!this.form.marcaId || Number(this.form.marcaId) <= 0) this.errosCampo['marcaId'] = 'Selecione a marca do veículo.';
@@ -269,10 +401,18 @@ export class VeiculosComponent implements OnInit {
     return Object.keys(this.errosCampo).length === 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa formulario inicial.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private formularioInicial(): any {
     return { modeloId: 0, marcaId: 0, placa: '', chassi: '', cor: '', anoVeiculo: undefined, anoModelo: undefined, quilometragemAtual: undefined, observacao: '', proprietarioAtualId: 0, dataInicioPosse: '', observacaoPosse: '' };
   }
 
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void {
     this.cdr.detectChanges();
   }

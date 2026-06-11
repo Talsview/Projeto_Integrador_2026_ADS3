@@ -20,6 +20,12 @@ public interface IServicoRepository extends IGenericRepository<ServicoModel> {
                  OR LOWER(COALESCE(s.descricao, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ServicoModel> search(@Param("termo") String termo, Pageable pageable);
 
     @Query("""
@@ -33,6 +39,12 @@ public interface IServicoRepository extends IGenericRepository<ServicoModel> {
                        AND si.ativo = true
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ServicoModel> findServicosInternosAtivos(Pageable pageable);
 
     @Query("""
@@ -46,6 +58,12 @@ public interface IServicoRepository extends IGenericRepository<ServicoModel> {
                        AND st.ativo = true
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ServicoModel> findServicosTerceirizadosAtivos(Pageable pageable);
 
     @Query("""
@@ -54,6 +72,12 @@ public interface IServicoRepository extends IGenericRepository<ServicoModel> {
             WHERE s.ativo = true
               AND LOWER(s.nomeServico) = LOWER(:nomeServico)
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByNome(@Param("nomeServico") String nomeServico);
 
     @Query("""
@@ -63,5 +87,11 @@ public interface IServicoRepository extends IGenericRepository<ServicoModel> {
               AND s.id <> :id
               AND LOWER(s.nomeServico) = LOWER(:nomeServico)
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByNomeAndIdNot(@Param("nomeServico") String nomeServico, @Param("id") Long id);
 }

@@ -13,14 +13,32 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IColaboradorRepository extends IGenericRepository<ColaboradorModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsByPessoaIdAndAtivoTrue(Long pessoaId);
 
     @Override
     @EntityGraph(attributePaths = {"pessoa", "funcoes", "funcoes.funcao"})
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<ColaboradorModel> findByIdAndAtivoTrue(Long id);
 
     @Override
     @EntityGraph(attributePaths = {"pessoa", "funcoes", "funcoes.funcao"})
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ColaboradorModel> findAllByAtivoTrue(Pageable pageable);
 
     @EntityGraph(attributePaths = {"pessoa", "funcoes", "funcoes.funcao"})
@@ -36,5 +54,11 @@ public interface IColaboradorRepository extends IGenericRepository<ColaboradorMo
                  OR LOWER(COALESCE(p.telefone, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<ColaboradorModel> searchByPessoa(@Param("termo") String termo, Pageable pageable);
 }

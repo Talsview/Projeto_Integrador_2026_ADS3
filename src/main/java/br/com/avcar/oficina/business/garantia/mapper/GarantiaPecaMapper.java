@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class GarantiaPecaMapper {
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação criar aguardando finalizacao.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public GarantiaPecaModel criarAguardandoFinalizacao(ItemPecaModel itemPeca) {
         GarantiaPecaModel model = new GarantiaPecaModel();
         model.setItemPeca(itemPeca);
@@ -23,6 +27,11 @@ public class GarantiaPecaMapper {
         return model;
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public GarantiaPecaDTO toDto(GarantiaPecaModel model) {
         if (model == null) {
             return null;
@@ -30,6 +39,8 @@ public class GarantiaPecaMapper {
         GarantiaPecaDTO dto = new GarantiaPecaDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         dto.setPrazoDias(model.getPrazoDias());
         dto.setDataInicio(model.getDataInicio());
         dto.setDataFim(model.getDataFim());
@@ -62,6 +73,10 @@ public class GarantiaPecaMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação resolver prazo dias.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public Integer resolverPrazoDias(ItemPecaModel itemPeca) {
         if (itemPeca != null
                 && itemPeca.getPeca() != null

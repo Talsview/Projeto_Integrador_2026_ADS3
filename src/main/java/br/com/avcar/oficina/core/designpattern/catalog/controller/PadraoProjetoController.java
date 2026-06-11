@@ -17,10 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 public class PadraoProjetoController {
 
     @GetMapping
+    /**
+     * Função: Recebe filtros de consulta de módulo, delega a busca ao serviço e devolve os dados no
+     * formato da API.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     public ResponseEntity<ApiResponse<List<PadraoProjetoDTO>>> listar() {
         return ResponseEntity.ok(ApiResponse.success("Padrões de projeto aplicados no sistema.", montarCatalogo()));
     }
 
+    /**
+     * Função: Atende a rota HTTP responsável por montar catalogo e repassa a regra ao serviço
+     * correspondente.
+     * Uso no sistema: mantém a camada Controller limitada à entrada e saída da API, sem concentrar
+     * regra de negócio.
+     */
     private List<PadraoProjetoDTO> montarCatalogo() {
         return List.of(
                 new PadraoProjetoDTO(

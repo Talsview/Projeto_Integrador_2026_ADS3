@@ -1,5 +1,9 @@
 <h1 class="page-title">Veículos</h1>
 <p class="page-subtitle">Cadastro e consulta de veículos com marca, modelo, placa, ano, quilometragem e proprietário atual.</p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 
 <div class="grid two">
   <section class="card">
@@ -65,3 +69,18 @@
     </div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Veículos inativos"
+  descricao="Pesquisar veículos inativos por placa, modelo, proprietário ou data."
+  [registros]="veiculosInativos"
+  [camposTexto]="['placa','chassi','nomeMarca','nomeModelo','nomeProprietarioAtual']"
+  campoPrincipal="placa"
+  campoSecundario="nomeProprietarioAtual"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

@@ -5,6 +5,11 @@ import { VeiculoResumo } from '../../models/veiculo.model';
 
 @Injectable({ providedIn: 'root' })
 export class VeiculoApiService extends BaseApiService<VeiculoResumo> {
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(http: HttpClient) {
     super(http, 'veiculos');
   }

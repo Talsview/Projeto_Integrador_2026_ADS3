@@ -24,6 +24,12 @@ public interface IPecaRepository extends IGenericRepository<PecaModel> {
                  OR LOWER(COALESCE(fp.nomeFornecedor, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<PecaModel> search(@Param("termo") String termo, Pageable pageable);
 
     @Query("""
@@ -33,6 +39,12 @@ public interface IPecaRepository extends IGenericRepository<PecaModel> {
               AND p.codigoNacional IS NOT NULL
               AND p.codigoNacional = :codigoNacional
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByCodigoNacional(@Param("codigoNacional") String codigoNacional);
 
     @Query("""
@@ -43,5 +55,11 @@ public interface IPecaRepository extends IGenericRepository<PecaModel> {
               AND p.codigoNacional IS NOT NULL
               AND p.codigoNacional = :codigoNacional
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByCodigoNacionalAndIdNot(@Param("codigoNacional") String codigoNacional, @Param("id") Long id);
 }

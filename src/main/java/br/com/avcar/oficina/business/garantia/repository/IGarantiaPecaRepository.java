@@ -13,8 +13,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IGarantiaPecaRepository extends IGenericRepository<GarantiaPecaModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<GarantiaPecaModel> findByItemPecaIdAndAtivoTrue(Long idItemPeca);
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsByItemPecaIdAndAtivoTrue(Long idItemPeca);
 
     @Query("""
@@ -25,6 +37,12 @@ public interface IGarantiaPecaRepository extends IGenericRepository<GarantiaPeca
               AND ip.ativo = true
               AND ip.idOrdemServico = :idOrdemServico
            """)
+    /**
+     * Função: Declara uma consulta derivada pelo Spring Data JPA com base nos campos informados no
+     * nome do método.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     List<GarantiaPecaModel> findByOrdemServico(@Param("idOrdemServico") Long idOrdemServico);
 
     @Query("""
@@ -35,5 +53,11 @@ public interface IGarantiaPecaRepository extends IGenericRepository<GarantiaPeca
               AND ip.ativo = true
               AND ip.idOrdemServico = :idOrdemServico
            """)
+    /**
+     * Função: Declara uma consulta derivada pelo Spring Data JPA com base nos campos informados no
+     * nome do método.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<GarantiaPecaModel> findByOrdemServico(@Param("idOrdemServico") Long idOrdemServico, Pageable pageable);
 }

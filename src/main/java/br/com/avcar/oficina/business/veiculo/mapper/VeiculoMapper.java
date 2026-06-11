@@ -11,6 +11,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class VeiculoMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public VeiculoModel toModel(VeiculoDTO dto, ModeloModel modelo) {
         if (dto == null) {
             return null;
@@ -21,6 +25,10 @@ public class VeiculoMapper {
         return model;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarCampos(VeiculoModel model, VeiculoDTO dto, ModeloModel modelo) {
         model.setModelo(modelo);
         model.setPlaca(normalizePlaca(dto.getPlaca()));
@@ -32,6 +40,10 @@ public class VeiculoMapper {
         model.setObservacao(dto.getObservacao());
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize placa.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public String normalizePlaca(String placa) {
         if (placa == null) {
             return null;
@@ -39,6 +51,10 @@ public class VeiculoMapper {
         return placa.replaceAll("[^A-Za-z0-9]", "").toUpperCase();
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize nullable.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public String normalizeNullable(String value) {
         if (value == null || value.trim().isEmpty()) {
             return null;

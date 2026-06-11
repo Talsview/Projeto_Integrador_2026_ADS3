@@ -50,6 +50,10 @@ public class OrdemServicoModel extends BaseModel {
     private String numeroOs;
 
     @Column(name = "data_abertura", nullable = false)
+    /**
+     * Função: Representa ou apoia os dados usados na operação local date time.now.
+     * Uso no sistema: organiza a transferência ou persistência de informações entre as camadas.
+     */
     private LocalDateTime dataAbertura = LocalDateTime.now();
 
     @Column(name = "data_aprovacao")

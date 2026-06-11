@@ -14,12 +14,22 @@ public class ErrorResponse {
     private final String severity;
     private final List<String> details = new ArrayList<>();
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public ErrorResponse(String title, String motive, String severity) {
         this.title = title;
         this.motive = motive;
         this.severity = severity;
     }
 
+    /**
+     * Função: Adiciona uma informação complementar à resposta retornada pela API.
+     * Uso no sistema: permite explicar validações ou detalhes sem mudar a estrutura principal da
+     * resposta.
+     */
     public void addDetail(String detail) {
         if (detail != null && !detail.isBlank()) {
             details.add(detail);

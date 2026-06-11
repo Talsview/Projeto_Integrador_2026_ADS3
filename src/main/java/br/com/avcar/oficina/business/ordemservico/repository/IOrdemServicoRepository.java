@@ -12,8 +12,20 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface IOrdemServicoRepository extends IGenericRepository<OrdemServicoModel> {
 
+    /**
+     * Função: Declara uma consulta que retorna apenas registros ativos, preservando a inativação
+     * lógica.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Optional<OrdemServicoModel> findByNumeroOsAndAtivoTrue(String numeroOs);
 
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsByNumeroOsIgnoreCase(String numeroOs);
 
     @Query("""
@@ -22,6 +34,12 @@ public interface IOrdemServicoRepository extends IGenericRepository<OrdemServico
             WHERE os.ativo = true
               AND LOWER(os.numeroOs) = LOWER(:numeroOs)
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByNumeroOs(@Param("numeroOs") String numeroOs);
 
     @Query("""
@@ -31,6 +49,12 @@ public interface IOrdemServicoRepository extends IGenericRepository<OrdemServico
               AND os.id <> :id
               AND LOWER(os.numeroOs) = LOWER(:numeroOs)
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     boolean existsActiveByNumeroOsAndIdNot(@Param("numeroOs") String numeroOs, @Param("id") Long id);
 
 
@@ -39,6 +63,12 @@ public interface IOrdemServicoRepository extends IGenericRepository<OrdemServico
              FROM ordem_servico
             WHERE numero_os ~ '^[0-9]+$'
            """, nativeQuery = true)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Long buscarMaiorNumeroOsNumerico();
 
     @Query("""
@@ -59,5 +89,11 @@ public interface IOrdemServicoRepository extends IGenericRepository<OrdemServico
                  OR LOWER(COALESCE(os.observacao, '')) LIKE LOWER(CONCAT('%', :termo, '%'))
               )
            """)
+    /**
+     * Função: Declara uma operação de acesso ao banco que será implementada automaticamente pelo
+     * Spring Data JPA.
+     * Uso no sistema: mantém a regra de consulta no repositório e evita SQL espalhado pelas telas ou
+     * serviços.
+     */
     Page<OrdemServicoModel> search(@Param("termo") String termo, Pageable pageable);
 }

@@ -17,8 +17,17 @@ export class EstruturaDadosComponent implements OnInit {
   processando = false;
   readonly statusFila: StatusFluxoOrdemServico = 'EXECUCAO';
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(private readonly ordemApi: OrdemServicoApiService, private readonly cdr: ChangeDetectorRef) {}
 
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void { this.carregarFila(); }
 
   carregarFila(): void {
@@ -34,6 +43,10 @@ export class EstruturaDadosComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Controla na tela a etapa ordenar.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   ordenar(criterio: 'DATA_ABERTURA' | 'VALOR_TOTAL' | 'PRIORIDADE'): void {
     this.carregando = true;
     this.erro = undefined;
@@ -47,6 +60,10 @@ export class EstruturaDadosComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   pesquisarLinear(): void {
     this.carregando = true;
     this.erro = undefined;
@@ -60,6 +77,11 @@ export class EstruturaDadosComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Recalcula valores exibidos na tela conforme quantidade, peça, serviço ou valor unitário
+   * informado.
+   * Uso no sistema: mantém o orçamento visual coerente antes de enviar os itens para a API.
+   */
   calcularTotalRecursivo(): void {
     if (!this.idTotal || Number(this.idTotal) <= 0) {
       this.erro = 'Informe o ID da Ordem de Serviço para calcular o total recursivo.';
@@ -81,12 +103,21 @@ export class EstruturaDadosComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Recalcula valores exibidos na tela conforme quantidade, peça, serviço ou valor unitário
+   * informado.
+   * Uso no sistema: mantém o orçamento visual coerente antes de enviar os itens para a API.
+   */
   calcularTotalDaLinha(ordem: OrdemServicoResumo): void {
     if (!ordem.id) return;
     this.idTotal = ordem.id;
     this.calcularTotalRecursivo();
   }
 
+  /**
+   * Função: Aciona a mudança de etapa da Ordem de Serviço conforme o fluxo operacional permitido.
+   * Uso no sistema: impede salto indevido entre Orçamento, Execução, Pagamento e Finalizado.
+   */
   enviarParaPagamento(ordem: OrdemServicoResumo): void {
     if (!ordem.id) return;
 
@@ -111,6 +142,10 @@ export class EstruturaDadosComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa classe prioridade.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   classePrioridade(prioridade?: string): string {
     const valor = (prioridade ?? '').toUpperCase();
     if (valor === 'URGENTE' || valor === 'ALTA') return 'danger';
@@ -118,10 +153,18 @@ export class EstruturaDadosComponent implements OnInit {
     return 'success';
   }
 
+  /**
+   * Função: Atualiza os filtros da tela e recarrega a lista com os registros compatíveis.
+   * Uso no sistema: facilita localizar clientes, veículos, OS, peças ou cadastros inativos.
+   */
   private filtrarOrdensPorStatus(ordens: OrdemServicoResumo[], status: StatusFluxoOrdemServico): OrdemServicoResumo[] {
     return [...(ordens ?? [])].filter(os => this.normalizarStatus(os.statusAtual) === status);
   }
 
+  /**
+   * Função: Controla na tela a etapa normalizar status.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private normalizarStatus(status?: string): StatusFluxoOrdemServico | '' {
     return (status ?? '')
       .normalize('NFD')
@@ -131,5 +174,9 @@ export class EstruturaDadosComponent implements OnInit {
       .replace(/\s+/g, '_') as StatusFluxoOrdemServico | '';
   }
 
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

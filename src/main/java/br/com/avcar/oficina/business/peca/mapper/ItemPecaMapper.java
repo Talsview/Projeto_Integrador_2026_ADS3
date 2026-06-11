@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class ItemPecaMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public ItemPecaModel toModel(ItemPecaDTO dto, PecaModel peca, FornecedorModel fornecedor) {
         if (dto == null) {
             return null;
@@ -22,6 +26,11 @@ public class ItemPecaMapper {
         return model;
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public ItemPecaDTO toDto(ItemPecaModel model) {
         if (model == null) {
             return null;
@@ -29,6 +38,8 @@ public class ItemPecaMapper {
         ItemPecaDTO dto = new ItemPecaDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         dto.setIdOrdemServico(model.getIdOrdemServico());
         dto.setQuantidade(model.getQuantidade());
         dto.setValorUnitario(model.getValorUnitario());
@@ -47,6 +58,10 @@ public class ItemPecaMapper {
         return dto;
     }
 
+    /**
+     * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public void atualizarModel(ItemPecaModel model, ItemPecaDTO dto, PecaModel peca, FornecedorModel fornecedor) {
         model.setIdOrdemServico(dto.getIdOrdemServico());
         model.setPeca(peca);
@@ -57,10 +72,18 @@ public class ItemPecaMapper {
         model.setObservacao(normalize(dto.getObservacao()));
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação default if null.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private BigDecimal defaultIfNull(BigDecimal value, BigDecimal defaultValue) {
         return value == null ? defaultValue : value;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String normalize(String value) {
         if (value == null) {
             return null;

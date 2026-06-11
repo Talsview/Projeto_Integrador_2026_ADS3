@@ -1,5 +1,9 @@
 <h1 class="page-title">Empresas Terceirizadas</h1>
 <p class="page-subtitle">Cadastro das empresas externas que podem executar serviços terceirizados, mantendo a responsabilidade da oficina perante o cliente.</p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 <div class="grid two">
   <section class="card"><h2>{{ form.id ? 'Editar empresa' : 'Nova empresa' }}</h2>
     <div class="form-row"><div><label>Nome</label><input [(ngModel)]="form.nomeEmpresa" [class.input-error]="errosCampo['nomeEmpresa']"><small class="field-error" *ngIf="errosCampo['nomeEmpresa']">{{ errosCampo['nomeEmpresa'] }}</small></div><div><label>CNPJ</label><input [(ngModel)]="form.cnpj" placeholder="00.000.000/0000-00" inputmode="numeric" maxlength="18" (input)="formatarCnpjCampo()" [class.input-error]="errosCampo['cnpj']"><small class="field-error" *ngIf="errosCampo['cnpj']">{{ errosCampo['cnpj'] }}</small></div><div><label>Telefone</label><input [(ngModel)]="form.telefone" placeholder="(62) 99999-9999" inputmode="numeric" maxlength="15" (input)="formatarTelefoneCampo()" [class.input-error]="errosCampo['telefone']"><small class="field-error" *ngIf="errosCampo['telefone']">{{ errosCampo['telefone'] }}</small></div><div><label>E-mail</label><input [(ngModel)]="form.email" [class.input-error]="errosCampo['email']"><small class="field-error" *ngIf="errosCampo['email']">{{ errosCampo['email'] }}</small></div></div>
@@ -14,3 +18,18 @@
     </tbody></table></div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Empresas inativas"
+  descricao="Pesquisar empresas terceirizadas inativas por nome, CNPJ ou data."
+  [registros]="empresasInativos"
+  [camposTexto]="['nomeEmpresa','cnpj','telefone','email']"
+  campoPrincipal="nomeEmpresa"
+  campoSecundario="cnpj"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

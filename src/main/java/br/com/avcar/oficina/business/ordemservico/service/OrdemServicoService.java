@@ -70,6 +70,11 @@ public class OrdemServicoService {
     private final ItemServicoMapper itemServicoMapper;
     private final NotificacaoService notificacaoService;
 
+    /**
+     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
+     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
+     * sem criação manual dentro dos métodos.
+     */
     public OrdemServicoService(IOrdemServicoRepository ordemServicoRepository,
                                IClienteRepository clienteRepository,
                                IVeiculoRepository veiculoRepository,
@@ -105,6 +110,12 @@ public class OrdemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Valida os dados recebidos, monta as entidades necessárias e grava o cadastro de
+     * ordemservico.
+     * Uso no sistema: centraliza a regra de cadastro na camada Service, mantendo Controller e tela
+     * mais simples.
+     */
     public OrdemServicoDTO cadastrar(OrdemServicoDTO dto) {
         validation.validateInsert(dto);
 
@@ -123,6 +134,12 @@ public class OrdemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Busca o registro ativo, aplica as alterações permitidas e salva a atualização de
+     * ordemservico.
+     * Uso no sistema: garante que alterações passem por validação e não quebrem vínculos já existentes
+     * no sistema.
+     */
     public OrdemServicoDTO atualizar(Long id, OrdemServicoDTO dto) {
         validation.validateUpdate(id, dto);
         OrdemServicoModel ordemServico = buscarModelAtivo(id);
@@ -138,17 +155,34 @@ public class OrdemServicoService {
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public OrdemServicoDTO buscar(Long id) {
         validation.validateId(id);
         return montarDetalhe(id);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<OrdemServicoResumoDTO> listar(Pageable pageable) {
         return ordemServicoRepository.findAllByAtivoTrue(pageable).map(this::montarResumo);
     }
 
     @Transactional(readOnly = true)
+    /**
+     * Função: Consulta registros de ordemservico aplicando filtros, paginação ou critérios de busca
+     * quando informados.
+     * Uso no sistema: permite que as telas exibam dados organizados sem carregar informações
+     * desnecessárias.
+     */
     public Page<OrdemServicoResumoDTO> pesquisar(String termo, Pageable pageable) {
         if (termo == null || termo.isBlank()) {
             return listar(pageable);
@@ -231,6 +265,11 @@ public class OrdemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     public OrdemServicoDTO alterarStatus(Long id, AlterarStatusOrdemServicoDTO dto) {
         validation.validateId(id);
         OrdemServicoModel ordemServico = buscarModelAtivo(id);
@@ -264,6 +303,12 @@ public class OrdemServicoService {
     }
 
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
     public void inativar(Long id) {
         validation.validateId(id);
         OrdemServicoModel ordemServico = buscarModelAtivo(id);
@@ -272,7 +317,41 @@ public class OrdemServicoService {
         ordemServicoRepository.save(ordemServico);
     }
 
+
+
+    @Transactional(readOnly = true)
+    /**
+     * Função: Lista cadastros inativados para que o usuário possa localizar e reativar registros sem
+     * recriá-los.
+     * Uso no sistema: reforça a rastreabilidade, pois registros antigos continuam no banco e podem
+     * voltar a ficar ativos.
+     */
+    public Page<OrdemServicoResumoDTO> listarInativos(Pageable pageable) {
+        return ordemServicoRepository.findAllByAtivoFalse(pageable).map(this::montarResumo);
+    }
+
     @Transactional
+    /**
+     * Função: Localiza um registro inativado, altera seu campo ativo para verdadeiro e salva a
+     * reativação.
+     * Uso no sistema: permite recuperar cadastros feitos anteriormente sem duplicar clientes,
+     * veículos, peças ou serviços.
+     */
+    public OrdemServicoResumoDTO ativar(Long id) {
+        validation.validateId(id);
+        OrdemServicoModel ordemServico = ordemServicoRepository.findByIdAndAtivoFalse(id)
+                .orElseThrow(() -> new BusinessException("Ordem de Serviço não encontrada entre as inativas."));
+        ordemServico.setAtivo(Boolean.TRUE);
+        OrdemServicoModel saved = ordemServicoRepository.save(ordemServico);
+        return montarResumo(saved);
+    }
+
+    @Transactional
+    /**
+     * Função: Calcula valores agregados a partir de serviços, peças, quantidade e valor unitário.
+     * Uso no sistema: mantém o orçamento e o total da OS coerentes com os itens informados pelo
+     * usuário.
+     */
     public void recalcularValorTotal(Long idOrdemServico) {
         OrdemServicoModel ordemServico = buscarModelAtivo(idOrdemServico);
 
@@ -290,16 +369,30 @@ public class OrdemServicoService {
         ordemServicoRepository.save(ordemServico);
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     public OrdemServicoModel buscarModelAtivo(Long id) {
         return ordemServicoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Ordem de Serviço não encontrada ou inativa."));
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar ordem nao
+     * finalizada.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     public void validarOrdemNaoFinalizada(Long idOrdemServico) {
         OrdemServicoModel ordemServico = buscarModelAtivo(idOrdemServico);
         impedirAlteracaoSeFinalizada(ordemServico);
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar ordem em orcamento.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     public void validarOrdemEmOrcamento(Long idOrdemServico) {
         OrdemServicoModel ordemServico = buscarModelAtivo(idOrdemServico);
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(ordemServico.getId());
@@ -310,6 +403,10 @@ public class OrdemServicoService {
         }
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar detalhe.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private OrdemServicoDTO montarDetalhe(Long id) {
         OrdemServicoModel ordemServico = buscarModelAtivo(id);
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(id);
@@ -327,20 +424,39 @@ public class OrdemServicoService {
         return ordemServicoMapper.toDetalheDto(ordemServico, statusAtual, historicoStatus, itensServico);
     }
 
+    /**
+     * Função: Monta o objeto ou resposta necessária para a operação montar resumo.
+     * Uso no sistema: isola a preparação dos dados e melhora a legibilidade do fluxo principal.
+     */
     private OrdemServicoResumoDTO montarResumo(OrdemServicoModel ordemServico) {
         return ordemServicoMapper.toResumoDto(ordemServico, buscarStatusAtualOuNulo(ordemServico.getId()));
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private ClienteModel buscarClienteAtivo(Long id) {
         return clienteRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Cliente não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private VeiculoModel buscarVeiculoAtivo(Long id) {
         return veiculoRepository.findByIdAndAtivoTrue(id)
                 .orElseThrow(() -> new BusinessException("Veículo não encontrado ou inativo."));
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar veiculo pertence ao
+     * cliente atual.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarVeiculoPertenceAoClienteAtual(Long idCliente, Long idVeiculo) {
         historicoProprietarioRepository.findFirstByVeiculoIdAndAtivoTrueAndProprietarioAtualTrue(idVeiculo)
                 .filter(historico -> historico.getCliente() != null
@@ -349,19 +465,39 @@ public class OrdemServicoService {
                 .orElseThrow(() -> new RuleValidationException("O veículo selecionado não pertence ao cliente informado como proprietário atual."));
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private HistoricoStatusOrdemModel buscarStatusAtual(Long idOrdemServico) {
         return buscarStatusAtualOuNulo(idOrdemServico);
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private HistoricoStatusOrdemModel buscarStatusAtualOuNulo(Long idOrdemServico) {
         List<HistoricoStatusOrdemModel> historico = historicoStatusRepository.findHistoricoFluxoDesc(idOrdemServico);
         return historico.isEmpty() ? null : historico.get(0);
     }
 
+    /**
+     * Função: Localiza informações de ordemservico conforme identificador ou filtro informado.
+     * Uso no sistema: concentra as regras de consulta em uma camada própria, evitando acesso direto da
+     * tela ao repositório.
+     */
     private ExecucaoServicoTerceirizadoModel buscarExecucaoTerceirizadaOuNula(Long idItemServico) {
         return execucaoTerceirizadaRepository.findByItemServicoIdAndAtivoTrue(idItemServico).orElse(null);
     }
 
+    /**
+     * Função: Confere as regras necessárias antes de continuar a operação validar pre condicoes do
+     * fluxo.
+     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     */
     private void validarPreCondicoesDoFluxo(OrdemServicoModel ordemServico, StatusOrdemServicoModel novoStatus) {
         if (StatusFluxoOrdemServico.EXECUCAO.name().equals(novoStatus.getNomeStatus())
                 && !itemServicoRepository.existsByOrdemServicoIdAndAtivoTrue(ordemServico.getId())) {
@@ -378,6 +514,11 @@ public class OrdemServicoService {
         }
     }
 
+    /**
+     * Função: Consulta ou altera o status operacional, registrando a evolução do processo quando
+     * necessário.
+     * Uso no sistema: mantém o fluxo Orçamento, Execução, Pagamento e Finalizado rastreável.
+     */
     private void aplicarEfeitosDoStatus(OrdemServicoModel ordemServico, StatusOrdemServicoModel novoStatus) {
         if (StatusFluxoOrdemServico.EXECUCAO.name().equals(novoStatus.getNomeStatus())
                 && ordemServico.getDataAprovacao() == null) {
@@ -393,6 +534,10 @@ public class OrdemServicoService {
         }
     }
 
+    /**
+     * Função: Bloqueia alterações em uma OS que já foi finalizada.
+     * Uso no sistema: preserva o histórico do atendimento e evita mudança indevida após encerramento.
+     */
     private void impedirAlteracaoSeFinalizada(OrdemServicoModel ordemServico) {
         HistoricoStatusOrdemModel statusAtual = buscarStatusAtualOuNulo(ordemServico.getId());
         if (statusAtual != null

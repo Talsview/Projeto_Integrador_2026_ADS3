@@ -2,6 +2,10 @@
 <p class="page-subtitle">
   Cadastro de colaboradores com uma ou mais funções, mantendo histórico e rastreabilidade da equipe responsável pelos serviços.
 </p>
+<div class="actions" style="margin-bottom: 14px;">
+  <button type="button" class="secondary" (click)="abrirInativos()" [disabled]="carregandoInativos || processando">Ver inativos</button>
+</div>
+
 
 <div class="grid two">
   <section class="card">
@@ -103,3 +107,18 @@
     </div>
   </section>
 </div>
+
+
+<app-inativos-panel
+  *ngIf="mostrarInativos"
+  titulo="Colaboradores inativos"
+  descricao="Pesquisar colaboradores inativos por nome, função ou data."
+  [registros]="colaboradoresInativos"
+  [camposTexto]="['nome','telefone','email','funcoes','statusColaborador']"
+  campoPrincipal="nome"
+  campoSecundario="funcoes"
+  [carregando]="carregandoInativos"
+  [processando]="processando"
+  (ativarRegistro)="ativarInativo($event)"
+  (fechar)="fecharInativos()">
+</app-inativos-panel>

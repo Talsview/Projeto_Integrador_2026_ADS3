@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { InativosPanelComponent } from '../../shared/components/inativos-panel/inativos-panel.component';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { FornecedorApiService } from '../../core/services/fornecedor-api.service';
 import { PecaApiService } from '../../core/services/peca-api.service';
@@ -8,10 +9,15 @@ import { cnpjValido, formatarCnpj, somenteDigitos } from '../../core/validation/
 import { anoVeiculoValido, emailValido, formatarTelefone, numeroNaoNegativo, telefoneValido, textoCadastroValido } from '../../core/validation/field-validation';
 import { Fornecedor, Peca } from '../../models/peca.model';
 
-@Component({ selector: 'app-pecas-fornecedores', standalone: true, imports: [CommonModule, FormsModule], templateUrl: './pecas-fornecedores.component.html' })
+@Component({ selector: 'app-pecas-fornecedores', standalone: true, imports: [CommonModule, FormsModule, InativosPanelComponent], templateUrl: './pecas-fornecedores.component.html' })
 export class PecasFornecedoresComponent implements OnInit {
   fornecedores: Fornecedor[] = [];
   pecas: Peca[] = [];
+  fornecedoresInativos: Fornecedor[] = [];
+  pecasInativas: Peca[] = [];
+  mostrarFornecedoresInativos = false;
+  mostrarPecasInativas = false;
+  carregandoInativos = false;
   termoFornecedor = '';
   termoPeca = '';
   mensagem?: string;
@@ -23,11 +29,24 @@ export class PecasFornecedoresComponent implements OnInit {
   errosFornecedor: Record<string, string> = {};
   errosPeca: Record<string, string> = {};
 
+  /**
+   * Função: Recebe os serviços necessários para esta classe, como HttpClient, APIs ou dependências
+   * de navegação.
+   * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
+   */
   constructor(private readonly fornecedorApi: FornecedorApiService, private readonly pecaApi: PecaApiService, private readonly cdr: ChangeDetectorRef) {}
+  /**
+   * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
+   * Uso no sistema: prepara o estado visual antes da interação do usuário.
+   */
   ngOnInit(): void { this.listarTudo(); }
 
   listarTudo(): void {
     this.carregando = true; this.erro = undefined; this.atualizarTela();
+    /**
+     * Função: Controla na tela a etapa fork join.
+     * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+     */
     forkJoin({ fornecedores: this.fornecedorApi.listar(), pecas: this.pecaApi.listar() })
       .pipe(finalize(() => { this.carregando = false; this.atualizarTela(); }))
       .subscribe({
@@ -36,11 +55,19 @@ export class PecasFornecedoresComponent implements OnInit {
       });
   }
 
+  /**
+   * Função: Controla na tela a etapa listar fornecedores.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   listarFornecedores(): void {
     this.carregando = true; this.erro = undefined; this.atualizarTela();
     this.fornecedorApi.listar().pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: f => { this.fornecedores = [...f]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } });
   }
 
+  /**
+   * Função: Controla na tela a etapa listar pecas.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   listarPecas(): void {
     this.carregando = true; this.erro = undefined; this.atualizarTela();
     this.pecaApi.listar().pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: p => { this.pecas = [...p]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } });
@@ -49,6 +76,11 @@ export class PecasFornecedoresComponent implements OnInit {
   pesquisarFornecedores(): void { const t = this.termoFornecedor.trim(); if (!t) { this.listarFornecedores(); return; } this.carregando = true; this.erro = undefined; this.atualizarTela(); this.fornecedorApi.pesquisar(t).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: f => { this.fornecedores = [...f]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   pesquisarPecas(): void { const t = this.termoPeca.trim(); if (!t) { this.listarPecas(); return; } this.carregando = true; this.erro = undefined; this.atualizarTela(); this.pecaApi.pesquisar(t).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({ next: p => { this.pecas = [...p]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvarFornecedor(): void {
     this.mensagem = undefined; this.erro = undefined;
     if (!this.validarFornecedor()) { this.erro = 'Corrija os campos destacados antes de salvar o fornecedor.'; this.atualizarTela(); return; }
@@ -60,6 +92,11 @@ export class PecasFornecedoresComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Valida os campos da tela, envia os dados para a API e atualiza a listagem após a
+   * gravação.
+   * Uso no sistema: concentra o fluxo de cadastro/edição iniciado pelo usuário.
+   */
   salvarPeca(): void {
     this.mensagem = undefined; this.erro = undefined;
     if (!this.validarPeca()) { this.erro = 'Corrija os campos destacados antes de salvar a peça.'; this.atualizarTela(); return; }
@@ -71,6 +108,10 @@ export class PecasFornecedoresComponent implements OnInit {
     });
   }
 
+  /**
+   * Função: Controla na tela a etapa formatar telefone fornecedor campo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   formatarTelefoneFornecedorCampo(): void {
     this.fornecedorForm.telefone = formatarTelefone(this.fornecedorForm.telefone);
     if (!telefoneValido(this.fornecedorForm.telefone)) {
@@ -81,6 +122,10 @@ export class PecasFornecedoresComponent implements OnInit {
     this.atualizarTela();
   }
 
+  /**
+   * Função: Controla na tela a etapa formatar cnpj fornecedor campo.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   formatarCnpjFornecedorCampo(): void {
     this.fornecedorForm.cnpj = formatarCnpj(this.fornecedorForm.cnpj);
     const cnpj = somenteDigitos(this.fornecedorForm.cnpj);
@@ -102,6 +147,80 @@ export class PecasFornecedoresComponent implements OnInit {
   excluirFornecedor(f: Fornecedor): void { if (!f.id) return; this.processando = true; this.erro = undefined; this.atualizarTela(); this.fornecedorApi.excluir(f.id).pipe(switchMap(() => this.fornecedorApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: fornecedores => { this.mensagem = 'Fornecedor inativado.'; this.fornecedores = [...fornecedores]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
   excluirPeca(p: Peca): void { if (!p.id) return; this.processando = true; this.erro = undefined; this.atualizarTela(); this.pecaApi.excluir(p.id).pipe(switchMap(() => this.pecaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: pecas => { this.mensagem = 'Peça inativada.'; this.pecas = [...pecas]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
+
+
+  /**
+   * Função: Controla na tela a etapa abrir fornecedores inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  abrirFornecedoresInativos(): void { this.mostrarFornecedoresInativos = true; this.carregarFornecedoresInativos(); }
+
+  /**
+   * Função: Controla na tela a etapa abrir pecas inativas.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  abrirPecasInativas(): void { this.mostrarPecasInativas = true; this.carregarPecasInativas(); }
+
+  /**
+   * Função: Fecha painel, modal ou menu aberto e retorna a tela ao estado padrão.
+   * Uso no sistema: controla a navegação visual sem alterar dados do banco.
+   */
+  fecharInativos(): void { this.mostrarFornecedoresInativos = false; this.mostrarPecasInativas = false; this.atualizarTela(); }
+
+  /**
+   * Função: Controla na tela a etapa carregar fornecedores inativos.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  carregarFornecedoresInativos(): void {
+    this.carregandoInativos = true; this.erro = undefined; this.atualizarTela();
+    this.fornecedorApi.listarInativos().pipe(finalize(() => { this.carregandoInativos = false; this.atualizarTela(); })).subscribe({
+      next: fornecedores => { this.fornecedoresInativos = [...fornecedores]; this.atualizarTela(); },
+      error: e => { this.erro = e.message ?? 'Não foi possível carregar fornecedores inativos.'; this.atualizarTela(); }
+    });
+  }
+
+  /**
+   * Função: Controla na tela a etapa carregar pecas inativas.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
+  carregarPecasInativas(): void {
+    this.carregandoInativos = true; this.erro = undefined; this.atualizarTela();
+    this.pecaApi.listarInativos().pipe(finalize(() => { this.carregandoInativos = false; this.atualizarTela(); })).subscribe({
+      next: pecas => { this.pecasInativas = [...pecas]; this.atualizarTela(); },
+      error: e => { this.erro = e.message ?? 'Não foi possível carregar peças inativas.'; this.atualizarTela(); }
+    });
+  }
+
+  /**
+   * Função: Envia à API a reativação do registro escolhido na tela de inativos.
+   * Uso no sistema: permite recuperar cadastros sem criar duplicidade.
+   */
+  ativarFornecedorInativo(fornecedor: Fornecedor): void {
+    if (!fornecedor.id) return;
+    this.processando = true; this.erro = undefined; this.mensagem = undefined; this.atualizarTela();
+    this.fornecedorApi.ativar(fornecedor.id).pipe(switchMap(() => this.fornecedorApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
+      next: fornecedores => { this.fornecedores = [...fornecedores]; this.mensagem = 'Cadastro ativado.'; this.carregarFornecedoresInativos(); this.atualizarTela(); },
+      error: e => { this.erro = e.message ?? 'Não foi possível ativar o fornecedor.'; this.atualizarTela(); }
+    });
+  }
+
+  /**
+   * Função: Envia à API a reativação do registro escolhido na tela de inativos.
+   * Uso no sistema: permite recuperar cadastros sem criar duplicidade.
+   */
+  ativarPecaInativa(peca: Peca): void {
+    if (!peca.id) return;
+    this.processando = true; this.erro = undefined; this.mensagem = undefined; this.atualizarTela();
+    this.pecaApi.ativar(peca.id).pipe(switchMap(() => this.pecaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
+      next: pecas => { this.pecas = [...pecas]; this.mensagem = 'Cadastro ativado.'; this.carregarPecasInativas(); this.atualizarTela(); },
+      error: e => { this.erro = e.message ?? 'Não foi possível ativar a peça.'; this.atualizarTela(); }
+    });
+  }
+
+  /**
+   * Função: Controla na tela a etapa validar fornecedor.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarFornecedor(): boolean {
     this.errosFornecedor = {};
     if (!textoCadastroValido(this.fornecedorForm.nomeFornecedor, true)) this.errosFornecedor['nomeFornecedor'] = 'Informe um nome de fornecedor válido.';
@@ -113,6 +232,10 @@ export class PecasFornecedoresComponent implements OnInit {
     return Object.keys(this.errosFornecedor).length === 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa validar peca.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private validarPeca(): boolean {
     this.errosPeca = {};
     if (!textoCadastroValido(this.pecaForm.nomePeca, true)) this.errosPeca['nomePeca'] = 'Informe um nome de peça válido.';
@@ -127,7 +250,15 @@ export class PecasFornecedoresComponent implements OnInit {
     return Object.keys(this.errosPeca).length === 0;
   }
 
+  /**
+   * Função: Controla na tela a etapa fornecedor inicial.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private fornecedorInicial(): Fornecedor { return { nomeFornecedor: '', cnpj: '', telefone: '', email: '', endereco: '' }; }
   private pecaInicial(): Peca { return { nomePeca: '', codigoNacional: '', marcaPeca: '', modeloAplicavel: '', anoVeiculo: undefined, anoModelo: undefined, idFornecedorPadrao: 0, valorUnitarioPadrao: 0, prazoGarantiaDias: 90, descricao: '' }; }
+  /**
+   * Função: Controla na tela a etapa atualizar tela.
+   * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
+   */
   private atualizarTela(): void { this.cdr.detectChanges(); }
 }

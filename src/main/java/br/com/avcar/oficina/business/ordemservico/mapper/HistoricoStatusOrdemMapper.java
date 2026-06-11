@@ -13,6 +13,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class HistoricoStatusOrdemMapper {
 
+    /**
+     * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     public HistoricoStatusOrdemModel criarHistorico(OrdemServicoModel ordemServico,
                                                      StatusOrdemServicoModel status,
                                                      String observacao) {
@@ -24,6 +28,11 @@ public class HistoricoStatusOrdemMapper {
         return model;
     }
 
+    /**
+     * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.
+     * Uso no sistema: permite consultar notificações auditadas sem expor diretamente o modelo do
+     * banco.
+     */
     public HistoricoStatusOrdemDTO toDto(HistoricoStatusOrdemModel model) {
         if (model == null) {
             return null;
@@ -31,6 +40,8 @@ public class HistoricoStatusOrdemMapper {
         HistoricoStatusOrdemDTO dto = new HistoricoStatusOrdemDTO();
         dto.setId(model.getId());
         dto.setAtivo(model.getAtivo());
+        dto.setDataHoraCriacao(model.getDataHoraCriacao());
+        dto.setDataHoraAtualizacao(model.getDataHoraAtualizacao());
         dto.setIdOrdemServico(model.getOrdemServico() == null ? null : model.getOrdemServico().getId());
         dto.setDataStatus(model.getDataStatus());
         dto.setObservacao(model.getObservacao());
@@ -43,6 +54,10 @@ public class HistoricoStatusOrdemMapper {
         return dto;
     }
 
+    /**
+     * Função: Mapeia dados entre camadas durante a operação normalize.
+     * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
+     */
     private String normalize(String value) {
         if (value == null) {
             return null;
