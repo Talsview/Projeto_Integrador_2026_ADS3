@@ -120,8 +120,8 @@ export class GarantiasComponent implements OnInit {
           this.garantiasServicos = [...(garantias as GarantiaServico[])];
         }
         this.mensagem = this.acaoModal === 'ACIONAR'
-          ? 'Garantia acionada com registro de atendimento.'
-          : 'Garantia encerrada com solução registrada.';
+          ? 'Garantia acionada.'
+          : 'Garantia encerrada.';
         this.limparModalAposSucesso();
         this.atualizarTela();
       },

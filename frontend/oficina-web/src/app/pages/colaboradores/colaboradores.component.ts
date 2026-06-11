@@ -129,8 +129,8 @@ export class ColaboradoresComponent implements OnInit {
         const editando = Boolean(this.form.id);
         this.limpar(false);
         this.mensagem = editando
-          ? 'Colaborador atualizado com sucesso. A tabela foi atualizada automaticamente.'
-          : 'Colaborador salvo com sucesso. A tabela foi atualizada automaticamente.';
+          ? 'Colaborador atualizado.'
+          : 'Colaborador cadastrado.';
         this.atualizarTela();
       },
       error: error => { this.erro = error.message; this.atualizarTela(); }
@@ -189,7 +189,7 @@ export class ColaboradoresComponent implements OnInit {
       finalize(() => { this.processando = false; this.atualizarTela(); })
     ).subscribe({
       next: colaboradores => {
-        this.mensagem = 'Colaborador inativado com sucesso. A tabela foi atualizada automaticamente.';
+        this.mensagem = 'Colaborador inativado.';
         this.colaboradores = [...colaboradores];
         this.atualizarTela();
       },

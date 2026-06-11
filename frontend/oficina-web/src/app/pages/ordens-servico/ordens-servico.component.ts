@@ -93,7 +93,7 @@ export class OrdensServicoComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.ordemApi.atualizar(this.form.id, this.form) : this.ordemApi.criar(this.form);
     acao.pipe(switchMap(() => this.ordemApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: ordens => { this.mensagem = 'Ordem de Serviço salva com sucesso. A tabela foi atualizada automaticamente.'; this.ordens = [...ordens]; this.limpar(); this.atualizarTela(); },
+      next: ordens => { this.mensagem = 'OS salva.'; this.ordens = [...ordens]; this.limpar(); this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -121,7 +121,7 @@ export class OrdensServicoComponent implements OnInit {
         next: blob => {
           const nomeArquivo = this.montarNomeArquivoNota(ordem);
           this.salvarArquivo(blob, nomeArquivo);
-          this.mensagem = 'Nota fiscal/recibo em PDF gerado com sucesso.';
+          this.mensagem = 'PDF gerado.';
           this.atualizarTela();
         },
         error: error => {
@@ -148,7 +148,7 @@ export class OrdensServicoComponent implements OnInit {
       .subscribe({
         next: ordens => {
           this.ordens = [...ordens];
-          this.mensagem = 'Ordem de Serviço inativada. A tabela foi atualizada automaticamente.';
+          this.mensagem = 'OS inativada.';
           this.limpar();
           this.atualizarTela();
         },

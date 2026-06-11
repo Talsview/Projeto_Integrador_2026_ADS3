@@ -72,7 +72,7 @@ export class ConfiguracoesComponent implements OnInit {
   salvarPreferencias(): void {
     localStorage.setItem('avcar-preferencias', JSON.stringify(this.preferencias));
     this.aplicarPreferencias();
-    this.mensagem = 'Preferências salvas neste navegador.';
+    this.mensagem = 'Preferências salvas.';
     this.erro = undefined;
     this.atualizarTela();
   }
@@ -81,7 +81,7 @@ export class ConfiguracoesComponent implements OnInit {
     this.preferencias = { animacoesSutis: true, modoCompacto: false, avisosOperacionais: true };
     localStorage.removeItem('avcar-preferencias');
     this.aplicarPreferencias();
-    this.mensagem = 'Preferências restauradas para o padrão do sistema.';
+    this.mensagem = 'Preferências restauradas.';
     this.erro = undefined;
     this.atualizarTela();
   }
@@ -89,8 +89,8 @@ export class ConfiguracoesComponent implements OnInit {
   copiarComandos(): void {
     const texto = this.comandos.join('\n');
     navigator.clipboard?.writeText(texto)
-      .then(() => { this.mensagem = 'Comandos copiados para a área de transferência.'; this.erro = undefined; this.atualizarTela(); })
-      .catch(() => { this.erro = 'Não foi possível copiar automaticamente. Selecione e copie os comandos manualmente.'; this.atualizarTela(); });
+      .then(() => { this.mensagem = 'Copiado.'; this.erro = undefined; this.atualizarTela(); })
+      .catch(() => { this.erro = 'Não foi possível copiar. Copie manualmente.'; this.atualizarTela(); });
   }
 
   abrirSwagger(): void {

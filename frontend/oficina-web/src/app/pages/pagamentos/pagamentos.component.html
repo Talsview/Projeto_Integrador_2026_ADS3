@@ -1,6 +1,6 @@
 <h1 class="page-title">Pagamentos</h1>
 <p class="page-subtitle">
-  Registro financeiro da OS. Esta tela exibe somente Ordens de Serviço no status PAGAMENTO, etapa correta para quitação financeira.
+  Registro de pagamentos das OS em etapa de pagamento.
 </p>
 <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
 <p class="alert error" *ngIf="erro">{{ erro }}</p>
@@ -26,7 +26,7 @@
   </div>
 
   <div class="alert" *ngIf="idOrdemSelecionada && statusAtualOs !== 'FINALIZADO'" style="margin-top: 14px;">
-    Ao salvar um pagamento, o backend atualiza o resumo financeiro. Se o valor pago quitar a OS, ela será finalizada automaticamente.
+    Ao quitar a OS, ela será finalizada.
   </div>
 
   <div class="alert error" *ngIf="idOrdemSelecionada && statusAtualOs === 'FINALIZADO'" style="margin-top: 14px;">
@@ -34,7 +34,7 @@
   </div>
 
   <p class="page-subtitle" *ngIf="idOrdemSelecionada" style="margin-top: 14px;">
-    Pagamentos, resumo financeiro e status da OS são carregados automaticamente ao selecionar a Ordem de Serviço e após cada operação.
+    Dados da OS carregados.
   </p>
 </section>
 

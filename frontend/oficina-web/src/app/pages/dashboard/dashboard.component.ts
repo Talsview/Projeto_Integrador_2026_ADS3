@@ -115,7 +115,7 @@ export class DashboardComponent implements OnInit {
       .subscribe({
         next: (status) => {
           this.statusBancoTipo = status.available ? 'ok' : 'erro';
-          this.statusBanco = status.available ? 'Backend conectado' : status.mensagem;
+          this.statusBanco = status.available ? 'Conectado' : status.mensagem;
           this.tempoRespostaBancoMs = status.tempoRespostaMs;
         },
         error: (error) => {

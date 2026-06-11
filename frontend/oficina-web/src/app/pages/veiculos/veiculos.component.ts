@@ -148,7 +148,7 @@ export class VeiculosComponent implements OnInit {
     ).subscribe({
       next: veiculos => {
         this.veiculos = [...veiculos];
-        this.mensagem = 'Veículo salvo com sucesso. A tabela foi atualizada automaticamente.';
+        this.mensagem = 'Veículo salvo.';
         this.limpar();
         this.atualizarTela();
       },
@@ -180,7 +180,7 @@ export class VeiculosComponent implements OnInit {
       })
     ).subscribe({
       next: veiculos => {
-        this.mensagem = 'Veículo inativado. A tabela foi atualizada automaticamente.';
+        this.mensagem = 'Veículo inativado.';
         this.veiculos = [...veiculos];
         this.atualizarTela();
       },

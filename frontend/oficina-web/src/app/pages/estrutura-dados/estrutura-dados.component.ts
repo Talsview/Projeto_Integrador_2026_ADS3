@@ -76,7 +76,7 @@ export class EstruturaDadosComponent implements OnInit {
     this.ordemApi.totalRecursivo(Number(this.idTotal))
       .pipe(finalize(() => { this.processando = false; this.atualizarTela(); }))
       .subscribe({
-        next: total => { this.totalRecursivo = total; this.mensagem = 'Cálculo recursivo executado com sucesso.'; this.atualizarTela(); },
+        next: total => { this.totalRecursivo = total; this.mensagem = 'Cálculo atualizado.'; this.atualizarTela(); },
         error: error => { this.erro = error.message; this.atualizarTela(); }
       });
   }
@@ -97,14 +97,14 @@ export class EstruturaDadosComponent implements OnInit {
 
     this.ordemApi.alterarStatus(ordem.id, {
       novoStatus: 'PAGAMENTO',
-      observacao: 'Execução concluída pela Fila de Atendimento; OS encaminhada para pagamento.'
+      observacao: 'Execução concluída.'
     }).pipe(
       switchMap(() => this.ordemApi.filaAtendimento()),
       finalize(() => { this.processando = false; this.atualizarTela(); })
     ).subscribe({
       next: ordens => {
         this.ordens = this.filtrarOrdensPorStatus(ordens, this.statusFila);
-        this.mensagem = `OS ${ordem.numeroOs ?? ordem.id} enviada para PAGAMENTO. Agora ela deve ser tratada no módulo Pagamentos.`;
+        this.mensagem = 'Enviado para pagamento.';
         this.atualizarTela();
       },
       error: error => { this.erro = error.message; this.atualizarTela(); }

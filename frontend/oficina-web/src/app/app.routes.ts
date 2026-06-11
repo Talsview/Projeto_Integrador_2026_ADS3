@@ -15,7 +15,6 @@ import { GarantiasComponent } from './pages/garantias/garantias.component';
 import { EstruturaDadosComponent } from './pages/estrutura-dados/estrutura-dados.component';
 import { RelatoriosComponent } from './pages/relatorios/relatorios.component';
 import { ConfiguracoesComponent } from './pages/configuracoes/configuracoes.component';
-import { PadroesProjetoComponent } from './pages/padroes-projeto/padroes-projeto.component';
 
 export const routes: Routes = [
   { path: '', component: DashboardComponent, title: 'Visão Geral da Oficina' },
@@ -35,6 +34,5 @@ export const routes: Routes = [
   { path: 'garantias', component: GarantiasComponent, title: 'Garantias' },
   { path: 'relatorios', component: RelatoriosComponent, title: 'Relatórios' },
   { path: 'configuracoes', component: ConfiguracoesComponent, title: 'Configurações' },
-  { path: 'padroes-projeto', component: PadroesProjetoComponent, title: 'Padrões de Projeto' },
   { path: '**', redirectTo: '' }
 ];

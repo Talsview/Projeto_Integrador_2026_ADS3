@@ -97,7 +97,7 @@ export class FuncoesComponent implements OnInit {
     ).subscribe({
       next: funcoesAtualizadas => {
         this.funcoes = [...funcoesAtualizadas];
-        this.mensagem = 'Função salva com sucesso. A tabela foi atualizada automaticamente.';
+        this.mensagem = 'Função salva.';
         this.limpar();
         this.atualizarTela();
       },
@@ -131,7 +131,7 @@ export class FuncoesComponent implements OnInit {
       .subscribe({
         next: funcoesAtualizadas => {
           this.funcoes = [...funcoesAtualizadas];
-          this.mensagem = 'Função inativada com sucesso. A tabela foi atualizada automaticamente.';
+          this.mensagem = 'Função inativada.';
           this.atualizarTela();
         },
         error: error => {

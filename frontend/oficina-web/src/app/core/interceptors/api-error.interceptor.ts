@@ -18,7 +18,7 @@ export const apiErrorInterceptor: HttpInterceptorFn = (req, next) => {
 
 function normalizarErroApi(error: HttpErrorResponse | TimeoutError): Error {
   if (error instanceof TimeoutError) {
-    return new Error('A API demorou para responder. Verifique se o backend e o PostgreSQL estão em execução.');
+    return new Error('API sem resposta.');
   }
 
   const body: any = error.error ?? {};

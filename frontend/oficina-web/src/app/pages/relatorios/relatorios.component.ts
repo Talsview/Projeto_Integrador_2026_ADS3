@@ -105,7 +105,7 @@ export class RelatoriosComponent implements OnInit {
         this.montarRelatorio();
 
         if (this.avisosRelatorio.length) {
-          this.erro = 'Alguns dados do relatório não puderam ser carregados. Verifique se o backend está ativo e se os endpoints estão respondendo.';
+          this.erro = 'Alguns dados não carregaram.';
         } else {
           this.erro = undefined;
         }
@@ -114,7 +114,7 @@ export class RelatoriosComponent implements OnInit {
         this.atualizarTela();
       },
       error: () => {
-        this.erro = 'Não foi possível carregar os relatórios. Verifique se o backend Spring Boot está rodando e se o proxy aponta para a porta correta.';
+        this.erro = 'Não foi possível carregar o relatório.';
         this.atualizarTela();
       }
     });
@@ -123,7 +123,7 @@ export class RelatoriosComponent implements OnInit {
   private carregarListaComFallback<T>(fonte$: Observable<T[]>, nome: string): Observable<T[]> {
     return fonte$.pipe(
       catchError(() => {
-        this.avisosRelatorio.push(`Falha ao carregar ${nome}.`);
+        this.avisosRelatorio.push(`Não carregou ${nome}.`);
         return of([] as T[]);
       })
     );
@@ -261,7 +261,7 @@ export class RelatoriosComponent implements OnInit {
       ...linhasStatus,
       this.row([]),
       this.row([this.cell('Observação', 'Section', 'String', 7)]),
-      this.row([this.cell('Planilha gerada automaticamente pelo módulo Relatórios do sistema AV CAR AUTO CENTER. Os dados são obtidos da API REST do backend e respeitam o período selecionado na tela.', 'TextWrap', 'String', 7)])
+      this.row([this.cell('Planilha do relatório gerada pelo sistema.', 'TextWrap', 'String', 7)])
     ]);
   }
 

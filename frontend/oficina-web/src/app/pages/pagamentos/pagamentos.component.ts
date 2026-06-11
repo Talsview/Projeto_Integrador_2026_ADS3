@@ -159,7 +159,7 @@ export class PagamentosComponent implements OnInit {
       this.cdr.detectChanges();
     })).subscribe({
       next: () => {
-        this.mensagem = 'Pagamento salvo com sucesso. Valores e status da OS foram atualizados automaticamente.';
+        this.mensagem = 'Pagamento salvo.';
         this.limparForm();
         this.carregarPagamentos();
       },
@@ -187,7 +187,7 @@ export class PagamentosComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
-          this.mensagem = 'Status do pagamento alterado. Resumo financeiro atualizado.';
+          this.mensagem = 'Status atualizado.';
           this.carregarPagamentos();
         },
         error: error => this.erro = error.message
@@ -208,7 +208,7 @@ export class PagamentosComponent implements OnInit {
       }))
       .subscribe({
         next: () => {
-          this.mensagem = 'Pagamento inativado. Resumo financeiro atualizado.';
+          this.mensagem = 'Pagamento inativado.';
           this.carregarPagamentos();
         },
         error: error => this.erro = error.message

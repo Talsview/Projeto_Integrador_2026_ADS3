@@ -46,7 +46,7 @@ export class EmpresasTerceirizadasComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.empresaApi.atualizar(this.form.id, this.form) : this.empresaApi.criar(this.form);
     acao.pipe(switchMap(() => this.empresaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: empresas => { this.mensagem = 'Empresa terceirizada salva. A tabela foi atualizada automaticamente.'; this.empresas = [...empresas]; this.limpar(); this.atualizarTela(); },
+      next: empresas => { this.mensagem = 'Empresa salva.'; this.empresas = [...empresas]; this.limpar(); this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -57,7 +57,7 @@ export class EmpresasTerceirizadasComponent implements OnInit {
     if (!empresa.id) return;
     this.processando = true; this.erro = undefined; this.atualizarTela();
     this.empresaApi.excluir(empresa.id).pipe(switchMap(() => this.empresaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: empresas => { this.mensagem = 'Empresa inativada. A tabela foi atualizada automaticamente.'; this.empresas = [...empresas]; this.atualizarTela(); },
+      next: empresas => { this.mensagem = 'Empresa inativada.'; this.empresas = [...empresas]; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }

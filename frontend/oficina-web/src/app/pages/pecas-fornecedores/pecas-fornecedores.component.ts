@@ -55,7 +55,7 @@ export class PecasFornecedoresComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.fornecedorForm.id ? this.fornecedorApi.atualizar(this.fornecedorForm.id, this.fornecedorForm) : this.fornecedorApi.criar(this.fornecedorForm);
     acao.pipe(switchMap(() => this.fornecedorApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: fornecedores => { this.mensagem = 'Fornecedor salvo. A lista foi atualizada automaticamente.'; this.fornecedores = [...fornecedores]; this.fornecedorForm = this.fornecedorInicial(); this.errosFornecedor = {}; this.atualizarTela(); },
+      next: fornecedores => { this.mensagem = 'Fornecedor salvo.'; this.fornecedores = [...fornecedores]; this.fornecedorForm = this.fornecedorInicial(); this.errosFornecedor = {}; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -66,7 +66,7 @@ export class PecasFornecedoresComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.pecaForm.id ? this.pecaApi.atualizar(this.pecaForm.id, this.pecaForm) : this.pecaApi.criar(this.pecaForm);
     acao.pipe(switchMap(() => this.pecaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: pecas => { this.mensagem = 'Peça salva. A lista foi atualizada automaticamente.'; this.pecas = [...pecas]; this.pecaForm = this.pecaInicial(); this.errosPeca = {}; this.atualizarTela(); },
+      next: pecas => { this.mensagem = 'Peça salva.'; this.pecas = [...pecas]; this.pecaForm = this.pecaInicial(); this.errosPeca = {}; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -99,8 +99,8 @@ export class PecasFornecedoresComponent implements OnInit {
   editarFornecedor(f: Fornecedor): void { this.fornecedorForm = { ...f }; this.atualizarTela(); }
   editarPeca(p: Peca): void { this.pecaForm = { ...p }; this.atualizarTela(); }
 
-  excluirFornecedor(f: Fornecedor): void { if (!f.id) return; this.processando = true; this.erro = undefined; this.atualizarTela(); this.fornecedorApi.excluir(f.id).pipe(switchMap(() => this.fornecedorApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: fornecedores => { this.mensagem = 'Fornecedor inativado. A lista foi atualizada automaticamente.'; this.fornecedores = [...fornecedores]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
-  excluirPeca(p: Peca): void { if (!p.id) return; this.processando = true; this.erro = undefined; this.atualizarTela(); this.pecaApi.excluir(p.id).pipe(switchMap(() => this.pecaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: pecas => { this.mensagem = 'Peça inativada. A lista foi atualizada automaticamente.'; this.pecas = [...pecas]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
+  excluirFornecedor(f: Fornecedor): void { if (!f.id) return; this.processando = true; this.erro = undefined; this.atualizarTela(); this.fornecedorApi.excluir(f.id).pipe(switchMap(() => this.fornecedorApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: fornecedores => { this.mensagem = 'Fornecedor inativado.'; this.fornecedores = [...fornecedores]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
+  excluirPeca(p: Peca): void { if (!p.id) return; this.processando = true; this.erro = undefined; this.atualizarTela(); this.pecaApi.excluir(p.id).pipe(switchMap(() => this.pecaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: pecas => { this.mensagem = 'Peça inativada.'; this.pecas = [...pecas]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }
 
   private validarFornecedor(): boolean {
     this.errosFornecedor = {};

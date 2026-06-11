@@ -89,7 +89,7 @@ export class ItensOsComponent implements OnInit {
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemServicoForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemServicoApi.criar(payload).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: itens => { this.mensagem = 'Serviço incluído na OS. A lista foi atualizada automaticamente.'; this.itensServico = [...itens]; this.itemServicoForm = this.itemServicoInicial(); this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada; this.errosServico = {}; this.atualizarTela(); },
+      next: itens => { this.mensagem = 'Serviço incluído.'; this.itensServico = [...itens]; this.itemServicoForm = this.itemServicoInicial(); this.itemServicoForm.idOrdemServico = this.idOrdemSelecionada; this.errosServico = {}; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -102,7 +102,7 @@ export class ItensOsComponent implements OnInit {
     this.processando = true; this.erro = undefined; this.atualizarTela();
     const payload = { ...this.itemPecaForm, idOrdemServico: this.idOrdemSelecionada };
     this.itemPecaApi.criar(payload).pipe(switchMap(() => this.itemPecaApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: itens => { this.mensagem = 'Peça incluída na OS. A lista foi atualizada automaticamente.'; this.itensPeca = [...itens]; this.itemPecaForm = this.itemPecaInicial(); this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada; this.errosPeca = {}; this.atualizarTela(); },
+      next: itens => { this.mensagem = 'Peça incluída.'; this.itensPeca = [...itens]; this.itemPecaForm = this.itemPecaInicial(); this.itemPecaForm.idOrdemServico = this.idOrdemSelecionada; this.errosPeca = {}; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }
@@ -199,7 +199,7 @@ export class ItensOsComponent implements OnInit {
       .subscribe({
         next: ordens => {
           this.ordens = this.filtrarOrdensPorStatus(ordens, this.statusPermitido);
-          this.mensagem = 'Orçamento enviado para EXECUÇÃO. A OS agora aparece na Fila de Atendimento para execução do serviço.';
+          this.mensagem = 'Enviado para execução.';
           this.limparSelecaoOrdem();
           this.atualizarTela();
         },

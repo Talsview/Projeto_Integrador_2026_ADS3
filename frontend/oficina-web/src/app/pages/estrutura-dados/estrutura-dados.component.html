@@ -1,11 +1,11 @@
 <h1 class="page-title">Fila de Atendimento</h1>
 <p class="page-subtitle">
-  Controle operacional das Ordens de Serviço em EXECUÇÃO. A fila mostra apenas os orçamentos já montados e aprovados para execução do serviço, antes da etapa de pagamento.
+  Ordens de Serviço em execução, antes do pagamento.
 </p>
 
 <section class="card">
   <div class="alert" style="margin-bottom: 14px;">
-    Fluxo correto da OS: <strong>ORÇAMENTO → EXECUÇÃO → PAGAMENTO → FINALIZADO</strong>. Ao concluir o orçamento na tela Itens da OS, a ordem entra nesta fila. Após a execução do serviço, ela deve ser enviada para pagamento.
+    Fluxo: <strong>ORÇAMENTO → EXECUÇÃO → PAGAMENTO → FINALIZADO</strong>.
   </div>
 
   <div class="actions">
@@ -97,7 +97,7 @@
           </td>
         </tr>
         <tr *ngIf="!ordens.length">
-          <td colspan="7">Nenhuma Ordem de Serviço em EXECUÇÃO no momento. Conclua um orçamento na tela Itens da OS para que ele entre na fila.</td>
+          <td colspan="7">Nenhuma OS em execução.</td>
         </tr>
       </tbody>
     </table>

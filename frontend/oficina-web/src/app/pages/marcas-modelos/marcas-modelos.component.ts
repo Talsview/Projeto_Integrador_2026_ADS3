@@ -82,7 +82,7 @@ export class MarcasModelosComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.marcaForm.id ? this.marcaApi.atualizar(this.marcaForm.id, this.marcaForm) : this.marcaApi.criar(this.marcaForm);
     acao.pipe(switchMap(() => this.marcaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: marcas => { this.mensagem = 'Marca salva com sucesso. A lista foi atualizada automaticamente.'; this.marcas = [...marcas]; this.marcaForm = { nomeMarca: '' }; this.atualizarTela(); },
+      next: marcas => { this.mensagem = 'Marca salva.'; this.marcas = [...marcas]; this.marcaForm = { nomeMarca: '' }; this.atualizarTela(); },
       error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
@@ -94,7 +94,7 @@ export class MarcasModelosComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.modeloForm.id ? this.modeloApi.atualizar(this.modeloForm.id, this.modeloForm) : this.modeloApi.criar(this.modeloForm);
     acao.pipe(switchMap(() => this.modeloApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: modelos => { this.mensagem = 'Modelo salvo com sucesso. A lista foi atualizada automaticamente.'; this.modelos = [...modelos]; this.modeloForm = { marcaId: 0, nomeModelo: '' }; this.atualizarTela(); },
+      next: modelos => { this.mensagem = 'Modelo salvo.'; this.modelos = [...modelos]; this.modeloForm = { marcaId: 0, nomeModelo: '' }; this.atualizarTela(); },
       error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
@@ -106,7 +106,7 @@ export class MarcasModelosComponent implements OnInit {
     if (!marca.id) return;
     this.processando = true; this.erro = undefined; this.atualizarTela();
     this.marcaApi.excluir(marca.id).pipe(switchMap(() => this.marcaApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: marcas => { this.mensagem = 'Marca inativada. A lista foi atualizada automaticamente.'; this.marcas = [...marcas]; this.atualizarTela(); },
+      next: marcas => { this.mensagem = 'Marca inativada.'; this.marcas = [...marcas]; this.atualizarTela(); },
       error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
@@ -115,7 +115,7 @@ export class MarcasModelosComponent implements OnInit {
     if (!modelo.id) return;
     this.processando = true; this.erro = undefined; this.atualizarTela();
     this.modeloApi.excluir(modelo.id).pipe(switchMap(() => this.modeloApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: modelos => { this.mensagem = 'Modelo inativado. A lista foi atualizada automaticamente.'; this.modelos = [...modelos]; this.atualizarTela(); },
+      next: modelos => { this.mensagem = 'Modelo inativado.'; this.modelos = [...modelos]; this.atualizarTela(); },
       error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }

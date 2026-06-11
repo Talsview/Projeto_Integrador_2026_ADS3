@@ -45,7 +45,7 @@ export class ServicosComponent implements OnInit {
     this.processando = true; this.atualizarTela();
     const acao = this.form.id ? this.servicoApi.atualizar(this.form.id, this.form) : this.servicoApi.criar(this.form);
     acao.pipe(switchMap(() => this.servicoApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: servicos => { this.mensagem = 'Serviço salvo com sucesso. A tabela foi atualizada automaticamente.'; this.servicos = [...servicos]; this.limpar(); this.atualizarTela(); },
+      next: servicos => { this.mensagem = 'Serviço salvo.'; this.servicos = [...servicos]; this.limpar(); this.atualizarTela(); },
       error: error => { this.erro = error.message; this.atualizarTela(); }
     });
   }
@@ -56,7 +56,7 @@ export class ServicosComponent implements OnInit {
     if (!servico.id) return;
     this.processando = true; this.erro = undefined; this.atualizarTela();
     this.servicoApi.excluir(servico.id).pipe(switchMap(() => this.servicoApi.listar()), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({
-      next: servicos => { this.mensagem = 'Serviço inativado. A tabela foi atualizada automaticamente.'; this.servicos = [...servicos]; this.atualizarTela(); },
+      next: servicos => { this.mensagem = 'Serviço inativado.'; this.servicos = [...servicos]; this.atualizarTela(); },
       error: e => { this.erro = e.message; this.atualizarTela(); }
     });
   }

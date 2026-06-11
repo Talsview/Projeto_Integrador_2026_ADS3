@@ -116,8 +116,8 @@ export class ClientesComponent implements OnInit {
         this.clientes = [...clientesAtualizados];
         this.limpar(false);
         this.mensagem = editando
-          ? 'Cliente atualizado com sucesso. A tabela foi atualizada automaticamente.'
-          : 'Cliente salvo com sucesso. A tabela foi atualizada automaticamente.';
+          ? 'Cliente atualizado.'
+          : 'Cliente cadastrado.';
         this.atualizarTela();
       },
       error: (error: Error) => {
@@ -168,7 +168,7 @@ export class ClientesComponent implements OnInit {
       .subscribe({
         next: clientesAtualizados => {
           this.clientes = [...clientesAtualizados];
-          this.mensagem = 'Cliente inativado com sucesso. A tabela foi atualizada automaticamente.';
+          this.mensagem = 'Cliente inativado.';
           if (this.clienteEditandoId === cliente.id) {
             this.limpar(false);
           }

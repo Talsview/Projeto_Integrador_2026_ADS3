@@ -113,7 +113,7 @@ export abstract class BaseApiService<T> {
   }
 
   protected extrairMensagem(response: ApiResponse<unknown>): string {
-    return response.message ?? response.mensagem ?? 'Operação executada com sucesso.';
+    return response.message ?? response.mensagem ?? 'Operação concluída.';
   }
 
   protected parametrosSemCache(params?: HttpParams): HttpParams {

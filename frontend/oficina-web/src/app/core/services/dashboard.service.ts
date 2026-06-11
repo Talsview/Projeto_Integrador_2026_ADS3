@@ -4,7 +4,6 @@ import { Observable, catchError, map, of, timeout } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ApiResponse } from '../models/api-response.model';
 import { DatabaseStatus } from '../models/database-status.model';
-import { PadraoProjeto } from '../../models/padrao-projeto.model';
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
@@ -41,31 +40,23 @@ export class DashboardService {
     );
   }
 
-
-  listarPadroesProjeto(): Observable<PadraoProjeto[]> {
-    return this.http.get<ApiResponse<PadraoProjeto[]>>(`${this.apiBaseUrl}/padroes-projeto`).pipe(
-      map(response => response.data ?? response.dados ?? []),
-      catchError(() => of([]))
-    );
-  }
-
   private criarMensagemBanco(available: boolean, tempoRespostaMs: number): string {
     if (available) {
-      return `Backend e banco responderam em ${tempoRespostaMs} ms.`;
+      return `Conectado em ${tempoRespostaMs} ms.`;
     }
 
-    return 'Backend respondeu, mas a conexão com o banco de dados não está disponível.';
+    return 'Banco indisponível.';
   }
 
   private tratarErroDeComunicacao(error: Error): string {
     const mensagem = error.message?.toLowerCase() ?? '';
 
     if (mensagem.includes('timeout')) {
-      return 'Tempo limite atingido. Verifique se o backend está rodando na porta 9081.';
+      return 'Backend sem resposta.';
     }
 
     if (mensagem.includes('unknown error') || mensagem.includes('http failure response')) {
-      return 'Não foi possível comunicar com o backend. Confirme se o Spring Boot está iniciado.';
+      return 'Backend indisponível.';
     }
 
     return error.message || 'Falha ao consultar a API.';

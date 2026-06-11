@@ -1,5 +1,5 @@
 <h1 class="page-title">Itens da Ordem de Serviço</h1>
-<p class="page-subtitle">Inclusão de serviços e peças no orçamento da OS, garantindo colaborador responsável e fornecedor identificado. Após concluir o orçamento, envie a OS para EXECUÇÃO, mantendo o fluxo correto antes do pagamento.</p>
+<p class="page-subtitle">Inclua serviços e peças no orçamento. Depois envie a OS para execução.</p>
 
 <section class="card orcamento-card">
   <div class="form-row">
@@ -30,7 +30,7 @@
       <div><label>Colaborador responsável</label><select [(ngModel)]="itemServicoForm.idColaborador" [class.input-error]="errosServico['idColaborador']"><option [ngValue]="0">Selecione</option><option *ngFor="let c of colaboradores" [ngValue]="c.id">{{ c.nome }}</option></select><small class="field-error" *ngIf="errosServico['idColaborador']">{{ errosServico['idColaborador'] }}</small></div>
       <div><label>Qtd</label><input type="number" min="0.01" step="0.01" [(ngModel)]="itemServicoForm.quantidade" (ngModelChange)="recalcularTotalServico()" [class.input-error]="errosServico['quantidade']"><small class="field-error" *ngIf="errosServico['quantidade']">{{ errosServico['quantidade'] }}</small></div>
       <div><label>Valor unitário</label><input type="number" min="0" step="0.01" [(ngModel)]="itemServicoForm.valorUnitario" (ngModelChange)="recalcularTotalServico()" [class.input-error]="errosServico['valorUnitario']"><small class="field-error" *ngIf="errosServico['valorUnitario']">{{ errosServico['valorUnitario'] }}</small></div>
-      <div><label>Total do serviço</label><input type="text" [value]="itemServicoForm.valorTotal | currency:'BRL'" readonly><small class="field-hint">Calculado automaticamente pela quantidade × valor unitário.</small></div>
+      <div><label>Total do serviço</label><input type="text" [value]="itemServicoForm.valorTotal | currency:'BRL'" readonly><small class="field-hint">Quantidade × valor unitário.</small></div>
       <div><label>Data início</label><input type="datetime-local" [(ngModel)]="itemServicoForm.dataInicio" [class.input-error]="errosServico['dataInicio']"><small class="field-error" *ngIf="errosServico['dataInicio']">{{ errosServico['dataInicio'] }}</small></div>
       <div><label>Data fim prevista/conclusão</label><input type="datetime-local" [(ngModel)]="itemServicoForm.dataFim" [class.input-error]="errosServico['dataFim']"><small class="field-error" *ngIf="errosServico['dataFim']">{{ errosServico['dataFim'] }}</small><small class="muted">Pode ser futura quando representar previsão de término.</small></div>
       <div><label>Empresa terceirizada</label><select [(ngModel)]="itemServicoForm.idEmpresaTerceirizada" [disabled]="!servicoSelecionadoTerceirizado()" [class.input-error]="errosServico['idEmpresaTerceirizada']"><option [ngValue]="undefined">Não se aplica</option><option *ngFor="let e of empresas" [ngValue]="e.id">{{ e.nomeEmpresa }}</option></select><small class="field-error" *ngIf="errosServico['idEmpresaTerceirizada']">{{ errosServico['idEmpresaTerceirizada'] }}</small></div>
@@ -48,7 +48,7 @@
       <div><label>Fornecedor vinculado à peça</label><select [(ngModel)]="itemPecaForm.idFornecedor" disabled [class.input-error]="errosPeca['idFornecedor']"><option [ngValue]="0">Selecione uma peça</option><option *ngFor="let f of fornecedores" [ngValue]="f.id">{{ f.nomeFornecedor }}</option></select><small class="field-error" *ngIf="errosPeca['idFornecedor']">{{ errosPeca['idFornecedor'] }}</small><small class="field-hint">{{ fornecedorPecaSelecionado() }}</small></div>
       <div><label>Qtd</label><input type="number" min="0.01" step="0.01" [(ngModel)]="itemPecaForm.quantidade" (ngModelChange)="recalcularTotalPeca()" [class.input-error]="errosPeca['quantidade']"><small class="field-error" *ngIf="errosPeca['quantidade']">{{ errosPeca['quantidade'] }}</small></div>
       <div><label>Valor unitário</label><input type="number" min="0" step="0.01" [(ngModel)]="itemPecaForm.valorUnitario" (ngModelChange)="recalcularTotalPeca()" [class.input-error]="errosPeca['valorUnitario']"><small class="field-error" *ngIf="errosPeca['valorUnitario']">{{ errosPeca['valorUnitario'] }}</small></div>
-      <div><label>Total da peça</label><input type="text" [value]="itemPecaForm.valorTotal | currency:'BRL'" readonly><small class="field-hint">Calculado automaticamente pela quantidade × valor unitário.</small></div>
+      <div><label>Total da peça</label><input type="text" [value]="itemPecaForm.valorTotal | currency:'BRL'" readonly><small class="field-hint">Quantidade × valor unitário.</small></div>
     </div>
     <label>Observação</label><textarea rows="2" [(ngModel)]="itemPecaForm.observacao"></textarea>
     <button style="margin-top: 14px;" (click)="salvarItemPeca()" [disabled]="!idOrdemSelecionada">Adicionar peça</button>
