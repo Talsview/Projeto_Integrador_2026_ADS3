@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.veiculo.service;
 import br.com.avcar.oficina.business.pessoa.model.ClienteModel;
 import br.com.avcar.oficina.business.pessoa.repository.IClienteRepository;
 import br.com.avcar.oficina.business.veiculo.adapter.VeiculoResponseAdapter;
+import br.com.avcar.oficina.business.veiculo.dto.HistoricoProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.TransferenciaProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoDTO;
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoResumoDTO;
@@ -116,6 +117,37 @@ public class VeiculoService {
     public VeiculoDTO buscar(Long id) {
         validation.validateId(id);
         return montarDetalhe(id);
+    }
+
+
+
+    @Transactional(readOnly = true)
+    /**
+     * Função: lista todos os registros ativos de histórico de proprietários, sem filtrar apenas
+     * pelo proprietário atual.
+     * Uso no sistema: permite que a aba de Gestão agrupe os clientes uma única vez e mostre
+     * todos os veículos que eles possuem ou já possuíram, com início e fim de cada posse.
+     */
+    public List<HistoricoProprietarioDTO> listarHistoricoProprietariosConsolidado() {
+        return historicoRepository.findAllAtivosComClienteEVeiculoOrdenados()
+                .stream()
+                .map(responseAdapter::adaptarHistorico)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    /**
+     * Função: lista todos os registros ativos de histórico de proprietários de um veículo.
+     * Uso no sistema: disponibiliza para a View a sequência de donos do veículo, preservando
+     * a rastreabilidade exigida no modelo de banco de dados.
+     */
+    public List<HistoricoProprietarioDTO> listarHistoricoProprietarios(Long veiculoId) {
+        validation.validateId(veiculoId);
+        buscarVeiculoAtivo(veiculoId);
+        return historicoRepository.findByVeiculoIdAndAtivoTrueOrderByDataInicioPosseDesc(veiculoId)
+                .stream()
+                .map(responseAdapter::adaptarHistorico)
+                .toList();
     }
 
     @Transactional(readOnly = true)

@@ -5,6 +5,7 @@ import { FuncoesComponent } from './pages/funcoes/funcoes.component';
 import { ColaboradoresComponent } from './pages/colaboradores/colaboradores.component';
 import { MarcasModelosComponent } from './pages/marcas-modelos/marcas-modelos.component';
 import { VeiculosComponent } from './pages/veiculos/veiculos.component';
+import { HistoricoProprietariosComponent } from './pages/historico-proprietarios/historico-proprietarios.component';
 import { ServicosComponent } from './pages/servicos/servicos.component';
 import { EmpresasTerceirizadasComponent } from './pages/empresas-terceirizadas/empresas-terceirizadas.component';
 import { PecasFornecedoresComponent } from './pages/pecas-fornecedores/pecas-fornecedores.component';
@@ -23,6 +24,7 @@ export const routes: Routes = [
   { path: 'colaboradores', component: ColaboradoresComponent, title: 'Colaboradores' },
   { path: 'marcas-modelos', component: MarcasModelosComponent, title: 'Marcas e Modelos' },
   { path: 'veiculos', component: VeiculosComponent, title: 'Veículos' },
+  { path: 'historico-proprietarios', component: HistoricoProprietariosComponent, title: 'Histórico de Proprietários' },
   { path: 'servicos', component: ServicosComponent, title: 'Serviços' },
   { path: 'empresas-terceirizadas', component: EmpresasTerceirizadasComponent, title: 'Empresas Terceirizadas' },
   { path: 'pecas-fornecedores', component: PecasFornecedoresComponent, title: 'Peças e Fornecedores' },

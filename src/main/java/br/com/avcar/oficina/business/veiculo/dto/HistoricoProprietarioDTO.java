@@ -16,6 +16,13 @@ public class HistoricoProprietarioDTO extends BaseDTO {
     private String nomeCliente;
     private Long veiculoId;
     private String placaVeiculo;
+    private String nomeMarcaVeiculo;
+    private String nomeModeloVeiculo;
+    private Integer anoVeiculo;
+    private Integer anoModelo;
+    private String chassiVeiculo;
+    private String corVeiculo;
+    private Integer quilometragemAtual;
     private LocalDate dataInicioPosse;
     private LocalDate dataFimPosse;
     private Boolean proprietarioAtual;

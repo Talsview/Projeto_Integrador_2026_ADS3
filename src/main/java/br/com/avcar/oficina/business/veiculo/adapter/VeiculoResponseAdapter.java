@@ -128,8 +128,22 @@ public class VeiculoResponseAdapter {
         }
 
         if (historico.getVeiculo() != null) {
-            dto.setVeiculoId(historico.getVeiculo().getId());
-            dto.setPlacaVeiculo(historico.getVeiculo().getPlaca());
+            VeiculoModel veiculo = historico.getVeiculo();
+            dto.setVeiculoId(veiculo.getId());
+            dto.setPlacaVeiculo(veiculo.getPlaca());
+            dto.setAnoVeiculo(veiculo.getAnoVeiculo());
+            dto.setAnoModelo(veiculo.getAnoModelo());
+            dto.setChassiVeiculo(veiculo.getChassi());
+            dto.setCorVeiculo(veiculo.getCor());
+            dto.setQuilometragemAtual(veiculo.getQuilometragemAtual());
+
+            ModeloModel modelo = veiculo.getModelo();
+            if (modelo != null) {
+                dto.setNomeModeloVeiculo(modelo.getNomeModelo());
+                if (modelo.getMarca() != null) {
+                    dto.setNomeMarcaVeiculo(modelo.getMarca().getNomeMarca());
+                }
+            }
         }
         return dto;
     }

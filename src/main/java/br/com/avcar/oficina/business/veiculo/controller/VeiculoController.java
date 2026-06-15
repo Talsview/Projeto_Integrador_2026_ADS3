@@ -1,5 +1,6 @@
 package br.com.avcar.oficina.business.veiculo.controller;
 
+import br.com.avcar.oficina.business.veiculo.dto.HistoricoProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.TransferenciaProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoDTO;
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoResumoDTO;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.List;
 
 /**
  * Controller REST do módulo Veículo.
@@ -80,6 +82,18 @@ public class VeiculoController {
         return ResponseEntity.ok(ApiResponse.success("Proprietário do veículo transferido com sucesso.", updated));
     }
 
+
+    @GetMapping("/historico-proprietarios")
+    /**
+     * Função: consulta todos os vínculos de posse registrados no sistema.
+     * Uso no sistema: alimenta a aba de Gestão agrupando clientes sem duplicidade e mantendo
+     * proprietários antigos visíveis mesmo depois de uma transferência.
+     */
+    public ResponseEntity<ApiResponse<List<HistoricoProprietarioDTO>>> listarHistoricoProprietariosConsolidado() {
+        List<HistoricoProprietarioDTO> historico = veiculoService.listarHistoricoProprietariosConsolidado();
+        return ResponseEntity.ok(ApiResponse.success("Histórico consolidado de proprietários localizado com sucesso.", historico));
+    }
+
     @GetMapping("/{id}")
     /**
      * Função: Recebe filtros de consulta de veiculo, delega a busca ao serviço e devolve os dados no
@@ -90,6 +104,18 @@ public class VeiculoController {
     public ResponseEntity<ApiResponse<VeiculoDTO>> buscar(@PathVariable Long id) {
         VeiculoDTO veiculo = veiculoService.buscar(id);
         return ResponseEntity.ok(ApiResponse.success("Veículo localizado com sucesso.", veiculo));
+    }
+
+
+    @GetMapping("/{id}/historico-proprietarios")
+    /**
+     * Função: consulta o histórico de proprietários vinculado ao veículo informado.
+     * Uso no sistema: permite que a tela Histórico de Proprietários apresente a rastreabilidade
+     * completa de posse do veículo, incluindo proprietário atual e proprietários anteriores.
+     */
+    public ResponseEntity<ApiResponse<List<HistoricoProprietarioDTO>>> listarHistoricoProprietarios(@PathVariable Long id) {
+        List<HistoricoProprietarioDTO> historico = veiculoService.listarHistoricoProprietarios(id);
+        return ResponseEntity.ok(ApiResponse.success("Histórico de proprietários localizado com sucesso.", historico));
     }
 
     @GetMapping

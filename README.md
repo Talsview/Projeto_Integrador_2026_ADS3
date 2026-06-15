@@ -2336,3 +2336,13 @@ Foi adicionada a recuperação de cadastros inativados em todas as telas que pos
 ## Etapa 63 — Correção do componente de Pagamentos
 
 Foi corrigido o erro de compilação `TS2339` no `PagamentosComponent`, adicionando o método `atualizarTela()` utilizado nas operações de carregamento e reativação de registros inativos. A alteração não modifica regras de negócio nem banco de dados; apenas corrige a consistência do componente Angular.
+
+## Etapa 64 — Aba de Histórico de Proprietários
+
+Foi adicionada uma aba específica em **Cadastros > Histórico de Proprietários** para consultar o histórico de posse dos veículos e registrar transferência de proprietário. A alteração utiliza a entidade `HistoricoProprietario`, já prevista no modelo de banco de dados, permitindo visualizar proprietário atual, proprietários anteriores, data de início, data de fim e observações de posse.
+
+Também foi incluído o botão **Histórico** na tela de Veículos, direcionando o usuário diretamente para a consulta histórica do veículo selecionado.
+
+## Etapa 67 — Histórico de proprietários por cliente
+
+A tela **Histórico de Proprietários** foi corrigida para exibir a consulta principal por cliente, sem duplicar o mesmo cliente quando ele possui ou já possuiu mais de um veículo. Ao selecionar o cliente, o sistema apresenta os veículos vinculados, as datas de início e fim de posse, o status atual/anterior e as observações. Também foi criado o endpoint consolidado `GET /api/veiculos/historico-proprietarios`, retornando proprietários atuais e anteriores para preservar a rastreabilidade.

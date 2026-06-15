@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InativosPanelComponent } from '../../shared/components/inativos-panel/inativos-panel.component';
+import { Router } from '@angular/router';
 import { finalize, forkJoin, switchMap } from 'rxjs';
 import { ClienteApiService } from '../../core/services/cliente-api.service';
 import { MarcaApiService } from '../../core/services/marca-api.service';
@@ -41,7 +42,8 @@ export class VeiculosComponent implements OnInit {
     private readonly marcaApi: MarcaApiService,
     private readonly modeloApi: ModeloApiService,
     private readonly clienteApi: ClienteApiService,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly router: Router
   ) {}
 
   /**
@@ -203,6 +205,17 @@ export class VeiculosComponent implements OnInit {
     const atual = this.clientes.find(c => Number(c.id) === Number(v.proprietarioAtualId));
     this.clientesProprietarioFiltrados = atual ? [atual, ...this.clientes.filter(c => c.id !== atual.id)] : [...this.clientes];
     this.atualizarTela();
+  }
+
+
+  /**
+   * Função: abre a aba dedicada ao histórico de proprietários já filtrada pelo veículo escolhido.
+   * Uso no sistema: facilita a rastreabilidade da posse sem misturar a tela de cadastro de veículos
+   * com a tela de consulta histórica.
+   */
+  abrirHistoricoProprietario(v: VeiculoResumo): void {
+    if (!v.id) return;
+    this.router.navigate(['/historico-proprietarios'], { queryParams: { veiculoId: v.id } });
   }
 
   /**

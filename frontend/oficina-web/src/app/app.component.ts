@@ -156,7 +156,7 @@ export class AppComponent {
       title: 'Cadastros',
       items: [
         { label: 'Clientes', route: '/clientes', icon: 'CL', description: 'PF e PJ' },
-        { label: 'Veículos', route: '/veiculos', icon: 'VE', description: 'Proprietários e histórico' },
+        { label: 'Veículos', route: '/veiculos', icon: 'VE', description: 'Cadastro de veículos' },
         { label: 'Colaboradores', route: '/colaboradores', icon: 'CO', description: 'Equipe da oficina' },
         { label: 'Funções', route: '/funcoes', icon: 'FN', description: 'Cargos e atribuições' },
         { label: 'Marcas e Modelos', route: '/marcas-modelos', icon: 'MM', description: 'Classificação dos veículos' },
@@ -169,6 +169,7 @@ export class AppComponent {
       title: 'Gestão',
       items: [
         { label: 'Relatórios', route: '/relatorios', icon: 'RL', description: 'Consultas gerenciais' },
+        { label: 'Histórico de Proprietários', route: '/historico-proprietarios', icon: 'HP', description: 'Posse atual e anterior' },
         { label: 'Configurações', route: '/configuracoes', icon: 'CF', description: 'Ambiente local' }
       ]
     }

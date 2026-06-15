@@ -59,6 +59,7 @@
             </td>
             <td>{{ veiculo.nomeProprietarioAtual || '-' }}</td>
             <td class="actions row-actions actions-sticky">
+              <button class="secondary" (click)="abrirHistoricoProprietario(veiculo)">Histórico</button>
               <button class="secondary" (click)="editar(veiculo)">Editar</button>
               <button class="danger" (click)="excluir(veiculo)" [disabled]="processando">Inativar</button>
             </td>

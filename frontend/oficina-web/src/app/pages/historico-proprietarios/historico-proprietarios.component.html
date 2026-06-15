@@ -1,0 +1,163 @@
+<h1 class="page-title">Histórico de Proprietários</h1>
+<p class="page-subtitle">Consulta por cliente, com todos os veículos possuídos atualmente ou anteriormente e os períodos de posse registrados.</p>
+
+<div class="grid two historico-layout">
+  <section class="card historico-lista-card">
+    <h2>Clientes no histórico</h2>
+    <p class="muted">O cliente aparece apenas uma vez. Ao selecionar, o sistema mostra todos os veículos, posses atuais e posses anteriores.</p>
+
+    <div class="historico-toolbar actions">
+      <input [(ngModel)]="termoHistorico" placeholder="Pesquisar por cliente, placa, marca, modelo ou status" (input)="pesquisarHistorico()">
+      <button class="secondary" type="button" (click)="carregarDadosIniciais(clienteSelecionado?.clienteId)" [disabled]="carregando || processando">Atualizar</button>
+    </div>
+
+    <p *ngIf="carregando">Carregando dados...</p>
+
+    <div class="table-wrap cadastro-table-wrap">
+      <table class="cadastro-table cadastro-table-compact historico-clientes-table">
+        <thead>
+          <tr>
+            <th>Cliente</th>
+            <th>Veículos</th>
+            <th>Posses atuais</th>
+            <th class="actions-col">Ação</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cliente of clientesHistoricoFiltrados" [class.selected-row]="clienteSelecionado?.clienteId === cliente.clienteId">
+            <td>
+              <div class="cliente-cell">
+                <strong>{{ cliente.nomeCliente }}</strong>
+                <small>{{ cliente.totalRegistros }} registro(s) de posse</small>
+              </div>
+            </td>
+            <td>{{ cliente.veiculosResumo }}</td>
+            <td>
+              <span class="status-pill" [class.status-muted]="cliente.totalVeiculosAtuais === 0">
+                {{ cliente.totalVeiculosAtuais }} atual(is)
+              </span>
+            </td>
+            <td class="actions row-actions actions-sticky">
+              <button type="button" (click)="selecionarCliente(cliente)" [disabled]="carregando || processando">Ver posses</button>
+            </td>
+          </tr>
+          <tr *ngIf="!clientesHistoricoFiltrados.length && !carregando"><td colspan="4">Nenhum cliente encontrado no histórico.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card historico-detalhe-card">
+    <h2>Detalhe do cliente</h2>
+
+    <ng-container *ngIf="clienteSelecionado; else semSelecao">
+      <div class="summary-grid historico-resumo">
+        <div class="historico-meta">
+          <small>Cliente</small>
+          <strong>{{ clienteSelecionado.nomeCliente }}</strong>
+        </div>
+        <div class="historico-meta">
+          <small>Veículos vinculados</small>
+          <strong>{{ clienteSelecionado.totalVeiculos }}</strong>
+        </div>
+        <div class="historico-meta">
+          <small>Posses atuais</small>
+          <strong>{{ clienteSelecionado.totalVeiculosAtuais }}</strong>
+        </div>
+        <div class="historico-meta">
+          <small>Registros históricos</small>
+          <strong>{{ clienteSelecionado.totalRegistros }}</strong>
+        </div>
+      </div>
+
+      <h3>Veículos e períodos de posse</h3>
+      <p class="muted">A data de fim vazia indica que a posse ainda está vigente. Quando ocorre transferência, o proprietário anterior continua aparecendo com a posse encerrada.</p>
+
+      <div class="table-wrap cadastro-table-wrap" style="margin-bottom: 18px;">
+        <table class="cadastro-table cadastro-table-compact historico-posse-table">
+          <thead>
+            <tr>
+              <th>Veículo</th>
+              <th>Início</th>
+              <th>Fim</th>
+              <th>Status</th>
+              <th>Observação</th>
+              <th class="actions-col">Transferência</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let h of possesCliente" [class.selected-row]="historicoParaTransferencia?.id === h.id">
+              <td>
+                <div class="entity-cell historico-veiculo-cell">
+                  <strong>{{ h.placaVeiculo || '-' }}</strong>
+                  <small>{{ h.nomeMarcaVeiculo || '-' }} / {{ h.nomeModeloVeiculo || '-' }}</small>
+                  <small>Ano {{ h.anoVeiculo || '-' }}/{{ h.anoModelo || '-' }}</small>
+                </div>
+              </td>
+              <td>{{ h.dataInicioPosse | date:'dd/MM/yyyy':'UTC' }}</td>
+              <td>
+                <span *ngIf="h.dataFimPosse; else vigente">{{ h.dataFimPosse | date:'dd/MM/yyyy':'UTC' }}</span>
+                <ng-template #vigente><span class="muted">Vigente</span></ng-template>
+              </td>
+              <td><span class="status-pill" [class.status-muted]="!h.proprietarioAtual">{{ rotuloHistorico(h) }}</span></td>
+              <td>{{ h.observacao || '-' }}</td>
+              <td class="actions row-actions actions-sticky">
+                <button type="button" *ngIf="h.proprietarioAtual" (click)="selecionarPosseParaTransferencia(h)" [disabled]="processando || carregando">Transferir</button>
+                <span class="muted" *ngIf="!h.proprietarioAtual">Encerrada</span>
+              </td>
+            </tr>
+            <tr *ngIf="!possesCliente.length"><td colspan="6">Nenhuma posse cadastrada para este cliente.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="transferencia-box">
+        <h3>Transferir proprietário</h3>
+        <p class="muted" *ngIf="historicoParaTransferencia; else semVeiculoTransferencia">
+          Veículo selecionado: <strong>{{ descricaoVeiculo(historicoParaTransferencia) }}</strong>.
+          A transferência encerra a posse atual e cria um novo registro, sem apagar este cliente do histórico.
+        </p>
+        <ng-template #semVeiculoTransferencia>
+          <p class="muted">Selecione uma posse atual na tabela acima para transferir um veículo específico.</p>
+        </ng-template>
+
+        <div class="transferencia-grid">
+          <div>
+            <label>Buscar novo proprietário</label>
+            <input [(ngModel)]="termoCliente" placeholder="Digite nome ou CPF/CNPJ" (input)="pesquisarCliente()">
+          </div>
+          <div>
+            <label>Novo proprietário</label>
+            <select [(ngModel)]="transferencia.novoClienteId" [class.input-error]="errosCampo['novoClienteId']">
+              <option [ngValue]="0">Selecione</option>
+              <option *ngFor="let cliente of clientesFiltrados" [ngValue]="cliente.id">{{ cliente.nome }} — {{ cliente.documento }}</option>
+            </select>
+            <small class="field-error" *ngIf="errosCampo['novoClienteId']">{{ errosCampo['novoClienteId'] }}</small>
+          </div>
+          <div>
+            <label>Início da nova posse</label>
+            <input type="date" [(ngModel)]="transferencia.dataInicioPosse" [class.input-error]="errosCampo['dataInicioPosse']">
+            <small class="field-error" *ngIf="errosCampo['dataInicioPosse']">{{ errosCampo['dataInicioPosse'] }}</small>
+          </div>
+        </div>
+
+        <small class="field-error" *ngIf="errosCampo['veiculo']">{{ errosCampo['veiculo'] }}</small>
+
+        <label>Observação da transferência</label>
+        <textarea rows="2" [(ngModel)]="transferencia.observacao" placeholder="Ex.: venda do veículo, atualização cadastral ou troca de responsável."></textarea>
+
+        <div class="actions transferencia-acoes">
+          <button type="button" (click)="transferirProprietario()" [disabled]="processando || carregando || !historicoParaTransferencia">{{ processando ? 'Processando...' : 'Transferir proprietário' }}</button>
+          <button class="secondary" type="button" (click)="limparSelecao()" [disabled]="processando">Limpar seleção</button>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #semSelecao>
+      <p class="empty-state">Selecione um cliente na lista para consultar os veículos, posses atuais e posses anteriores.</p>
+    </ng-template>
+
+    <p class="alert" *ngIf="mensagem">{{ mensagem }}</p>
+    <p class="alert error" *ngIf="erro">{{ erro }}</p>
+  </section>
+</div>

@@ -1,0 +1,187 @@
+.historico-layout {
+  grid-template-columns: minmax(430px, 0.95fr) minmax(640px, 1.05fr);
+  align-items: start;
+}
+
+.historico-lista-card,
+.historico-detalhe-card {
+  min-width: 0;
+}
+
+.historico-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.historico-toolbar input {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.historico-toolbar button {
+  flex: 0 0 auto;
+}
+
+.historico-clientes-table,
+.historico-posse-table {
+  table-layout: fixed;
+  min-width: 0 !important;
+}
+
+.historico-clientes-table th,
+.historico-clientes-table td,
+.historico-posse-table th,
+.historico-posse-table td {
+  text-align: left;
+  vertical-align: middle;
+  white-space: normal !important;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.historico-clientes-table th:first-child,
+.historico-clientes-table td:first-child {
+  width: 34% !important;
+  min-width: 210px !important;
+  max-width: none !important;
+  text-align: left;
+}
+
+.historico-clientes-table th:nth-child(2),
+.historico-clientes-table td:nth-child(2) {
+  width: 28%;
+}
+
+.historico-clientes-table th:nth-child(3),
+.historico-clientes-table td:nth-child(3) {
+  width: 18%;
+}
+
+.historico-clientes-table .actions-col,
+.historico-clientes-table .row-actions,
+.historico-clientes-table td.actions {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+}
+
+.cliente-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cliente-cell strong,
+.historico-veiculo-cell strong {
+  color: var(--primary-strong, #0f172a);
+  line-height: 1.25;
+  word-break: normal;
+  overflow-wrap: break-word;
+}
+
+.cliente-cell small,
+.historico-veiculo-cell small,
+.historico-meta small {
+  color: var(--muted, #64748b);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.historico-detalhe-card h3 {
+  margin-top: 6px;
+  margin-bottom: 10px;
+}
+
+.historico-resumo {
+  margin-bottom: 16px;
+}
+
+.historico-meta {
+  min-height: 92px;
+}
+
+.historico-meta strong {
+  font-size: 1.02rem;
+}
+
+.historico-posse-table th:first-child,
+.historico-posse-table td:first-child {
+  width: 28% !important;
+  min-width: 210px !important;
+  max-width: none !important;
+  text-align: left;
+}
+
+.historico-posse-table th:nth-child(2),
+.historico-posse-table td:nth-child(2),
+.historico-posse-table th:nth-child(3),
+.historico-posse-table td:nth-child(3) {
+  width: 11%;
+}
+
+.historico-posse-table th:nth-child(4),
+.historico-posse-table td:nth-child(4) {
+  width: 12%;
+}
+
+.historico-posse-table th:nth-child(5),
+.historico-posse-table td:nth-child(5) {
+  width: 23%;
+}
+
+.historico-posse-table .actions-col,
+.historico-posse-table .row-actions,
+.historico-posse-table td.actions {
+  width: 150px !important;
+  min-width: 150px !important;
+  max-width: 150px !important;
+}
+
+.historico-veiculo-cell {
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
+}
+
+.status-muted {
+  opacity: .72;
+  background: #f1f5f9;
+}
+
+.transferencia-box {
+  border-top: 1px solid var(--border, #e2e8f0);
+  padding-top: 16px;
+}
+
+.transferencia-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.transferencia-acoes {
+  margin-top: 14px;
+}
+
+@media (max-width: 1520px) {
+  .historico-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 980px) {
+  .historico-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .transferencia-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .historico-clientes-table,
+  .historico-posse-table {
+    min-width: 820px !important;
+  }
+}
