@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS funcao (
 
 CREATE TABLE IF NOT EXISTS colaborador_funcao (
     id_colaborador_funcao BIGSERIAL PRIMARY KEY,
-    id_colaborador BIGINT NOT NULL,
+    id_colaborador BIGINT,
     id_funcao BIGINT NOT NULL,
     data_inicio DATE NOT NULL DEFAULT CURRENT_DATE,
     data_fim DATE,
@@ -255,7 +255,7 @@ CREATE TABLE IF NOT EXISTS item_servico (
     id_item_servico BIGSERIAL PRIMARY KEY,
     id_ordem_servico BIGINT NOT NULL,
     id_servico BIGINT NOT NULL,
-    id_colaborador BIGINT NOT NULL,
+    id_colaborador BIGINT,
     descricao_execucao TEXT,
     quantidade NUMERIC(10,2) NOT NULL DEFAULT 1,
     valor_unitario NUMERIC(12,2) NOT NULL DEFAULT 0,

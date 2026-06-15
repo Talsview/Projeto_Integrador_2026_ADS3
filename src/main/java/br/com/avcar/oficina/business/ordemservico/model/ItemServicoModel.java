@@ -20,8 +20,9 @@ import lombok.Setter;
 /**
  * Entidade associativa que representa o serviço executado dentro da OS.
  *
- * Regra de negócio: todo ItemServico deve possuir Serviço cadastrado e
- * Colaborador responsável, garantindo rastreabilidade operacional.
+ * Regra de negócio: todo ItemServico deve possuir Serviço cadastrado.
+ * Serviços internos possuem colaborador responsável da oficina; serviços
+ * terceirizados possuem empresa executora registrada na execução terceirizada.
  */
 @Getter
 @Setter
@@ -42,8 +43,8 @@ public class ItemServicoModel extends BaseModel {
     @JoinColumn(name = "id_servico", nullable = false)
     private ServicoModel servico;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "id_colaborador", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_colaborador")
     private ColaboradorModel colaborador;
 
     @Column(name = "descricao_execucao", columnDefinition = "TEXT")

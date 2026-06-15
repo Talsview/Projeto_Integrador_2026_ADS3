@@ -73,9 +73,6 @@ public class ItemServicoValidation {
         if (dto.getIdServico() == null || dto.getIdServico() <= 0) {
             throw new RuleValidationException("O Serviço cadastrado é obrigatório para o item.");
         }
-        if (dto.getIdColaborador() == null || dto.getIdColaborador() <= 0) {
-            throw new RuleValidationException("Todo Item de Serviço deve possuir colaborador responsável.");
-        }
         if (dto.getQuantidade() == null || dto.getQuantidade().compareTo(BigDecimal.ZERO) <= 0) {
             throw new RuleValidationException("A quantidade do Item de Serviço deve ser maior que zero.");
         }
@@ -89,12 +86,6 @@ public class ItemServicoValidation {
         ValidationUtils.dateNotBefore(dto.getDataFim(), dto.getDataInicio(), "data de fim do serviço", "data de início do serviço");
         ValidationUtils.maxLength(dto.getDescricaoExecucao(), 2000, "descrição da execução");
         ValidationUtils.maxLength(dto.getObservacaoTerceirizacao(), 2000, "observação da terceirização");
-        if (dto.getDataEnvioTerceirizacao() != null) {
-            ValidationUtils.notFuture(dto.getDataEnvioTerceirizacao(), "data de envio da terceirização");
-        }
-        if (dto.getDataRetornoTerceirizacao() != null) {
-            ValidationUtils.notFuture(dto.getDataRetornoTerceirizacao(), "data de retorno da terceirização");
-        }
         ValidationUtils.dateNotBefore(dto.getDataRetornoTerceirizacao(), dto.getDataEnvioTerceirizacao(), "data de retorno da terceirização", "data de envio da terceirização");
         if (dto.getValorCobradoTerceirizacao() != null && dto.getValorCobradoTerceirizacao().compareTo(BigDecimal.ZERO) < 0) {
             throw new RuleValidationException("O valor cobrado pela terceirização não pode ser negativo.");

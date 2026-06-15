@@ -29,8 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * Regras atendidas:
  * - Todo ItemServico possui Serviço cadastrado.
- * - Todo ItemServico possui Colaborador responsável.
- * - Serviço terceirizado gera ExecucaoServicoTerceirizado.
+ * - Serviço interno possui Colaborador responsável da oficina.
+ * - Serviço terceirizado gera ExecucaoServicoTerceirizado com empresa executora.
+ * - Serviço terceirizado não exige colaborador interno, pois a execução é feita por empresa externa.
  */
 @Service
 public class ItemServicoService {
@@ -88,11 +89,12 @@ public class ItemServicoService {
 
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
         ServicoModel servico = servicoService.buscarModelAtivo(dto.getIdServico());
-        completarDadosAutomaticosDoServico(dto, servico);
+        boolean terceirizado = isServicoTerceirizado(servico);
+        prepararDtoConformeTipoServico(dto, servico, terceirizado);
         validation.validateInsert(dto);
-        ColaboradorModel colaborador = buscarColaboradorAtivo(dto.getIdColaborador());
+        validarResponsavelEExecucaoExterna(terceirizado, dto);
+        ColaboradorModel colaborador = terceirizado ? null : buscarColaboradorAtivo(dto.getIdColaborador());
 
-        validarTerceirizacao(servico, dto);
         ItemServicoModel saved = itemServicoRepository.save(mapper.toModel(dto, ordemServico, servico, colaborador));
         garantiaService.criarGarantiaServicoAguardando(saved);
         salvarOuAtualizarExecucaoTerceirizada(saved, dto, servico);
@@ -120,11 +122,12 @@ public class ItemServicoService {
         OrdemServicoModel ordemServico = ordemServicoService.buscarModelAtivo(dto.getIdOrdemServico());
         ordemServicoService.validarOrdemEmOrcamento(ordemServico.getId());
         ServicoModel servico = servicoService.buscarModelAtivo(dto.getIdServico());
-        completarDadosAutomaticosDoServico(dto, servico);
+        boolean terceirizado = isServicoTerceirizado(servico);
+        prepararDtoConformeTipoServico(dto, servico, terceirizado);
         validation.validateUpdate(id, dto);
-        ColaboradorModel colaborador = buscarColaboradorAtivo(dto.getIdColaborador());
+        validarResponsavelEExecucaoExterna(terceirizado, dto);
+        ColaboradorModel colaborador = terceirizado ? null : buscarColaboradorAtivo(dto.getIdColaborador());
 
-        validarTerceirizacao(servico, dto);
         mapper.atualizarModel(itemServico, dto, ordemServico, servico, colaborador);
         ItemServicoModel saved = itemServicoRepository.save(itemServico);
         garantiaService.criarGarantiaServicoAguardando(saved);
@@ -224,9 +227,9 @@ public class ItemServicoService {
     }
 
     /**
-     * Função: Processa dados de serviço executado, responsável, valor e vínculo com a Ordem de
-     * Serviço.
-     * Uso no sistema: garante que cada serviço da OS tenha registro próprio e colaborador responsável.
+     * Função: completa quantidade e valor unitário a partir do cadastro do serviço.
+     * Uso no sistema: mantém o orçamento da OS coerente mesmo quando o usuário não digita
+     * manualmente o valor base já cadastrado para o serviço.
      */
     private void completarDadosAutomaticosDoServico(ItemServicoDTO dto, ServicoModel servico) {
         if ((dto.getValorUnitario() == null || dto.getValorUnitario().compareTo(BigDecimal.ZERO) == 0)
@@ -237,6 +240,28 @@ public class ItemServicoService {
         if (dto.getQuantidade() == null) {
             dto.setQuantidade(BigDecimal.ONE);
         }
+    }
+
+    /**
+     * Função: ajusta o DTO conforme o tipo do serviço selecionado.
+     * Uso no sistema: serviço interno mantém colaborador e datas de execução da oficina;
+     * serviço terceirizado remove colaborador interno e usa os dados da empresa externa.
+     */
+    private void prepararDtoConformeTipoServico(ItemServicoDTO dto, ServicoModel servico, boolean terceirizado) {
+        completarDadosAutomaticosDoServico(dto, servico);
+
+        if (terceirizado) {
+            dto.setIdColaborador(null);
+            dto.setDataInicio(null);
+            dto.setDataFim(null);
+            return;
+        }
+
+        dto.setIdEmpresaTerceirizada(null);
+        dto.setDataEnvioTerceirizacao(null);
+        dto.setDataRetornoTerceirizacao(null);
+        dto.setValorCobradoTerceirizacao(null);
+        dto.setObservacaoTerceirizacao(null);
     }
 
     /**
@@ -252,20 +277,23 @@ public class ItemServicoService {
     /**
      * Função: Processa dados de serviço executado, responsável, valor e vínculo com a Ordem de
      * Serviço.
-     * Uso no sistema: garante que cada serviço da OS tenha registro próprio e colaborador responsável.
+     * Uso no sistema: identifica se o serviço selecionado deve gerar execução por empresa externa.
      */
     private boolean isServicoTerceirizado(ServicoModel servico) {
         return servicoTerceirizadoRepository.findByIdAndAtivoTrue(servico.getId()).isPresent();
     }
 
     /**
-     * Função: Confere as regras necessárias antes de continuar a operação validar terceirizacao.
-     * Uso no sistema: evita inconsistências e mensagens de erro tardias no banco de dados.
+     * Função: valida o responsável correto conforme o tipo de serviço.
+     * Uso no sistema: serviço interno exige colaborador da oficina; serviço terceirizado exige
+     * empresa externa executora e não grava colaborador interno como responsável direto.
      */
-    private void validarTerceirizacao(ServicoModel servico, ItemServicoDTO dto) {
-        boolean terceirizado = isServicoTerceirizado(servico);
+    private void validarResponsavelEExecucaoExterna(boolean terceirizado, ItemServicoDTO dto) {
         if (terceirizado && (dto.getIdEmpresaTerceirizada() == null || dto.getIdEmpresaTerceirizada() <= 0)) {
             throw new RuleValidationException("Serviço terceirizado deve informar a empresa terceirizada executora.");
+        }
+        if (!terceirizado && (dto.getIdColaborador() == null || dto.getIdColaborador() <= 0)) {
+            throw new RuleValidationException("Serviço interno deve possuir colaborador responsável da oficina.");
         }
         if (!terceirizado && dto.getIdEmpresaTerceirizada() != null) {
             throw new RuleValidationException("Serviço interno não deve possuir empresa terceirizada vinculada.");

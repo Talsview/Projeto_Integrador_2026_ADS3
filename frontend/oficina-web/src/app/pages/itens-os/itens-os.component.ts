@@ -140,24 +140,41 @@ export class ItensOsComponent implements OnInit {
   }
 
   /**
+   * Função: identifica se o serviço selecionado será executado internamente pela oficina.
+   * Uso no sistema: mostra colaborador e datas internas somente quando a execução é da própria empresa.
+   */
+  servicoSelecionadoInterno(): boolean {
+    const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
+    return servico?.tipoServico === 'INTERNO';
+  }
+
+  /**
    * Função: Controla na tela a etapa ao alterar servico.
    * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
    */
   aoAlterarServico(): void {
     const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
+    const terceirizado = servico?.tipoServico === 'TERCEIRIZADO';
+
     if (servico) {
       this.itemServicoForm.valorUnitario = Number(servico.valorBase ?? 0);
       this.recalcularTotalServico(false);
     }
-    if (!this.servicoSelecionadoTerceirizado()) {
+
+    if (terceirizado) {
+      this.itemServicoForm.idColaborador = undefined;
+      this.itemServicoForm.dataInicio = undefined;
+      this.itemServicoForm.dataFim = undefined;
+    } else {
       this.itemServicoForm.idEmpresaTerceirizada = undefined;
       this.itemServicoForm.dataEnvioTerceirizacao = undefined;
       this.itemServicoForm.dataRetornoTerceirizacao = undefined;
       this.itemServicoForm.valorCobradoTerceirizacao = undefined;
       this.itemServicoForm.observacaoTerceirizacao = undefined;
     }
-    delete this.errosServico['idServico'];
-    delete this.errosServico['valorUnitario'];
+
+    ['idServico', 'idColaborador', 'idEmpresaTerceirizada', 'valorUnitario', 'dataInicio', 'dataFim',
+      'dataEnvioTerceirizacao', 'dataRetornoTerceirizacao', 'valorCobradoTerceirizacao'].forEach(campo => delete this.errosServico[campo]);
     this.atualizarTela();
   }
 
@@ -288,18 +305,21 @@ export class ItensOsComponent implements OnInit {
    */
   private validarItemServico(): boolean {
     this.errosServico = {};
+    const terceirizado = this.servicoSelecionadoTerceirizado();
+    const interno = this.servicoSelecionadoInterno();
+
     if (!this.itemServicoForm.idServico || Number(this.itemServicoForm.idServico) <= 0) this.errosServico['idServico'] = 'Selecione o serviço da OS.';
-    if (!this.itemServicoForm.idColaborador || Number(this.itemServicoForm.idColaborador) <= 0) this.errosServico['idColaborador'] = 'Selecione o colaborador responsável pelo serviço.';
+    if (interno && (!this.itemServicoForm.idColaborador || Number(this.itemServicoForm.idColaborador) <= 0)) this.errosServico['idColaborador'] = 'Selecione o colaborador responsável pelo serviço interno.';
     if (!numeroMaiorQueZero(this.itemServicoForm.quantidade)) this.errosServico['quantidade'] = 'A quantidade do serviço deve ser maior que zero.';
     if (!numeroNaoNegativo(this.itemServicoForm.valorUnitario)) this.errosServico['valorUnitario'] = 'O valor unitário do serviço não pode ser negativo.';
-    if (dataHoraFutura(this.itemServicoForm.dataInicio as any)) this.errosServico['dataInicio'] = 'A data de início do serviço não pode ser futura.';
-    if (dataHoraAnterior(this.itemServicoForm.dataFim as any, this.itemServicoForm.dataInicio as any)) this.errosServico['dataFim'] = 'A data de fim do serviço não pode ser anterior à data de início.';
-    if (this.servicoSelecionadoTerceirizado() && (!this.itemServicoForm.idEmpresaTerceirizada || Number(this.itemServicoForm.idEmpresaTerceirizada) <= 0)) this.errosServico['idEmpresaTerceirizada'] = 'Serviço terceirizado exige empresa terceirizada executora.';
-    if (!this.servicoSelecionadoTerceirizado() && this.itemServicoForm.idEmpresaTerceirizada) this.errosServico['idEmpresaTerceirizada'] = 'Serviço interno não deve possuir empresa terceirizada.';
-    if (dataHoraFutura(this.itemServicoForm.dataEnvioTerceirizacao as any)) this.errosServico['dataEnvioTerceirizacao'] = 'A data de envio da terceirização não pode ser futura.';
-    if (dataHoraFutura(this.itemServicoForm.dataRetornoTerceirizacao as any)) this.errosServico['dataRetornoTerceirizacao'] = 'A data de retorno da terceirização não pode ser futura.';
-    if (dataHoraAnterior(this.itemServicoForm.dataRetornoTerceirizacao as any, this.itemServicoForm.dataEnvioTerceirizacao as any)) this.errosServico['dataRetornoTerceirizacao'] = 'A data de retorno da terceirização não pode ser anterior ao envio.';
-    if (!numeroNaoNegativo(this.itemServicoForm.valorCobradoTerceirizacao)) this.errosServico['valorCobradoTerceirizacao'] = 'O valor cobrado pela terceirização não pode ser negativo.';
+
+    if (interno && dataHoraFutura(this.itemServicoForm.dataInicio as any)) this.errosServico['dataInicio'] = 'A data de início do serviço interno não pode ser futura.';
+    if (interno && dataHoraAnterior(this.itemServicoForm.dataFim as any, this.itemServicoForm.dataInicio as any)) this.errosServico['dataFim'] = 'A data de fim do serviço interno não pode ser anterior à data de início.';
+
+    if (terceirizado && (!this.itemServicoForm.idEmpresaTerceirizada || Number(this.itemServicoForm.idEmpresaTerceirizada) <= 0)) this.errosServico['idEmpresaTerceirizada'] = 'Serviço terceirizado exige empresa terceirizada executora.';
+    if (!terceirizado && this.itemServicoForm.idEmpresaTerceirizada) this.errosServico['idEmpresaTerceirizada'] = 'Serviço interno não deve possuir empresa terceirizada.';
+    if (terceirizado && dataHoraAnterior(this.itemServicoForm.dataRetornoTerceirizacao as any, this.itemServicoForm.dataEnvioTerceirizacao as any)) this.errosServico['dataRetornoTerceirizacao'] = 'A data de entrega/retorno não pode ser anterior à data de envio.';
+    if (terceirizado && !numeroNaoNegativo(this.itemServicoForm.valorCobradoTerceirizacao)) this.errosServico['valorCobradoTerceirizacao'] = 'O valor cobrado pela terceirização não pode ser negativo.';
     return Object.keys(this.errosServico).length === 0;
   }
 

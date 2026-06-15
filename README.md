@@ -2365,3 +2365,28 @@ docs/adr/ADR-068-seed-atualizada-historico-proprietarios.md
 ```
 
 Não houve alteração no modelo físico, backend, frontend, JDK, Maven ou fluxo da Ordem de Serviço.
+
+## Etapa 69 — Correção do serviço terceirizado na OS
+
+A tela **Itens da Ordem de Serviço** foi corrigida para diferenciar serviço interno e serviço terceirizado.
+
+Agora, o serviço interno continua exigindo **colaborador responsável** da oficina. Já o serviço terceirizado não exige colaborador interno, pois a execução é realizada por uma **empresa terceirizada executora**.
+
+Também foram ajustados os campos de terceirização: data de envio, data prevista de entrega/retorno e valor cobrado pela terceirizada. Essas datas podem representar previsão durante o orçamento e, por isso, podem ser futuras, desde que o retorno não seja anterior ao envio.
+
+Para bancos já existentes, execute:
+
+```text
+database/01_schema/05_alter_item_servico_colaborador_opcional_terceirizado.sql
+```
+
+Arquivos principais alterados:
+
+```text
+src/main/java/br/com/avcar/oficina/business/ordemservico/service/ItemServicoService.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/validation/ItemServicoValidation.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/model/ItemServicoModel.java
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.ts
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.html
+database/01_schema/05_alter_item_servico_colaborador_opcional_terceirizado.sql
+```

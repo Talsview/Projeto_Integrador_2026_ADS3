@@ -364,3 +364,21 @@ database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
 ```
 
 Para banco novo, basta executar o schema e depois a seed. Para banco já criado com a seed antiga, a nova seed pode ser executada novamente, pois os novos registros históricos foram protegidos com verificações `NOT EXISTS`.
+
+## Etapa 69 — Serviço terceirizado sem colaborador interno obrigatório
+
+A Etapa 69 corrigiu a regra de cadastro de serviços terceirizados na OS. Para serviço interno, o sistema continua exigindo o colaborador responsável da oficina. Para serviço terceirizado, o responsável operacional passa a ser a empresa terceirizada executora, registrada na tabela `execucao_servico_terceirizado`.
+
+Para bancos já existentes, execute antes de iniciar o backend atualizado:
+
+```text
+database/01_schema/05_alter_item_servico_colaborador_opcional_terceirizado.sql
+```
+
+Esse script altera a coluna `item_servico.id_colaborador` para aceitar `NULL`, permitindo que itens de serviço terceirizado sejam registrados sem colaborador interno. O vínculo com a empresa externa continua obrigatório para serviços terceirizados.
+
+Para banco novo, utilize diretamente:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```
