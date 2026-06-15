@@ -68,7 +68,7 @@
         <thead>
           <tr>
             <th>Serviço</th>
-            <th>Responsável</th>
+            <th>Execução / Responsável</th>
             <th>Prazo</th>
             <th>Início</th>
             <th>Fim</th>
@@ -80,7 +80,10 @@
         <tbody>
           <tr *ngFor="let g of garantiasServicos">
             <td><strong>{{ g.nomeServico }}</strong></td>
-            <td>{{ g.nomeColaboradorResponsavel || 'Não informado' }}</td>
+            <td>
+              <strong>{{ rotuloExecutorServico(g) }}</strong>
+              <br><small class="muted">{{ detalheExecutorServico(g) }}</small>
+            </td>
             <td>{{ g.prazoDias }} dias</td>
             <td>{{ g.dataInicio | date:'dd/MM/yyyy' }}</td>
             <td>{{ g.dataFim | date:'dd/MM/yyyy' }}</td>
@@ -108,6 +111,7 @@
       <div>
         <h2>{{ acaoModal === 'ACIONAR' ? 'Acionar garantia' : 'Encerrar garantia' }}</h2>
         <p class="muted">{{ tipoModal === 'PECA' ? 'Peça' : 'Serviço' }}: {{ nomeGarantiaSelecionada() }}</p>
+        <p class="muted" *ngIf="tipoModal === 'SERVICO'">{{ detalheExecutorGarantiaSelecionada() }}</p>
       </div>
       <button type="button" class="secondary" (click)="fecharModal()" [disabled]="processando">Fechar</button>
     </header>

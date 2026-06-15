@@ -10,6 +10,8 @@ export interface Servico extends BaseDTO {
   tipoServico: TipoServico;
   observacaoInterna?: string;
   observacaoTerceirizacao?: string;
+  idEmpresaTerceirizadaPadrao?: number;
+  nomeEmpresaTerceirizadaPadrao?: string;
 }
 
 export interface EmpresaTerceirizada extends BaseDTO {

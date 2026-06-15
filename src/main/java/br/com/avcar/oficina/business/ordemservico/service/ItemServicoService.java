@@ -13,6 +13,7 @@ import br.com.avcar.oficina.business.pessoa.model.ColaboradorModel;
 import br.com.avcar.oficina.business.pessoa.repository.IColaboradorRepository;
 import br.com.avcar.oficina.business.servico.model.EmpresaTerceirizadaModel;
 import br.com.avcar.oficina.business.servico.model.ServicoModel;
+import br.com.avcar.oficina.business.servico.model.ServicoTerceirizadoModel;
 import br.com.avcar.oficina.business.servico.repository.IServicoTerceirizadoRepository;
 import br.com.avcar.oficina.business.servico.service.EmpresaTerceirizadaService;
 import br.com.avcar.oficina.business.servico.service.ServicoService;
@@ -254,6 +255,12 @@ public class ItemServicoService {
             dto.setIdColaborador(null);
             dto.setDataInicio(null);
             dto.setDataFim(null);
+            ServicoTerceirizadoModel especializacao = servicoTerceirizadoRepository.findByIdAndAtivoTrue(servico.getId())
+                    .orElseThrow(() -> new RuleValidationException("Serviço terceirizado sem cadastro de empresa padrão."));
+            if (especializacao.getEmpresaTerceirizadaPadrao() == null) {
+                throw new RuleValidationException("Serviço terceirizado sem empresa padrão cadastrada.");
+            }
+            dto.setIdEmpresaTerceirizada(especializacao.getEmpresaTerceirizadaPadrao().getId());
             return;
         }
 

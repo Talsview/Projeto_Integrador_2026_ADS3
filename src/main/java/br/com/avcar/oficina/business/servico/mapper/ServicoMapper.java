@@ -2,6 +2,7 @@ package br.com.avcar.oficina.business.servico.mapper;
 
 import br.com.avcar.oficina.business.servico.dto.ServicoDTO;
 import br.com.avcar.oficina.business.servico.enums.TipoServico;
+import br.com.avcar.oficina.business.servico.model.EmpresaTerceirizadaModel;
 import br.com.avcar.oficina.business.servico.model.ServicoInternoModel;
 import br.com.avcar.oficina.business.servico.model.ServicoModel;
 import br.com.avcar.oficina.business.servico.model.ServicoTerceirizadoModel;
@@ -53,9 +54,10 @@ public class ServicoMapper {
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.
      * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
      */
-    public ServicoTerceirizadoModel toServicoTerceirizadoModel(ServicoModel servico, ServicoDTO dto) {
+    public ServicoTerceirizadoModel toServicoTerceirizadoModel(ServicoModel servico, ServicoDTO dto, EmpresaTerceirizadaModel empresaPadrao) {
         ServicoTerceirizadoModel model = new ServicoTerceirizadoModel();
         model.setServico(servico);
+        model.setEmpresaTerceirizadaPadrao(empresaPadrao);
         model.setObservacaoTerceirizacao(normalize(dto.getObservacaoTerceirizacao()));
         return model;
     }
@@ -74,8 +76,9 @@ public class ServicoMapper {
      * Função: Copia para a entidade existente apenas os campos que podem ser alterados pelo usuário.
      * Uso no sistema: evita que Controller e Service fiquem misturando regras de conversão de objetos.
      */
-    public void atualizarServicoTerceirizadoModel(ServicoTerceirizadoModel model, ServicoModel servico, ServicoDTO dto) {
+    public void atualizarServicoTerceirizadoModel(ServicoTerceirizadoModel model, ServicoModel servico, ServicoDTO dto, EmpresaTerceirizadaModel empresaPadrao) {
         model.setServico(servico);
+        model.setEmpresaTerceirizadaPadrao(empresaPadrao);
         model.setObservacaoTerceirizacao(normalize(dto.getObservacaoTerceirizacao()));
         model.setAtivo(Boolean.TRUE);
     }
@@ -109,6 +112,10 @@ public class ServicoMapper {
         if (servicoTerceirizado != null) {
             dto.setTipoServico(TipoServico.TERCEIRIZADO);
             dto.setObservacaoTerceirizacao(servicoTerceirizado.getObservacaoTerceirizacao());
+            if (servicoTerceirizado.getEmpresaTerceirizadaPadrao() != null) {
+                dto.setIdEmpresaTerceirizadaPadrao(servicoTerceirizado.getEmpresaTerceirizadaPadrao().getId());
+                dto.setNomeEmpresaTerceirizadaPadrao(servicoTerceirizado.getEmpresaTerceirizadaPadrao().getNomeEmpresa());
+            }
         }
 
         return dto;

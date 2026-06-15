@@ -165,6 +165,7 @@ export class ItensOsComponent implements OnInit {
       this.itemServicoForm.idColaborador = undefined;
       this.itemServicoForm.dataInicio = undefined;
       this.itemServicoForm.dataFim = undefined;
+      this.itemServicoForm.idEmpresaTerceirizada = Number(servico?.idEmpresaTerceirizadaPadrao ?? 0) || undefined;
     } else {
       this.itemServicoForm.idEmpresaTerceirizada = undefined;
       this.itemServicoForm.dataEnvioTerceirizacao = undefined;
@@ -230,6 +231,17 @@ export class ItensOsComponent implements OnInit {
   fornecedorPecaSelecionado(): string {
     const fornecedor = this.fornecedores.find(f => Number(f.id) === Number(this.itemPecaForm.idFornecedor));
     return fornecedor?.nomeFornecedor ?? 'Nenhum fornecedor vinculado à peça selecionada';
+  }
+
+  /**
+   * Função: informa qual empresa será usada automaticamente no serviço terceirizado.
+   * Uso no sistema: deixa claro que a empresa executora vem do cadastro do serviço, não da escolha
+   * manual de colaborador interno.
+   */
+  empresaServicoSelecionado(): string {
+    const servico = this.servicos.find(s => Number(s.id) === Number(this.itemServicoForm.idServico));
+    const empresa = this.empresas.find(e => Number(e.id) === Number(this.itemServicoForm.idEmpresaTerceirizada));
+    return empresa?.nomeEmpresa ?? servico?.nomeEmpresaTerceirizadaPadrao ?? 'Nenhuma empresa padrão cadastrada para este serviço';
   }
 
   excluirItemServico(item: ItemServico): void { if (!item.id) return; this.processando = true; this.atualizarTela(); this.itemServicoApi.excluir(item.id).pipe(switchMap(() => this.itemServicoApi.listarPorOrdemServico(this.idOrdemSelecionada)), finalize(() => { this.processando = false; this.atualizarTela(); })).subscribe({ next: itens => { this.itensServico = [...itens]; this.atualizarTela(); }, error: e => { this.erro = e.message; this.atualizarTela(); } }); }

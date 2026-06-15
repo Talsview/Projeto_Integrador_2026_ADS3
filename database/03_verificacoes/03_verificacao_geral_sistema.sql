@@ -219,22 +219,33 @@ GROUP BY os.id_ordem_servico, os.numero_os, os.valor_total
 ORDER BY os.id_ordem_servico;
 
 -- =========================================================
--- 9. Serviços por OS com colaborador responsável
+-- 9. Serviços por OS com responsável correto
+-- Serviço interno deve exibir colaborador; serviço terceirizado deve exibir empresa executora.
 -- =========================================================
 SELECT
     os.numero_os,
     s.nome_servico,
+    CASE WHEN st.id_servico IS NULL THEN 'INTERNO' ELSE 'TERCEIRIZADO' END AS tipo_servico,
     pc.nome AS colaborador_responsavel,
+    et.nome_empresa AS empresa_terceirizada_executora,
+    ep.nome_empresa AS empresa_padrao_do_servico,
     its.quantidade,
     its.valor_unitario,
     its.valor_total,
     its.data_inicio,
-    its.data_fim
+    its.data_fim,
+    ext.data_envio,
+    ext.data_retorno,
+    ext.valor_cobrado
 FROM item_servico its
 JOIN ordem_servico os ON os.id_ordem_servico = its.id_ordem_servico
 JOIN servico s ON s.id_servico = its.id_servico
-JOIN colaborador col ON col.id_colaborador = its.id_colaborador
-JOIN pessoa pc ON pc.id_pessoa = col.id_pessoa
+LEFT JOIN colaborador col ON col.id_colaborador = its.id_colaborador
+LEFT JOIN pessoa pc ON pc.id_pessoa = col.id_pessoa
+LEFT JOIN servico_terceirizado st ON st.id_servico = s.id_servico AND st.ativo = TRUE
+LEFT JOIN empresa_terceirizada ep ON ep.id_empresa_terceirizada = st.id_empresa_terceirizada_padrao
+LEFT JOIN execucao_servico_terceirizado ext ON ext.id_item_servico = its.id_item_servico AND ext.ativo = TRUE
+LEFT JOIN empresa_terceirizada et ON et.id_empresa_terceirizada = ext.id_empresa_terceirizada
 WHERE its.ativo = TRUE
 ORDER BY os.id_ordem_servico, its.id_item_servico;
 
@@ -379,6 +390,34 @@ SELECT ip.id_item_peca, os.numero_os
 FROM item_peca ip
 JOIN ordem_servico os ON os.id_ordem_servico = ip.id_ordem_servico
 WHERE ip.id_fornecedor IS NULL;
+
+-- Peça aplicada com fornecedor diferente do fornecedor padrão da peça. Deve retornar zero linhas.
+SELECT ip.id_item_peca, os.numero_os, pe.nome_peca, f_item.nome_fornecedor AS fornecedor_do_item, f_padrao.nome_fornecedor AS fornecedor_padrao_da_peca
+FROM item_peca ip
+JOIN ordem_servico os ON os.id_ordem_servico = ip.id_ordem_servico
+JOIN peca pe ON pe.id_peca = ip.id_peca
+LEFT JOIN fornecedor f_item ON f_item.id_fornecedor = ip.id_fornecedor
+LEFT JOIN fornecedor f_padrao ON f_padrao.id_fornecedor = pe.id_fornecedor_padrao
+WHERE pe.id_fornecedor_padrao IS NOT NULL
+  AND ip.id_fornecedor IS DISTINCT FROM pe.id_fornecedor_padrao;
+
+-- Serviço terceirizado sem empresa padrão cadastrada. Deve retornar zero linhas.
+SELECT s.id_servico, s.nome_servico
+FROM servico s
+JOIN servico_terceirizado st ON st.id_servico = s.id_servico AND st.ativo = TRUE
+WHERE st.id_empresa_terceirizada_padrao IS NULL;
+
+-- Item de serviço terceirizado sem execução externa ou com empresa diferente da empresa padrão. Deve retornar zero linhas.
+SELECT its.id_item_servico, os.numero_os, s.nome_servico, ep.nome_empresa AS empresa_padrao, et.nome_empresa AS empresa_do_item
+FROM item_servico its
+JOIN ordem_servico os ON os.id_ordem_servico = its.id_ordem_servico
+JOIN servico s ON s.id_servico = its.id_servico
+JOIN servico_terceirizado st ON st.id_servico = s.id_servico AND st.ativo = TRUE
+LEFT JOIN empresa_terceirizada ep ON ep.id_empresa_terceirizada = st.id_empresa_terceirizada_padrao
+LEFT JOIN execucao_servico_terceirizado ext ON ext.id_item_servico = its.id_item_servico AND ext.ativo = TRUE
+LEFT JOIN empresa_terceirizada et ON et.id_empresa_terceirizada = ext.id_empresa_terceirizada
+WHERE its.ativo = TRUE
+  AND (ext.id_execucao_servico_terceirizado IS NULL OR ext.id_empresa_terceirizada IS DISTINCT FROM st.id_empresa_terceirizada_padrao);
 
 -- Verificação Etapa 57: auditoria persistente das notificações do Decorator.
 SELECT 'notificacao_auditoria' AS tabela, COUNT(*) AS total_registros FROM notificacao_auditoria;

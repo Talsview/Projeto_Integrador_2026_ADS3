@@ -110,12 +110,6 @@ WHERE nome_servico IN (
 )
 ON CONFLICT (id_servico) DO NOTHING;
 
-INSERT INTO servico_terceirizado (id_servico, observacao_terceirizacao)
-SELECT id_servico, 'Serviço encaminhado a empresa parceira; a oficina mantém responsabilidade perante o cliente.'
-FROM servico
-WHERE nome_servico IN ('Funilaria terceirizada', 'Pintura terceirizada', 'Retífica terceirizada')
-ON CONFLICT (id_servico) DO NOTHING;
-
 -- =========================================================
 -- 5. Empresas terceirizadas
 -- CNPJs válidos para testes acadêmicos.
@@ -131,6 +125,20 @@ WHERE NOT EXISTS (SELECT 1 FROM empresa_terceirizada WHERE cnpj = '45.997.418/00
 INSERT INTO empresa_terceirizada (nome_empresa, cnpj, telefone, email, endereco)
 SELECT 'Ar Gelado Auto Service', '19.354.200/0001-70', '(62) 3300-1102', 'argelado@exemplo.com', 'Goiânia-GO'
 WHERE NOT EXISTS (SELECT 1 FROM empresa_terceirizada WHERE cnpj = '19.354.200/0001-70');
+
+INSERT INTO servico_terceirizado (id_servico, id_empresa_terceirizada_padrao, observacao_terceirizacao)
+SELECT s.id_servico,
+       CASE
+           WHEN s.nome_servico = 'Retífica terceirizada' THEN (SELECT id_empresa_terceirizada FROM empresa_terceirizada WHERE cnpj = '45.997.418/0001-53')
+           ELSE (SELECT id_empresa_terceirizada FROM empresa_terceirizada WHERE cnpj = '11.222.333/0001-81')
+       END,
+       'Serviço encaminhado a empresa parceira; a oficina mantém responsabilidade perante o cliente.'
+FROM servico s
+WHERE s.nome_servico IN ('Funilaria terceirizada', 'Pintura terceirizada', 'Retífica terceirizada')
+ON CONFLICT (id_servico) DO UPDATE
+   SET id_empresa_terceirizada_padrao = EXCLUDED.id_empresa_terceirizada_padrao,
+       observacao_terceirizacao = EXCLUDED.observacao_terceirizacao,
+       ativo = TRUE;
 
 -- =========================================================
 -- 6. Fornecedores e peças
@@ -489,7 +497,7 @@ WHERE p.email = 'maria.souza@exemplo.com'
 -- 10. Ordens de Serviço de demonstração
 -- =========================================================
 INSERT INTO ordem_servico (id_cliente, id_veiculo, numero_os, data_abertura, prioridade, valor_total, observacao)
-SELECT c.id_cliente, v.id_veiculo, '1', CURRENT_TIMESTAMP - INTERVAL '5 days', 'NORMAL', 340.00, 'OS em orçamento para revisão simples.'
+SELECT c.id_cliente, v.id_veiculo, '1', CURRENT_TIMESTAMP - INTERVAL '5 days', 'NORMAL', 840.00, 'OS em orçamento para revisão simples com serviço terceirizado previsto.'
 FROM cliente c JOIN pessoa p ON p.id_pessoa = c.id_pessoa JOIN veiculo v ON v.placa = 'ACC1234'
 WHERE p.email = 'daviconcyline@gmail.com'
 ON CONFLICT (numero_os) DO NOTHING;
@@ -554,6 +562,30 @@ JOIN colaborador col ON col.id_pessoa = (SELECT id_pessoa FROM pessoa WHERE emai
 WHERE os.numero_os = '1'
   AND NOT EXISTS (SELECT 1 FROM item_servico i WHERE i.id_ordem_servico = os.id_ordem_servico AND i.id_servico = s.id_servico);
 
+
+-- Serviço terceirizado em OS de orçamento: não possui colaborador interno e usa empresa padrão do serviço.
+INSERT INTO item_servico (id_ordem_servico, id_servico, id_colaborador, descricao_execucao, quantidade, valor_unitario, valor_total)
+SELECT os.id_ordem_servico, s.id_servico, NULL, 'Funilaria terceirizada prevista; empresa preenchida pelo cadastro do serviço.', 1, 500.00, 500.00
+FROM ordem_servico os
+JOIN servico s ON s.nome_servico = 'Funilaria terceirizada'
+WHERE os.numero_os = '1'
+  AND NOT EXISTS (SELECT 1 FROM item_servico i WHERE i.id_ordem_servico = os.id_ordem_servico AND i.id_servico = s.id_servico);
+
+INSERT INTO execucao_servico_terceirizado (id_item_servico, id_empresa_terceirizada, data_envio, data_retorno, valor_cobrado, observacao)
+SELECT its.id_item_servico,
+       st.id_empresa_terceirizada_padrao,
+       os.data_abertura + INTERVAL '1 day',
+       os.data_abertura + INTERVAL '4 days',
+       350.00,
+       'Execução terceirizada gerada pelo seed usando empresa padrão do serviço.'
+FROM item_servico its
+JOIN ordem_servico os ON os.id_ordem_servico = its.id_ordem_servico
+JOIN servico s ON s.id_servico = its.id_servico
+JOIN servico_terceirizado st ON st.id_servico = s.id_servico
+WHERE os.numero_os = '1'
+  AND s.nome_servico = 'Funilaria terceirizada'
+  AND NOT EXISTS (SELECT 1 FROM execucao_servico_terceirizado ext WHERE ext.id_item_servico = its.id_item_servico);
+
 INSERT INTO item_servico (id_ordem_servico, id_servico, id_colaborador, descricao_execucao, quantidade, valor_unitario, valor_total, data_inicio)
 SELECT os.id_ordem_servico, s.id_servico, col.id_colaborador, 'Serviços mecânicos gerais.', 1, 180.00, 180.00, os.data_abertura + INTERVAL '1 day'
 FROM ordem_servico os
@@ -564,26 +596,34 @@ WHERE os.numero_os = '2'
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 1, 40.00, 40.00, 'Peça aplicada conforme orçamento.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '2' AND pe.codigo_nacional = 'FCA0125' AND f.cnpj = '11.222.333/0001-81'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'FCA0125'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '2'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 1, 58.00, 58.00, 'Peça aplicada conforme orçamento.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '2' AND pe.codigo_nacional = 'ART8826' AND f.cnpj = '11.222.333/0001-81'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'ART8826'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '2'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 5, 55.00, 275.00, 'Lubrificante aplicado conforme especificação.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '2' AND pe.codigo_nacional = 'OLEO5W30' AND f.cnpj = '19.354.200/0001-70'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'OLEO5W30'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '2'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 1, 40.00, 40.00, 'Filtro aplicado conforme orçamento.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '2' AND pe.codigo_nacional = 'FOL0113' AND f.cnpj = '45.997.418/0001-53'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'FOL0113'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '2'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_servico (id_ordem_servico, id_servico, id_colaborador, descricao_execucao, quantidade, valor_unitario, valor_total, data_inicio)
@@ -596,20 +636,26 @@ WHERE os.numero_os = '3'
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 3, 55.00, 165.00, 'Óleo 5W30 usado na manutenção.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '3' AND pe.codigo_nacional = 'OLEO5W30' AND f.cnpj = '19.354.200/0001-70'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'OLEO5W30'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '3'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 1, 40.00, 40.00, 'Filtro de óleo usado na manutenção.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '3' AND pe.codigo_nacional = 'FOL0113' AND f.cnpj = '45.997.418/0001-53'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'FOL0113'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '3'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 1, 166.00, 166.00, 'Peça complementar conforme orçamento.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '3' AND pe.codigo_nacional = 'CORREIAMICROV' AND f.cnpj = '11.222.333/0001-81'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'CORREIAMICROV'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '3'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_servico (id_ordem_servico, id_servico, id_colaborador, descricao_execucao, quantidade, valor_unitario, valor_total, data_inicio, data_fim)
@@ -622,8 +668,10 @@ WHERE os.numero_os = '4'
 
 INSERT INTO item_peca (id_ordem_servico, id_peca, id_fornecedor, quantidade, valor_unitario, valor_total, observacao)
 SELECT os.id_ordem_servico, pe.id_peca, f.id_fornecedor, 1, 460.00, 460.00, 'Peça aplicada em OS finalizada.'
-FROM ordem_servico os, peca pe, fornecedor f
-WHERE os.numero_os = '4' AND pe.codigo_nacional = 'RADIADOR522201' AND f.cnpj = '45.997.418/0001-53'
+FROM ordem_servico os
+JOIN peca pe ON pe.codigo_nacional = 'RADIADOR522201'
+JOIN fornecedor f ON f.id_fornecedor = pe.id_fornecedor_padrao
+WHERE os.numero_os = '4'
   AND NOT EXISTS (SELECT 1 FROM item_peca ip WHERE ip.id_ordem_servico = os.id_ordem_servico AND ip.id_peca = pe.id_peca);
 
 INSERT INTO item_servico (id_ordem_servico, id_servico, id_colaborador, descricao_execucao, quantidade, valor_unitario, valor_total, data_inicio, data_fim)

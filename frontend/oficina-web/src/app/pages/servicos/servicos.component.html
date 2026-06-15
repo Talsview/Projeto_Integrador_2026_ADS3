@@ -10,12 +10,22 @@
     <h2>{{ form.id ? 'Editar serviço' : 'Novo serviço' }}</h2>
     <div class="form-row">
       <div><label>Nome do serviço</label><input [(ngModel)]="form.nomeServico" placeholder="Ex.: Alinhamento, troca de óleo"></div>
-      <div><label>Tipo</label><select [(ngModel)]="form.tipoServico"><option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option></select></div>
+      <div><label>Tipo</label><select [(ngModel)]="form.tipoServico" (ngModelChange)="aoAlterarTipoServico()"><option *ngFor="let tipo of tipos" [value]="tipo">{{ tipo }}</option></select></div>
       <div><label>Valor base</label><input type="number" [(ngModel)]="form.valorBase"></div>
       <div><label>Garantia em dias</label><input type="number" [(ngModel)]="form.prazoGarantiaDias"></div>
     </div>
     <label>Descrição</label><textarea rows="3" [(ngModel)]="form.descricao"></textarea>
     <label *ngIf="form.tipoServico === 'INTERNO'">Observação interna</label><textarea *ngIf="form.tipoServico === 'INTERNO'" rows="2" [(ngModel)]="form.observacaoInterna"></textarea>
+    <div *ngIf="form.tipoServico === 'TERCEIRIZADO'" class="form-row" style="margin-top: 12px;">
+      <div>
+        <label>Empresa terceirizada padrão</label>
+        <select [(ngModel)]="form.idEmpresaTerceirizadaPadrao">
+          <option [ngValue]="undefined">Selecione</option>
+          <option *ngFor="let empresa of empresas" [ngValue]="empresa.id">{{ empresa.nomeEmpresa }}</option>
+        </select>
+        <small class="field-hint">Esta empresa será preenchida automaticamente quando o serviço for usado na OS.</small>
+      </div>
+    </div>
     <label *ngIf="form.tipoServico === 'TERCEIRIZADO'">Observação sobre terceirização</label><textarea *ngIf="form.tipoServico === 'TERCEIRIZADO'" rows="2" [(ngModel)]="form.observacaoTerceirizacao"></textarea>
     <div class="actions" style="margin-top: 14px;"><button (click)="salvar()" [disabled]="processando">{{ processando ? 'Processando...' : 'Salvar' }}</button><button class="secondary" (click)="limpar()" [disabled]="processando">Limpar</button></div>
     <p class="alert" *ngIf="mensagem">{{ mensagem }}</p><p class="alert error" *ngIf="erro">{{ erro }}</p>
@@ -25,9 +35,9 @@
     <h2>Consulta</h2>
     <div class="actions"><input [(ngModel)]="termo" placeholder="Pesquisar serviço" (keyup.enter)="pesquisar()"><button (click)="pesquisar()">Pesquisar</button><button class="secondary" (click)="listar()">Listar</button></div>
     <p *ngIf="carregando">Carregando serviços...</p>
-    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Serviço</th><th>Tipo</th><th>Garantia</th><th>Valor</th><th class="actions-col">Ações</th></tr></thead><tbody>
-      <tr *ngFor="let servico of servicos"><td>{{ servico.id }}</td><td>{{ servico.nomeServico }}</td><td><span class="badge">{{ servico.tipoServico }}</span></td><td>{{ servico.prazoGarantiaDias }} dias</td><td>{{ servico.valorBase | currency:'BRL' }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editar(servico)">Editar</button><button class="danger" (click)="excluir(servico)" [disabled]="processando">Inativar</button></td></tr>
-      <tr *ngIf="!servicos.length && !carregando"><td colspan="6">Nenhum serviço encontrado.</td></tr>
+    <div class="table-wrap cadastro-table-wrap" style="margin-top: 14px;"><table class="cadastro-table"><thead><tr><th>ID</th><th>Serviço</th><th>Tipo</th><th>Empresa padrão</th><th>Garantia</th><th>Valor</th><th class="actions-col">Ações</th></tr></thead><tbody>
+      <tr *ngFor="let servico of servicos"><td>{{ servico.id }}</td><td>{{ servico.nomeServico }}</td><td><span class="badge">{{ servico.tipoServico }}</span></td><td>{{ servico.tipoServico === 'TERCEIRIZADO' ? (servico.nomeEmpresaTerceirizadaPadrao || '-') : '-' }}</td><td>{{ servico.prazoGarantiaDias }} dias</td><td>{{ servico.valorBase | currency:'BRL' }}</td><td class="actions row-actions actions-sticky"><button class="secondary" (click)="editar(servico)">Editar</button><button class="danger" (click)="excluir(servico)" [disabled]="processando">Inativar</button></td></tr>
+      <tr *ngIf="!servicos.length && !carregando"><td colspan="7">Nenhum serviço encontrado.</td></tr>
     </tbody></table></div>
   </section>
 </div>

@@ -3,6 +3,7 @@ package br.com.avcar.oficina.business.servico.service;
 import br.com.avcar.oficina.business.servico.dto.ServicoDTO;
 import br.com.avcar.oficina.business.servico.enums.TipoServico;
 import br.com.avcar.oficina.business.servico.mapper.ServicoMapper;
+import br.com.avcar.oficina.business.servico.model.EmpresaTerceirizadaModel;
 import br.com.avcar.oficina.business.servico.model.ServicoInternoModel;
 import br.com.avcar.oficina.business.servico.model.ServicoModel;
 import br.com.avcar.oficina.business.servico.model.ServicoTerceirizadoModel;
@@ -33,6 +34,7 @@ public class ServicoService {
     private final IServicoTerceirizadoRepository servicoTerceirizadoRepository;
     private final ServicoValidation validation;
     private final ServicoMapper mapper;
+    private final EmpresaTerceirizadaService empresaTerceirizadaService;
 
     /**
      * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
@@ -43,12 +45,14 @@ public class ServicoService {
                           IServicoInternoRepository servicoInternoRepository,
                           IServicoTerceirizadoRepository servicoTerceirizadoRepository,
                           ServicoValidation validation,
-                          ServicoMapper mapper) {
+                          ServicoMapper mapper,
+                          EmpresaTerceirizadaService empresaTerceirizadaService) {
         this.servicoRepository = servicoRepository;
         this.servicoInternoRepository = servicoInternoRepository;
         this.servicoTerceirizadoRepository = servicoTerceirizadoRepository;
         this.validation = validation;
         this.mapper = mapper;
+        this.empresaTerceirizadaService = empresaTerceirizadaService;
     }
 
     @Transactional
@@ -224,7 +228,8 @@ public class ServicoService {
             servicoInternoRepository.save(mapper.toServicoInternoModel(servico, dto));
             return;
         }
-        servicoTerceirizadoRepository.save(mapper.toServicoTerceirizadoModel(servico, dto));
+        EmpresaTerceirizadaModel empresaPadrao = empresaTerceirizadaService.buscarModelAtivo(dto.getIdEmpresaTerceirizadaPadrao());
+        servicoTerceirizadoRepository.save(mapper.toServicoTerceirizadoModel(servico, dto, empresaPadrao));
     }
 
     /**
@@ -246,7 +251,8 @@ public class ServicoService {
         inativarEspecializacaoInterna(servico.getId());
         ServicoTerceirizadoModel terceirizado = servicoTerceirizadoRepository.findById(servico.getId())
                 .orElseGet(ServicoTerceirizadoModel::new);
-        mapper.atualizarServicoTerceirizadoModel(terceirizado, servico, dto);
+        EmpresaTerceirizadaModel empresaPadrao = empresaTerceirizadaService.buscarModelAtivo(dto.getIdEmpresaTerceirizadaPadrao());
+        mapper.atualizarServicoTerceirizadoModel(terceirizado, servico, dto, empresaPadrao);
         servicoTerceirizadoRepository.save(terceirizado);
     }
 

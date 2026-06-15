@@ -80,6 +80,10 @@ public class ServicoValidation {
         if (dto.getTipoServico() == null) {
             throw new FieldValidationException("O tipo do serviço é obrigatório: INTERNO ou TERCEIRIZADO.");
         }
+        if ("TERCEIRIZADO".equals(dto.getTipoServico().name())
+                && (dto.getIdEmpresaTerceirizadaPadrao() == null || dto.getIdEmpresaTerceirizadaPadrao() <= 0)) {
+            throw new FieldValidationException("Serviço terceirizado deve possuir empresa terceirizada padrão cadastrada.");
+        }
         if (dto.getPrazoGarantiaDias() == null || dto.getPrazoGarantiaDias() < 0) {
             throw new FieldValidationException("O prazo de garantia do serviço deve ser maior ou igual a zero.");
         }

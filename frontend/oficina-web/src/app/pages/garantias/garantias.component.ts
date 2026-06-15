@@ -190,6 +190,42 @@ export class GarantiasComponent implements OnInit {
   }
 
   /**
+   * Função: apresenta quem executou o serviço que gerou a garantia.
+   * Uso no sistema: se o serviço for interno, mostra o colaborador da oficina; se for
+   * terceirizado, mostra a empresa externa responsável pela execução.
+   */
+  rotuloExecutorServico(g: GarantiaServico): string {
+    if (g.tipoExecucaoServico === 'TERCEIRIZADO') {
+      return g.nomeEmpresaTerceirizada || 'Empresa terceirizada não informada';
+    }
+    return g.nomeColaboradorResponsavel || 'Colaborador não informado';
+  }
+
+  /**
+   * Função: detalha o tipo de execução vinculado à garantia de serviço.
+   * Uso no sistema: deixa claro na tela de garantias se a responsabilidade operacional
+   * veio de um colaborador interno ou de uma empresa terceirizada.
+   */
+  detalheExecutorServico(g: GarantiaServico): string {
+    if (g.tipoExecucaoServico === 'TERCEIRIZADO') {
+      const envio = g.dataEnvioTerceirizacao ? `Envio: ${this.formatarDataSimples(g.dataEnvioTerceirizacao)}` : 'Envio não informado';
+      const retorno = g.dataRetornoTerceirizacao ? `Retorno: ${this.formatarDataSimples(g.dataRetornoTerceirizacao)}` : 'Retorno não informado';
+      return `Terceirizado — ${envio} — ${retorno}`;
+    }
+    return 'Interno — colaborador da oficina';
+  }
+
+  /**
+   * Função: monta o texto de executor para o modal da garantia selecionada.
+   * Uso no sistema: reforça, antes de acionar ou encerrar a garantia, quem executou o serviço original.
+   */
+  detalheExecutorGarantiaSelecionada(): string {
+    if (!this.garantiaSelecionada || this.tipoModal !== 'SERVICO') return '';
+    const garantia = this.garantiaSelecionada as GarantiaServico;
+    return `Execução: ${this.rotuloExecutorServico(garantia)} (${this.detalheExecutorServico(garantia)})`;
+  }
+
+  /**
    * Função: Controla na tela a etapa classe status.
    * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
    */
@@ -294,6 +330,13 @@ export class GarantiasComponent implements OnInit {
    * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
    */
   private dataHoje(): string { return new Date().toISOString().substring(0, 10); }
+
+  private formatarDataSimples(valor?: string): string {
+    if (!valor) return '-';
+    const data = valor.substring(0, 10).split('-');
+    return data.length === 3 ? `${data[2]}/${data[1]}/${data[0]}` : valor;
+  }
+
   private valorTexto(value?: string): boolean { return !!value && value.trim().length > 0; }
   /**
    * Função: Controla na tela a etapa atualizar tela.

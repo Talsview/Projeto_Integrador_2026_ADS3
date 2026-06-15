@@ -2,15 +2,17 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { InativosPanelComponent } from '../../shared/components/inativos-panel/inativos-panel.component';
-import { finalize, switchMap } from 'rxjs';
+import { finalize, forkJoin, switchMap } from 'rxjs';
+import { EmpresaTerceirizadaApiService } from '../../core/services/empresa-terceirizada-api.service';
 import { ServicoApiService } from '../../core/services/servico-api.service';
 import { numeroNaoNegativo, textoCadastroValido } from '../../core/validation/field-validation';
-import { Servico, TipoServico } from '../../models/servico.model';
+import { EmpresaTerceirizada, Servico, TipoServico } from '../../models/servico.model';
 
 @Component({ selector: 'app-servicos', standalone: true, imports: [CommonModule, FormsModule, InativosPanelComponent], templateUrl: './servicos.component.html' })
 export class ServicosComponent implements OnInit {
   servicos: Servico[] = [];
   servicosInativos: Servico[] = [];
+  empresas: EmpresaTerceirizada[] = [];
   mostrarInativos = false;
   carregandoInativos = false;
   termo = '';
@@ -26,12 +28,35 @@ export class ServicosComponent implements OnInit {
    * de navegação.
    * Uso no sistema: permite que o Angular injete dependências sem criação manual dentro dos métodos.
    */
-  constructor(private readonly servicoApi: ServicoApiService, private readonly cdr: ChangeDetectorRef) {}
+  constructor(
+    private readonly servicoApi: ServicoApiService,
+    private readonly empresaApi: EmpresaTerceirizadaApiService,
+    private readonly cdr: ChangeDetectorRef
+  ) {}
   /**
    * Função: Inicializa a tela carregando listas, filtros e dados necessários para o primeiro uso.
    * Uso no sistema: prepara o estado visual antes da interação do usuário.
    */
-  ngOnInit(): void { this.listar(); }
+  ngOnInit(): void { this.carregarDadosIniciais(); }
+
+
+  /**
+   * Função: carrega serviços e empresas terceirizadas usadas no cadastro.
+   * Uso no sistema: permite que serviço terceirizado tenha uma empresa padrão cadastrada, que será
+   * preenchida automaticamente quando o serviço for usado na Ordem de Serviço.
+   */
+  carregarDadosIniciais(): void {
+    this.carregando = true;
+    this.erro = undefined;
+    this.atualizarTela();
+    forkJoin({
+      servicos: this.servicoApi.listar(),
+      empresas: this.empresaApi.listar()
+    }).pipe(finalize(() => { this.carregando = false; this.atualizarTela(); })).subscribe({
+      next: r => { this.servicos = [...r.servicos]; this.empresas = [...r.empresas]; this.atualizarTela(); },
+      error: e => { this.erro = e.message ?? 'Não foi possível carregar os serviços.'; this.atualizarTela(); }
+    });
+  }
 
   listar(): void {
     this.carregando = true; this.erro = undefined; this.atualizarTela();
@@ -88,6 +113,21 @@ export class ServicosComponent implements OnInit {
   }
 
   limpar(): void { this.form = this.formularioInicial(); this.atualizarTela(); }
+
+  /**
+   * Função: ajusta os campos específicos quando o tipo do serviço muda.
+   * Uso no sistema: serviço interno não possui empresa terceirizada padrão; serviço terceirizado
+   * precisa da empresa parceira cadastrada para ser preenchida automaticamente na OS.
+   */
+  aoAlterarTipoServico(): void {
+    if (this.form.tipoServico === 'INTERNO') {
+      this.form.idEmpresaTerceirizadaPadrao = undefined;
+      this.form.observacaoTerceirizacao = '';
+    } else {
+      this.form.observacaoInterna = '';
+    }
+    this.atualizarTela();
+  }
   /**
    * Função: Controla na tela a etapa validar formulario.
    * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
@@ -95,6 +135,7 @@ export class ServicosComponent implements OnInit {
   private validarFormulario(): string | undefined {
     if (!textoCadastroValido(this.form.nomeServico, true)) return 'Informe um nome de serviço válido.';
     if (!this.form.tipoServico) return 'Selecione o tipo do serviço.';
+    if (this.form.tipoServico === 'TERCEIRIZADO' && (!this.form.idEmpresaTerceirizadaPadrao || Number(this.form.idEmpresaTerceirizadaPadrao) <= 0)) return 'Selecione a empresa terceirizada padrão do serviço.';
     if (!numeroNaoNegativo(this.form.valorBase)) return 'O valor base do serviço não pode ser negativo.';
     if (!numeroNaoNegativo(this.form.prazoGarantiaDias)) return 'O prazo de garantia não pode ser negativo.';
     return undefined;
@@ -104,7 +145,7 @@ export class ServicosComponent implements OnInit {
    * Função: Controla na tela a etapa formulario inicial.
    * Uso no sistema: mantém a regra visual separada da regra de negócio executada pelo backend.
    */
-  private formularioInicial(): Servico { return { nomeServico: '', descricao: '', prazoGarantiaDias: 90, valorBase: 0, tipoServico: 'INTERNO', observacaoInterna: '', observacaoTerceirizacao: '' }; }
+  private formularioInicial(): Servico { return { nomeServico: '', descricao: '', prazoGarantiaDias: 90, valorBase: 0, tipoServico: 'INTERNO', observacaoInterna: '', observacaoTerceirizacao: '', idEmpresaTerceirizadaPadrao: undefined }; }
 
   /**
    * Função: Controla na tela a etapa abrir inativos.

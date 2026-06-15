@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.garantia.dto.GarantiaServicoDTO;
 import br.com.avcar.oficina.business.garantia.enums.StatusGarantia;
 import br.com.avcar.oficina.business.garantia.model.GarantiaServicoModel;
 import br.com.avcar.oficina.business.ordemservico.model.ItemServicoModel;
+import br.com.avcar.oficina.business.ordemservico.model.ExecucaoServicoTerceirizadoModel;
+import br.com.avcar.oficina.business.ordemservico.repository.IExecucaoServicoTerceirizadoRepository;
 import org.springframework.stereotype.Component;
 
 /**
@@ -11,6 +13,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class GarantiaServicoMapper {
+
+    private final IExecucaoServicoTerceirizadoRepository execucaoRepository;
+
+    /**
+     * Função: recebe o repositório de execução terceirizada utilizado para complementar
+     * a garantia de serviço com a empresa que realmente executou o trabalho externo.
+     * Uso no sistema: permite que a tela de garantias mostre colaborador para serviço
+     * interno e empresa terceirizada para serviço externo, preservando rastreabilidade.
+     */
+    public GarantiaServicoMapper(IExecucaoServicoTerceirizadoRepository execucaoRepository) {
+        this.execucaoRepository = execucaoRepository;
+    }
 
     /**
      * Função: Mapeia dados entre camadas durante a operação criar aguardando finalizacao.
@@ -64,13 +78,34 @@ public class GarantiaServicoMapper {
                 dto.setNomeServico(item.getServico().getNomeServico());
             }
             if (item.getColaborador() != null) {
+                dto.setTipoExecucaoServico("INTERNO");
                 dto.setIdColaborador(item.getColaborador().getId());
                 if (item.getColaborador().getPessoa() != null) {
                     dto.setNomeColaboradorResponsavel(item.getColaborador().getPessoa().getNome());
                 }
             }
+
+            execucaoRepository.findByItemServicoIdAndAtivoTrue(item.getId()).ifPresent(execucao -> preencherExecucaoTerceirizada(dto, execucao));
+
+            if (dto.getTipoExecucaoServico() == null) {
+                dto.setTipoExecucaoServico(item.getColaborador() == null ? "TERCEIRIZADO" : "INTERNO");
+            }
         }
         return dto;
+    }
+
+    /**
+     * Função: preenche no DTO os dados da empresa terceirizada que executou o serviço.
+     * Uso no sistema: quando a garantia é de serviço terceirizado, o responsável exibido
+     * não é um colaborador interno, mas a empresa externa registrada na OS.
+     */
+    private void preencherExecucaoTerceirizada(GarantiaServicoDTO dto, ExecucaoServicoTerceirizadoModel execucao) {
+        dto.setTipoExecucaoServico("TERCEIRIZADO");
+        dto.setIdEmpresaTerceirizada(execucao.getEmpresaTerceirizada() != null ? execucao.getEmpresaTerceirizada().getId() : null);
+        dto.setNomeEmpresaTerceirizada(execucao.getEmpresaTerceirizada() != null ? execucao.getEmpresaTerceirizada().getNomeEmpresa() : null);
+        dto.setDataEnvioTerceirizacao(execucao.getDataEnvio());
+        dto.setDataRetornoTerceirizacao(execucao.getDataRetorno());
+        dto.setValorCobradoTerceirizacao(execucao.getValorCobrado());
     }
 
     /**

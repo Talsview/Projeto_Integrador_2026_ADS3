@@ -211,15 +211,6 @@ CREATE TABLE IF NOT EXISTS servico_interno (
     CONSTRAINT fk_servico_interno_servico FOREIGN KEY (id_servico) REFERENCES servico(id_servico)
 );
 
-CREATE TABLE IF NOT EXISTS servico_terceirizado (
-    id_servico BIGINT PRIMARY KEY,
-    observacao_terceirizacao TEXT,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    data_hora_atualizacao TIMESTAMP,
-    CONSTRAINT fk_servico_terceirizado_servico FOREIGN KEY (id_servico) REFERENCES servico(id_servico)
-);
-
 CREATE TABLE IF NOT EXISTS empresa_terceirizada (
     id_empresa_terceirizada BIGSERIAL PRIMARY KEY,
     nome_empresa VARCHAR(180) NOT NULL,
@@ -230,6 +221,17 @@ CREATE TABLE IF NOT EXISTS empresa_terceirizada (
     ativo BOOLEAN NOT NULL DEFAULT TRUE,
     data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     data_hora_atualizacao TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS servico_terceirizado (
+    id_servico BIGINT PRIMARY KEY,
+    id_empresa_terceirizada_padrao BIGINT NOT NULL,
+    observacao_terceirizacao TEXT,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_hora_atualizacao TIMESTAMP,
+    CONSTRAINT fk_servico_terceirizado_servico FOREIGN KEY (id_servico) REFERENCES servico(id_servico),
+    CONSTRAINT fk_servico_terceirizado_empresa_padrao FOREIGN KEY (id_empresa_terceirizada_padrao) REFERENCES empresa_terceirizada(id_empresa_terceirizada)
 );
 
 CREATE TABLE IF NOT EXISTS item_servico (
@@ -294,7 +296,7 @@ CREATE TABLE IF NOT EXISTS peca (
     modelo_aplicavel VARCHAR(100),
     ano_veiculo INTEGER,
     ano_modelo INTEGER,
-    id_fornecedor_padrao BIGINT,
+    id_fornecedor_padrao BIGINT NOT NULL,
     valor_unitario_padrao NUMERIC(12,2) NOT NULL DEFAULT 0,
     prazo_garantia_dias INTEGER NOT NULL DEFAULT 90,
     descricao TEXT,

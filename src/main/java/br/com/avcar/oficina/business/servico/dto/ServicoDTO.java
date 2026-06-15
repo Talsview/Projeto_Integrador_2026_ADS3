@@ -20,4 +20,6 @@ public class ServicoDTO extends BaseDTO {
     private TipoServico tipoServico;
     private String observacaoInterna;
     private String observacaoTerceirizacao;
+    private Long idEmpresaTerceirizadaPadrao;
+    private String nomeEmpresaTerceirizadaPadrao;
 }

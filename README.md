@@ -2390,3 +2390,37 @@ frontend/oficina-web/src/app/pages/itens-os/itens-os.component.ts
 frontend/oficina-web/src/app/pages/itens-os/itens-os.component.html
 database/01_schema/05_alter_item_servico_colaborador_opcional_terceirizado.sql
 ```
+
+## Etapa 70 — Seed, empresa padrão do serviço terceirizado e fornecedor automático da peça
+
+A seed do banco foi atualizada para a versão atual das regras de Serviços e Peças na Ordem de Serviço.
+
+Agora, o cadastro de **Serviço Terceirizado** possui uma **empresa terceirizada padrão**. Ao selecionar esse serviço na tela de Itens da OS, a empresa é preenchida automaticamente e não depende de escolha manual no orçamento. O backend também reforça essa regra, substituindo qualquer empresa enviada manualmente pela empresa padrão cadastrada no serviço.
+
+A regra das peças também foi reforçada: toda peça deve possuir **fornecedor padrão** e, ao selecionar a peça na OS, o fornecedor é preenchido automaticamente a partir do cadastro da peça. O backend força o item de peça a usar o fornecedor padrão, preservando a rastreabilidade entre peça, fornecedor e garantia.
+
+Para bancos já existentes, execute:
+
+```text
+database/01_schema/06_alter_servico_terceirizado_empresa_padrao.sql
+```
+
+Arquivos principais alterados:
+
+```text
+database/02_seed/02_seed_inicial.sql
+database/03_verificacoes/03_verificacao_geral_sistema.sql
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+frontend/oficina-web/src/app/pages/servicos/servicos.component.ts
+frontend/oficina-web/src/app/pages/servicos/servicos.component.html
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.ts
+frontend/oficina-web/src/app/pages/itens-os/itens-os.component.html
+src/main/java/br/com/avcar/oficina/business/servico/model/ServicoTerceirizadoModel.java
+src/main/java/br/com/avcar/oficina/business/servico/service/ServicoService.java
+src/main/java/br/com/avcar/oficina/business/ordemservico/service/ItemServicoService.java
+src/main/java/br/com/avcar/oficina/business/peca/service/ItemPecaService.java
+```
+
+## Etapa 71 — Garantia de serviço com executor correto
+
+A tela de garantias foi ajustada para diferenciar o executor original do serviço. Serviços internos exibem o colaborador responsável da oficina. Serviços terceirizados exibem a empresa terceirizada que executou o serviço, com dados de envio e retorno quando cadastrados.

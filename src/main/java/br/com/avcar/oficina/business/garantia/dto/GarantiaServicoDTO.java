@@ -19,6 +19,12 @@ public class GarantiaServicoDTO extends BaseDTO {
     private String nomeServico;
     private Long idColaborador;
     private String nomeColaboradorResponsavel;
+    private String tipoExecucaoServico;
+    private Long idEmpresaTerceirizada;
+    private String nomeEmpresaTerceirizada;
+    private java.time.LocalDateTime dataEnvioTerceirizacao;
+    private java.time.LocalDateTime dataRetornoTerceirizacao;
+    private java.math.BigDecimal valorCobradoTerceirizacao;
     private Integer prazoDias;
     private LocalDate dataInicio;
     private LocalDate dataFim;

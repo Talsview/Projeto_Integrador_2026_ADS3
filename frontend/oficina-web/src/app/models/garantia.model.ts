@@ -34,6 +34,12 @@ export interface GarantiaServico extends BaseDTO {
   nomeServico?: string;
   idColaborador?: number;
   nomeColaboradorResponsavel?: string;
+  tipoExecucaoServico?: 'INTERNO' | 'TERCEIRIZADO';
+  idEmpresaTerceirizada?: number;
+  nomeEmpresaTerceirizada?: string;
+  dataEnvioTerceirizacao?: string;
+  dataRetornoTerceirizacao?: string;
+  valorCobradoTerceirizacao?: number;
   prazoDias?: number;
   dataInicio?: string;
   dataFim?: string;

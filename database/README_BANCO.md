@@ -382,3 +382,26 @@ Para banco novo, utilize diretamente:
 ```text
 database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
 ```
+
+## Etapa 70 — Seed e vínculos automáticos de serviço terceirizado e peça
+
+A seed foi atualizada para refletir a regra atual do sistema:
+
+```text
+- serviço terceirizado possui empresa terceirizada padrão no próprio cadastro do serviço;
+- ao selecionar o serviço terceirizado na OS, a empresa é preenchida automaticamente;
+- peça possui fornecedor padrão obrigatório no cadastro da peça;
+- ao selecionar a peça na OS, o fornecedor é preenchido automaticamente e não deve ser trocado manualmente.
+```
+
+Para bancos já criados antes desta etapa, execute também:
+
+```text
+database/01_schema/06_alter_servico_terceirizado_empresa_padrao.sql
+```
+
+O script completo também foi atualizado em:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```

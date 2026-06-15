@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
@@ -16,6 +17,8 @@ import lombok.Setter;
  * Especialização exclusiva de Serviço para serviços encaminhados a empresa externa.
  *
  * Regra de negócio: mesmo terceirizando, a oficina continua responsável perante o cliente.
+ * A empresa terceirizada padrão permite que, ao selecionar o serviço na OS, o sistema já
+ * preencha automaticamente a empresa executora cadastrada para aquele tipo de serviço.
  */
 @Getter
 @Setter
@@ -31,6 +34,10 @@ public class ServicoTerceirizadoModel extends BaseModel {
     @MapsId
     @JoinColumn(name = "id_servico", nullable = false)
     private ServicoModel servico;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "id_empresa_terceirizada_padrao", nullable = false)
+    private EmpresaTerceirizadaModel empresaTerceirizadaPadrao;
 
     @Column(name = "observacao_terceirizacao", columnDefinition = "TEXT")
     private String observacaoTerceirizacao;

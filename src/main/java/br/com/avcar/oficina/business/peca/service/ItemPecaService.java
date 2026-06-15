@@ -174,10 +174,12 @@ public class ItemPecaService {
      * Função: Processa dados de peça, fornecedor, quantidade ou valor unitário conforme a operação
      * solicitada.
      * Uso no sistema: garante rastreabilidade entre peça utilizada, fornecedor responsável e valor
-     * aplicado na OS.
+     * aplicado na OS. A regra atual força o fornecedor do item a ser o fornecedor padrão cadastrado
+     * na própria peça, evitando que a tela ou uma requisição manual vincule a peça a uma empresa
+     * diferente da responsável por fornecê-la.
      */
     private void completarDadosAutomaticosDaPeca(ItemPecaDTO dto, PecaModel peca) {
-        if ((dto.getIdFornecedor() == null || dto.getIdFornecedor() <= 0) && peca.getFornecedorPadrao() != null) {
+        if (peca.getFornecedorPadrao() != null) {
             dto.setIdFornecedor(peca.getFornecedorPadrao().getId());
         }
         if ((dto.getValorUnitario() == null || dto.getValorUnitario().compareTo(BigDecimal.ZERO) == 0)
