@@ -131,6 +131,45 @@ LEFT JOIN cliente c ON c.id_cliente = hp.id_cliente
 LEFT JOIN pessoa pc ON pc.id_pessoa = c.id_pessoa
 ORDER BY v.id_veiculo;
 
+
+-- =========================================================
+-- 6.1. Histórico de proprietários por cliente
+-- A consulta abaixo deve mostrar cada cliente uma vez, com a quantidade de veículos
+-- que possui atualmente e a quantidade de registros históricos preservados.
+-- =========================================================
+SELECT
+    pc.nome AS cliente,
+    COUNT(*) AS registros_de_posse,
+    COUNT(DISTINCT hp.id_veiculo) AS veiculos_no_historico,
+    COUNT(*) FILTER (WHERE hp.proprietario_atual = TRUE) AS posses_atuais,
+    STRING_AGG(DISTINCT v.placa, ', ' ORDER BY v.placa) AS placas_relacionadas
+FROM historico_proprietario hp
+JOIN cliente c ON c.id_cliente = hp.id_cliente
+JOIN pessoa pc ON pc.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.id_veiculo = hp.id_veiculo
+WHERE hp.ativo = TRUE
+GROUP BY pc.nome
+ORDER BY pc.nome;
+
+-- Detalhe das posses, incluindo início, fim e status atual/anterior.
+SELECT
+    pc.nome AS cliente,
+    v.placa,
+    ma.nome_marca,
+    mo.nome_modelo,
+    hp.data_inicio_posse,
+    hp.data_fim_posse,
+    CASE WHEN hp.proprietario_atual THEN 'ATUAL' ELSE 'ANTERIOR' END AS status_posse,
+    hp.observacao
+FROM historico_proprietario hp
+JOIN cliente c ON c.id_cliente = hp.id_cliente
+JOIN pessoa pc ON pc.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.id_veiculo = hp.id_veiculo
+JOIN modelo mo ON mo.id_modelo = v.id_modelo
+JOIN marca ma ON ma.id_marca = mo.id_marca
+WHERE hp.ativo = TRUE
+ORDER BY pc.nome, v.placa, hp.data_inicio_posse DESC;
+
 -- =========================================================
 -- 7. Ordens de Serviço com status atual
 -- =========================================================

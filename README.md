@@ -2346,3 +2346,22 @@ Também foi incluído o botão **Histórico** na tela de Veículos, direcionando
 ## Etapa 67 — Histórico de proprietários por cliente
 
 A tela **Histórico de Proprietários** foi corrigida para exibir a consulta principal por cliente, sem duplicar o mesmo cliente quando ele possui ou já possuiu mais de um veículo. Ao selecionar o cliente, o sistema apresenta os veículos vinculados, as datas de início e fim de posse, o status atual/anterior e as observações. Também foi criado o endpoint consolidado `GET /api/veiculos/historico-proprietarios`, retornando proprietários atuais e anteriores para preservar a rastreabilidade.
+
+## Etapa 68 — Seed atualizada para a versão atual do sistema
+
+A seed inicial do banco foi atualizada para refletir melhor a versão atual da tela **Gestão > Histórico de Proprietários**.
+
+A alteração adiciona posses anteriores e posses atuais na tabela `historico_proprietario`, permitindo demonstrar que o histórico de proprietário não desaparece quando uma transferência é realizada. Também foram incluídos cenários em que um mesmo cliente possui mais de um veículo, evitando duplicidade na listagem por cliente.
+
+Arquivos principais alterados:
+
+```text
+database/02_seed/02_seed_inicial.sql
+database/03_verificacoes/03_verificacao_geral_sistema.sql
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+database/README_BANCO.md
+docs/README_ETAPA68_SEED_ATUALIZADA_HISTORICO_PROPRIETARIOS.md
+docs/adr/ADR-068-seed-atualizada-historico-proprietarios.md
+```
+
+Não houve alteração no modelo físico, backend, frontend, JDK, Maven ou fluxo da Ordem de Serviço.

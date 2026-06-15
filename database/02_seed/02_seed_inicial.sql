@@ -358,40 +358,127 @@ FROM modelo mo JOIN marca ma ON ma.id_marca = mo.id_marca
 WHERE ma.nome_marca = 'TOYOTA' AND mo.nome_modelo = 'Corolla'
   AND NOT EXISTS (SELECT 1 FROM veiculo WHERE placa = 'BRA2E22');
 
+-- Histórico de proprietários atualizado para a aba Gestão > Histórico de Proprietários.
+-- A tela atual agrupa os registros por cliente; por isso o seed cria posses atuais
+-- e posses encerradas, permitindo demonstrar que o cliente antigo permanece visível
+-- mesmo depois de perder a posse atual de um veículo.
+
+-- ACC1234: veículo atualmente do Davi, com Maria como proprietária anterior.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2024-03-01', DATE '2025-12-31', FALSE,
+       'Posse anterior preservada pelo seed para demonstrar histórico de proprietários por cliente.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'ACC1234'
+WHERE p.email = 'maria.souza@exemplo.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2024-03-01'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2026-01-01', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2026-01-01', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'ACC1234'
 WHERE p.email = 'daviconcyline@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- ONZ1170: veículo atualmente do Eugenio, com Davi como proprietário anterior.
+-- Isso faz o Davi aparecer uma única vez no histórico, contendo um veículo atual e uma posse antiga.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2022-03-10', DATE '2023-01-10', FALSE,
+       'Posse encerrada antes da entrada do veículo no histórico atual da oficina.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'ONZ1170'
+WHERE p.email = 'daviconcyline@gmail.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2022-03-10'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2023-01-10', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2023-01-10', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'ONZ1170'
 WHERE p.email = 'eugeniojuliomessala@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- TNU3J90: veículo empresarial atualmente da Tecno IT, com posse anterior da Auto Peças Central.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2023-06-01', DATE '2025-10-31', FALSE,
+       'Posse anterior de pessoa jurídica preservada para demonstrar rastreabilidade empresarial.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'TNU3J90'
+WHERE p.email = 'contato@autopecascentral.com.br'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2023-06-01'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2025-11-01', TRUE, 'Veículo empresarial cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2025-11-01', TRUE,
+       'Veículo empresarial cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'TNU3J90'
 WHERE p.email = 'financeiro@tecnoit.com.br'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- PQX1354: segundo veículo atual do Eugenio. Ele continua aparecendo uma única vez na lista,
+-- e o detalhe mostra ONZ1170 e PQX1354 agrupados no mesmo cliente.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2022-05-15', DATE '2024-11-30', FALSE,
+       'Posse anterior encerrada, mantida para demonstrar data de fim da posse.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'PQX1354'
+WHERE p.email = 'joao.silva@exemplo.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2022-05-15'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2024-12-01', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2024-12-01', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'PQX1354'
 WHERE p.email = 'eugeniojuliomessala@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- BRA2E22: veículo atualmente da Maria, com João como proprietário anterior.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2023-02-01', DATE '2025-04-30', FALSE,
+       'Posse anterior de cliente pessoa física preservada no histórico.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'BRA2E22'
+WHERE p.email = 'joao.silva@exemplo.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2023-02-01'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2025-05-01', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2025-05-01', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'BRA2E22'

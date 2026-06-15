@@ -328,3 +328,39 @@ valor_unitario_padrao
 ```
 
 Esses campos permitem que, na tela de Itens da OS, ao selecionar uma peça, o sistema carregue automaticamente o fornecedor relacionado e o valor unitário cadastrado.
+
+## Etapa 68 — Seed atualizada para histórico de proprietários por cliente
+
+A seed inicial foi atualizada para refletir a tela atual de **Gestão > Histórico de Proprietários**, que agora trabalha com visão agrupada por cliente.
+
+Arquivo atualizado:
+
+```text
+database/02_seed/02_seed_inicial.sql
+```
+
+A atualização mantém os cadastros já existentes, mas melhora os registros de `historico_proprietario` para demonstrar corretamente:
+
+```text
+- clientes aparecendo uma única vez na consulta de histórico;
+- cliente com mais de um veículo atual;
+- cliente com veículo atual e posse antiga;
+- proprietários anteriores preservados após transferência;
+- data de início e data de fim das posses;
+- diferença entre posse atual e posse anterior;
+- pessoa física e pessoa jurídica no histórico de veículos.
+```
+
+O script de verificação geral também recebeu consultas específicas para conferir o histórico consolidado por cliente:
+
+```text
+database/03_verificacoes/03_verificacao_geral_sistema.sql
+```
+
+O script completo foi regenerado para manter a mesma seed atualizada:
+
+```text
+database/04_completo/00_SCRIPT_COMPLETO_BANCO.sql
+```
+
+Para banco novo, basta executar o schema e depois a seed. Para banco já criado com a seed antiga, a nova seed pode ser executada novamente, pois os novos registros históricos foram protegidos com verificações `NOT EXISTS`.

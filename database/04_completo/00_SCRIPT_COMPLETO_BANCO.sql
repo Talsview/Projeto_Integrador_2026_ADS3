@@ -1,5 +1,24 @@
 -- =========================================================
 -- Sistema de Gestão da Oficina Mecânica AV CAR AUTO CENTER
+-- Script completo atualizado - PostgreSQL
+-- =========================================================
+-- Objetivo:
+-- Criar a estrutura física do banco e inserir a seed atualizada
+-- em um único arquivo para demonstração acadêmica.
+--
+-- Observação:
+-- Para manutenção do projeto, recomenda-se executar os scripts
+-- separados por finalidade. Este arquivo completo é uma alternativa
+-- para montagem rápida do banco em ambiente local.
+-- =========================================================
+
+
+-- =========================================================
+-- Início do arquivo: 01_schema/01_create_schema.sql
+-- =========================================================
+
+-- =========================================================
+-- Sistema de Gestão da Oficina Mecânica AV CAR AUTO CENTER
 -- Modelo físico inicial - PostgreSQL
 -- =========================================================
 -- Observação acadêmica:
@@ -402,9 +421,165 @@ CREATE INDEX IF NOT EXISTS idx_pagamento_ordem_servico
     ON pagamento(id_ordem_servico)
     WHERE ativo = TRUE;
 
+CREATE TABLE IF NOT EXISTS notificacao_auditoria (
+    id_notificacao_auditoria BIGSERIAL PRIMARY KEY,
+    modulo VARCHAR(80) NOT NULL,
+    referencia VARCHAR(80) NOT NULL,
+    canal VARCHAR(60) NOT NULL,
+    mensagem_original TEXT,
+    mensagem_processada TEXT NOT NULL,
+    entregue BOOLEAN NOT NULL DEFAULT TRUE,
+    auditoria_registrada BOOLEAN NOT NULL DEFAULT TRUE,
+    data_hora_envio TIMESTAMP NOT NULL,
+    data_hora_auditoria TIMESTAMP NOT NULL,
+    observacao_auditoria TEXT,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_hora_atualizacao TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_notificacao_auditoria_referencia
+    ON notificacao_auditoria(referencia)
+    WHERE ativo = TRUE;
+
+CREATE INDEX IF NOT EXISTS idx_notificacao_auditoria_modulo_data
+    ON notificacao_auditoria(modulo, data_hora_auditoria DESC)
+    WHERE ativo = TRUE;
+
 
 -- =========================================================
--- SEED INICIAL COMPLETO
+-- Fim do arquivo: 01_schema/01_create_schema.sql
+-- =========================================================
+
+-- =========================================================
+-- Início do arquivo: 01_schema/02_alter_garantia_atendimento.sql
+-- =========================================================
+
+-- Etapa 45 - Atendimento de garantia
+-- Script incremental para bancos já criados antes da inclusão dos campos de acionamento e encerramento.
+
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS data_acionamento DATE;
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS motivo_acionamento VARCHAR(255);
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS descricao_defeito TEXT;
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS responsavel_analise VARCHAR(150);
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS data_encerramento DATE;
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS solucao_aplicada TEXT;
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS custo_assumido_por VARCHAR(80);
+ALTER TABLE garantia_peca ADD COLUMN IF NOT EXISTS atendimento_realizado BOOLEAN;
+
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS data_acionamento DATE;
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS motivo_acionamento VARCHAR(255);
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS descricao_defeito TEXT;
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS responsavel_analise VARCHAR(150);
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS data_encerramento DATE;
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS solucao_aplicada TEXT;
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS custo_assumido_por VARCHAR(80);
+ALTER TABLE garantia_servico ADD COLUMN IF NOT EXISTS atendimento_realizado BOOLEAN;
+
+
+-- =========================================================
+-- Fim do arquivo: 01_schema/02_alter_garantia_atendimento.sql
+-- =========================================================
+
+-- =========================================================
+-- Início do arquivo: 01_schema/03_create_notificacao_auditoria.sql
+-- =========================================================
+
+-- Etapa 57: tabela de auditoria persistente das notificações operacionais.
+-- Esta tabela fortalece o padrão Decorator, registrando em banco as notificações
+-- geradas por eventos importantes, como mudança de status de Ordem de Serviço.
+
+CREATE TABLE IF NOT EXISTS notificacao_auditoria (
+    id_notificacao_auditoria BIGSERIAL PRIMARY KEY,
+    modulo VARCHAR(80) NOT NULL,
+    referencia VARCHAR(80) NOT NULL,
+    canal VARCHAR(60) NOT NULL,
+    mensagem_original TEXT,
+    mensagem_processada TEXT NOT NULL,
+    entregue BOOLEAN NOT NULL DEFAULT TRUE,
+    auditoria_registrada BOOLEAN NOT NULL DEFAULT TRUE,
+    data_hora_envio TIMESTAMP NOT NULL,
+    data_hora_auditoria TIMESTAMP NOT NULL,
+    observacao_auditoria TEXT,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    data_hora_atualizacao TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_notificacao_auditoria_referencia
+    ON notificacao_auditoria(referencia)
+    WHERE ativo = TRUE;
+
+CREATE INDEX IF NOT EXISTS idx_notificacao_auditoria_modulo_data
+    ON notificacao_auditoria(modulo, data_hora_auditoria DESC)
+    WHERE ativo = TRUE;
+
+
+-- =========================================================
+-- Fim do arquivo: 01_schema/03_create_notificacao_auditoria.sql
+-- =========================================================
+
+-- =========================================================
+-- Início do arquivo: 01_schema/04_alter_peca_fornecedor_valor.sql
+-- =========================================================
+
+-- Etapa 58 - Peça vinculada a fornecedor padrão e valor unitário padrão
+-- Execute este script em bancos já existentes antes de subir o backend atualizado.
+
+ALTER TABLE peca ADD COLUMN IF NOT EXISTS id_fornecedor_padrao BIGINT;
+ALTER TABLE peca ADD COLUMN IF NOT EXISTS valor_unitario_padrao NUMERIC(12,2) NOT NULL DEFAULT 0;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'fk_peca_fornecedor_padrao'
+    ) THEN
+        ALTER TABLE peca
+            ADD CONSTRAINT fk_peca_fornecedor_padrao
+            FOREIGN KEY (id_fornecedor_padrao) REFERENCES fornecedor(id_fornecedor);
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_constraint WHERE conname = 'ck_peca_valor_padrao'
+    ) THEN
+        ALTER TABLE peca
+            ADD CONSTRAINT ck_peca_valor_padrao
+            CHECK (valor_unitario_padrao >= 0);
+    END IF;
+END $$;
+
+-- Preenche peças antigas com um fornecedor padrão quando existir fornecedor ativo cadastrado.
+UPDATE peca p
+   SET id_fornecedor_padrao = COALESCE(
+       p.id_fornecedor_padrao,
+       (SELECT f.id_fornecedor FROM fornecedor f WHERE f.ativo = TRUE ORDER BY f.id_fornecedor LIMIT 1)
+   )
+ WHERE p.ativo = TRUE
+   AND p.id_fornecedor_padrao IS NULL
+   AND EXISTS (SELECT 1 FROM fornecedor f WHERE f.ativo = TRUE);
+
+-- Valores padrão para peças iniciais já existentes antes desta etapa.
+UPDATE peca SET valor_unitario_padrao = 40.00 WHERE codigo_nacional = 'FOL0113' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 58.00 WHERE codigo_nacional = 'ART8826' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 55.00 WHERE codigo_nacional = 'OLEO5W30' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 40.00 WHERE codigo_nacional = 'FCA0125' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 168.00 WHERE codigo_nacional = 'KITDISTRIBUICAO' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 63.00 WHERE codigo_nacional = 'CORREIAMICROV' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 288.00 WHERE codigo_nacional = 'NKF8116' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 1265.00 WHERE codigo_nacional = 'RADIADOR522201' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 40.00 WHERE codigo_nacional = 'ADITIVOORGROSA1L' AND valor_unitario_padrao = 0;
+UPDATE peca SET valor_unitario_padrao = 20.00 WHERE codigo_nacional = 'VELANGK99632' AND valor_unitario_padrao = 0;
+
+
+-- =========================================================
+-- Fim do arquivo: 01_schema/04_alter_peca_fornecedor_valor.sql
+-- =========================================================
+
+-- =========================================================
+-- Início do arquivo: 02_seed/02_seed_inicial.sql
 -- =========================================================
 
 -- =========================================================
@@ -767,40 +942,127 @@ FROM modelo mo JOIN marca ma ON ma.id_marca = mo.id_marca
 WHERE ma.nome_marca = 'TOYOTA' AND mo.nome_modelo = 'Corolla'
   AND NOT EXISTS (SELECT 1 FROM veiculo WHERE placa = 'BRA2E22');
 
+-- Histórico de proprietários atualizado para a aba Gestão > Histórico de Proprietários.
+-- A tela atual agrupa os registros por cliente; por isso o seed cria posses atuais
+-- e posses encerradas, permitindo demonstrar que o cliente antigo permanece visível
+-- mesmo depois de perder a posse atual de um veículo.
+
+-- ACC1234: veículo atualmente do Davi, com Maria como proprietária anterior.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2024-03-01', DATE '2025-12-31', FALSE,
+       'Posse anterior preservada pelo seed para demonstrar histórico de proprietários por cliente.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'ACC1234'
+WHERE p.email = 'maria.souza@exemplo.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2024-03-01'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2026-01-01', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2026-01-01', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'ACC1234'
 WHERE p.email = 'daviconcyline@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- ONZ1170: veículo atualmente do Eugenio, com Davi como proprietário anterior.
+-- Isso faz o Davi aparecer uma única vez no histórico, contendo um veículo atual e uma posse antiga.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2022-03-10', DATE '2023-01-10', FALSE,
+       'Posse encerrada antes da entrada do veículo no histórico atual da oficina.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'ONZ1170'
+WHERE p.email = 'daviconcyline@gmail.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2022-03-10'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2023-01-10', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2023-01-10', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'ONZ1170'
 WHERE p.email = 'eugeniojuliomessala@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- TNU3J90: veículo empresarial atualmente da Tecno IT, com posse anterior da Auto Peças Central.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2023-06-01', DATE '2025-10-31', FALSE,
+       'Posse anterior de pessoa jurídica preservada para demonstrar rastreabilidade empresarial.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'TNU3J90'
+WHERE p.email = 'contato@autopecascentral.com.br'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2023-06-01'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2025-11-01', TRUE, 'Veículo empresarial cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2025-11-01', TRUE,
+       'Veículo empresarial cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'TNU3J90'
 WHERE p.email = 'financeiro@tecnoit.com.br'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- PQX1354: segundo veículo atual do Eugenio. Ele continua aparecendo uma única vez na lista,
+-- e o detalhe mostra ONZ1170 e PQX1354 agrupados no mesmo cliente.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2022-05-15', DATE '2024-11-30', FALSE,
+       'Posse anterior encerrada, mantida para demonstrar data de fim da posse.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'PQX1354'
+WHERE p.email = 'joao.silva@exemplo.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2022-05-15'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2024-12-01', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2024-12-01', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'PQX1354'
 WHERE p.email = 'eugeniojuliomessala@gmail.com'
   AND NOT EXISTS (SELECT 1 FROM historico_proprietario hp WHERE hp.id_veiculo = v.id_veiculo AND hp.proprietario_atual = TRUE AND hp.ativo = TRUE);
 
+-- BRA2E22: veículo atualmente da Maria, com João como proprietário anterior.
+INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, data_fim_posse, proprietario_atual, observacao)
+SELECT c.id_cliente, v.id_veiculo, DATE '2023-02-01', DATE '2025-04-30', FALSE,
+       'Posse anterior de cliente pessoa física preservada no histórico.'
+FROM cliente c
+JOIN pessoa p ON p.id_pessoa = c.id_pessoa
+JOIN veiculo v ON v.placa = 'BRA2E22'
+WHERE p.email = 'joao.silva@exemplo.com'
+  AND NOT EXISTS (
+      SELECT 1 FROM historico_proprietario hp
+      WHERE hp.id_veiculo = v.id_veiculo
+        AND hp.id_cliente = c.id_cliente
+        AND hp.data_inicio_posse = DATE '2023-02-01'
+  );
+
 INSERT INTO historico_proprietario (id_cliente, id_veiculo, data_inicio_posse, proprietario_atual, observacao)
-SELECT c.id_cliente, v.id_veiculo, DATE '2025-05-01', TRUE, 'Proprietário atual cadastrado pelo seed completo.'
+SELECT c.id_cliente, v.id_veiculo, DATE '2025-05-01', TRUE,
+       'Proprietário atual cadastrado pelo seed atualizado.'
 FROM cliente c
 JOIN pessoa p ON p.id_pessoa = c.id_pessoa
 JOIN veiculo v ON v.placa = 'BRA2E22'
@@ -1052,28 +1314,7 @@ WHERE os.numero_os = '5'
 
 COMMIT;
 
--- Etapa 57: auditoria persistente de notificações operacionais.
-CREATE TABLE IF NOT EXISTS notificacao_auditoria (
-    id_notificacao_auditoria BIGSERIAL PRIMARY KEY,
-    modulo VARCHAR(80) NOT NULL,
-    referencia VARCHAR(80) NOT NULL,
-    canal VARCHAR(60) NOT NULL,
-    mensagem_original TEXT,
-    mensagem_processada TEXT NOT NULL,
-    entregue BOOLEAN NOT NULL DEFAULT TRUE,
-    auditoria_registrada BOOLEAN NOT NULL DEFAULT TRUE,
-    data_hora_envio TIMESTAMP NOT NULL,
-    data_hora_auditoria TIMESTAMP NOT NULL,
-    observacao_auditoria TEXT,
-    ativo BOOLEAN NOT NULL DEFAULT TRUE,
-    data_hora_criacao TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    data_hora_atualizacao TIMESTAMP
-);
 
-CREATE INDEX IF NOT EXISTS idx_notificacao_auditoria_referencia
-    ON notificacao_auditoria(referencia)
-    WHERE ativo = TRUE;
-
-CREATE INDEX IF NOT EXISTS idx_notificacao_auditoria_modulo_data
-    ON notificacao_auditoria(modulo, data_hora_auditoria DESC)
-    WHERE ativo = TRUE;
+-- =========================================================
+-- Fim do arquivo: 02_seed/02_seed_inicial.sql
+-- =========================================================
