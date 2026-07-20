@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.pessoa.dto.FuncaoDTO;
 import br.com.avcar.oficina.business.pessoa.service.FuncaoService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.pessoa.model.FuncaoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/funcoes")
-public class FuncaoController {
+public class FuncaoController extends GenericController<FuncaoModel, FuncaoDTO, FuncaoService> {
 
     private final FuncaoService funcaoService;
 
@@ -35,6 +37,7 @@ public class FuncaoController {
      * sem criação manual dentro dos métodos.
      */
     public FuncaoController(FuncaoService funcaoService) {
+        super(funcaoService);
         this.funcaoService = funcaoService;
     }
 

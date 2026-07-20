@@ -19,6 +19,7 @@ import br.com.avcar.oficina.business.servico.service.EmpresaTerceirizadaService;
 import br.com.avcar.oficina.business.servico.service.ServicoService;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.math.BigDecimal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - Serviço terceirizado não exige colaborador interno, pois a execução é feita por empresa externa.
  */
 @Service
-public class ItemServicoService {
+public class ItemServicoService extends GenericService<ItemServicoModel> {
 
     private final IItemServicoRepository itemServicoRepository;
     private final IExecucaoServicoTerceirizadoRepository execucaoRepository;
@@ -63,6 +64,7 @@ public class ItemServicoService {
                               GarantiaService garantiaService,
                               ItemServicoValidation validation,
                               ItemServicoMapper mapper) {
+        super(itemServicoRepository, null);
         this.itemServicoRepository = itemServicoRepository;
         this.execucaoRepository = execucaoRepository;
         this.colaboradorRepository = colaboradorRepository;

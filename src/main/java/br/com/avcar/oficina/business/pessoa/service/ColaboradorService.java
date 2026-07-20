@@ -13,6 +13,7 @@ import br.com.avcar.oficina.business.pessoa.repository.IFuncaoRepository;
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaRepository;
 import br.com.avcar.oficina.business.pessoa.validation.ColaboradorValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - ColaboradorFuncao preserva histórico das funções exercidas.
  */
 @Service
-public class ColaboradorService {
+public class ColaboradorService extends GenericService<ColaboradorModel> {
 
     private final IPessoaRepository pessoaRepository;
     private final IColaboradorRepository colaboradorRepository;
@@ -51,6 +52,7 @@ public class ColaboradorService {
                               IColaboradorFuncaoRepository colaboradorFuncaoRepository,
                               ColaboradorValidation validation,
                               ColaboradorMapper mapper) {
+        super(colaboradorRepository, null);
         this.pessoaRepository = pessoaRepository;
         this.colaboradorRepository = colaboradorRepository;
         this.funcaoRepository = funcaoRepository;

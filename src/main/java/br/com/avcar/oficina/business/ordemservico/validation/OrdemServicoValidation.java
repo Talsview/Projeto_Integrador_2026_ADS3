@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.ordemservico.dto.AlterarStatusOrdemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.model.HistoricoStatusOrdemModel;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Component;
  * Validações de domínio da Ordem de Serviço.
  */
 @Component
-public class OrdemServicoValidation {
+public class OrdemServicoValidation extends GenericDtoValidation<OrdemServicoDTO> {
 
     private final IOrdemServicoRepository ordemServicoRepository;
 

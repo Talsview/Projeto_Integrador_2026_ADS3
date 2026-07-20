@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.veiculo.dto.MarcaDTO;
 import br.com.avcar.oficina.business.veiculo.service.MarcaService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.veiculo.model.MarcaModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/marcas")
-public class MarcaController {
+public class MarcaController extends GenericController<MarcaModel, MarcaDTO, MarcaService> {
 
     private final MarcaService marcaService;
 
@@ -34,6 +36,7 @@ public class MarcaController {
      * sem criação manual dentro dos métodos.
      */
     public MarcaController(MarcaService marcaService) {
+        super(marcaService);
         this.marcaService = marcaService;
     }
 

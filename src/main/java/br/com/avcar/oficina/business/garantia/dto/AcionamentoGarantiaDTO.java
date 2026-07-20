@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.garantia.dto;
 
+import br.com.avcar.oficina.core.dto.BaseDTO;
+
 import br.com.avcar.oficina.business.garantia.enums.ResponsabilidadeGarantiaPeca;
 import java.time.LocalDate;
 import lombok.Getter;
@@ -15,7 +17,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class AcionamentoGarantiaDTO {
+public class AcionamentoGarantiaDTO extends BaseDTO {
 
     private LocalDate dataAcionamento;
     private String motivoAcionamento;

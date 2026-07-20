@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.pagamento.dto;
 
+import br.com.avcar.oficina.core.dto.BaseDTO;
+
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +11,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ResumoPagamentoOrdemServicoDTO {
+public class ResumoPagamentoOrdemServicoDTO extends BaseDTO {
 
     private Long idOrdemServico;
     private String numeroOs;

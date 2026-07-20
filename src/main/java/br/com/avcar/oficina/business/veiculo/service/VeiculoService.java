@@ -17,6 +17,7 @@ import br.com.avcar.oficina.business.veiculo.repository.IModeloRepository;
 import br.com.avcar.oficina.business.veiculo.repository.IVeiculoRepository;
 import br.com.avcar.oficina.business.veiculo.validation.VeiculoValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -34,7 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - A transferência encerra a posse atual e cria novo histórico, preservando rastreabilidade.
  */
 @Service
-public class VeiculoService {
+public class VeiculoService extends GenericService<VeiculoModel> {
 
     private final IVeiculoRepository veiculoRepository;
     private final IModeloRepository modeloRepository;
@@ -58,6 +59,7 @@ public class VeiculoService {
                           VeiculoMapper veiculoMapper,
                           HistoricoProprietarioMapper historicoMapper,
                           VeiculoResponseAdapter responseAdapter) {
+        super(veiculoRepository, null);
         this.veiculoRepository = veiculoRepository;
         this.modeloRepository = modeloRepository;
         this.clienteRepository = clienteRepository;

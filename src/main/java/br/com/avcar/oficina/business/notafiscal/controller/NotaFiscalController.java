@@ -1,6 +1,9 @@
 package br.com.avcar.oficina.business.notafiscal.controller;
 
 import br.com.avcar.oficina.business.notafiscal.service.NotaFiscalPdfService;
+import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoDTO;
+import br.com.avcar.oficina.business.ordemservico.model.OrdemServicoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -15,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/notas-fiscais")
-public class NotaFiscalController {
+public class NotaFiscalController extends GenericController<OrdemServicoModel, OrdemServicoDTO, NotaFiscalPdfService> {
 
     private final NotaFiscalPdfService notaFiscalPdfService;
 
@@ -25,6 +28,7 @@ public class NotaFiscalController {
      * sem criação manual dentro dos métodos.
      */
     public NotaFiscalController(NotaFiscalPdfService notaFiscalPdfService) {
+        super(notaFiscalPdfService);
         this.notaFiscalPdfService = notaFiscalPdfService;
     }
 

@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.servico.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.servico.dto.ServicoDTO;
 import br.com.avcar.oficina.business.servico.repository.IServicoRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Valida regras de entrada do cadastro de Serviço.
  */
 @Component
-public class ServicoValidation {
+public class ServicoValidation extends GenericDtoValidation<ServicoDTO> {
 
     private final IServicoRepository servicoRepository;
 

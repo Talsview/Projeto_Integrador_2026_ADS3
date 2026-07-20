@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.servico.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.servico.dto.EmpresaTerceirizadaDTO;
 import br.com.avcar.oficina.business.servico.model.EmpresaTerceirizadaModel;
 import org.springframework.stereotype.Component;
@@ -8,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável pela conversão entre EmpresaTerceirizadaModel e DTO.
  */
 @Component
-public class EmpresaTerceirizadaMapper {
+public class EmpresaTerceirizadaMapper implements IGenericMapper<EmpresaTerceirizadaModel, EmpresaTerceirizadaDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

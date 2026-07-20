@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.veiculo.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.pessoa.repository.IClienteRepository;
 import br.com.avcar.oficina.business.veiculo.dto.TransferenciaProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoDTO;
@@ -16,7 +18,7 @@ import org.springframework.stereotype.Component;
  * Valida as regras de entrada do cadastro de Veículo e transferência de proprietário.
  */
 @Component
-public class VeiculoValidation {
+public class VeiculoValidation extends GenericDtoValidation<VeiculoDTO> {
 
     private final IModeloRepository modeloRepository;
     private final IClienteRepository clienteRepository;

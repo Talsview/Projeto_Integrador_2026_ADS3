@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.ordemservico.dto.HistoricoStatusOrdemDTO;
 import br.com.avcar.oficina.business.ordemservico.dto.ItemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoDTO;
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Component;
  * resumo utilizados pela View Angular.
  */
 @Component
-public class OrdemServicoMapper {
+public class OrdemServicoMapper implements IGenericMapper<OrdemServicoModel, OrdemServicoDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

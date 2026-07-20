@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.ordemservico.dto.StatusOrdemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.model.StatusOrdemServicoModel;
 import org.springframework.stereotype.Component;
@@ -8,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Mapper do cadastro de Status da Ordem de Serviço.
  */
 @Component
-public class StatusOrdemServicoMapper {
+public class StatusOrdemServicoMapper implements IGenericMapper<StatusOrdemServicoModel, StatusOrdemServicoDTO> {
 
     /**
      * Função: Converte a entidade de auditoria de notificação em DTO de resposta para a API.

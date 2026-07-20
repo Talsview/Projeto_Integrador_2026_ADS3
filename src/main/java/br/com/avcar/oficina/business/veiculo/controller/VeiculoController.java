@@ -7,6 +7,8 @@ import br.com.avcar.oficina.business.veiculo.dto.VeiculoResumoDTO;
 import br.com.avcar.oficina.business.veiculo.service.VeiculoService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.veiculo.model.VeiculoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -31,7 +33,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/api/veiculos")
-public class VeiculoController {
+public class VeiculoController extends GenericController<VeiculoModel, VeiculoDTO, VeiculoService> {
 
     private final VeiculoService veiculoService;
 
@@ -41,6 +43,7 @@ public class VeiculoController {
      * sem criação manual dentro dos métodos.
      */
     public VeiculoController(VeiculoService veiculoService) {
+        super(veiculoService);
         this.veiculoService = veiculoService;
     }
 

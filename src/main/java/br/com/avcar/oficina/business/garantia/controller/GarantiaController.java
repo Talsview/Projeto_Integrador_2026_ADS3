@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.garantia.dto.AcionamentoGarantiaDTO;
 import br.com.avcar.oficina.business.garantia.dto.GarantiaPecaDTO;
 import br.com.avcar.oficina.business.garantia.dto.GarantiaServicoDTO;
 import br.com.avcar.oficina.business.garantia.service.GarantiaService;
+import br.com.avcar.oficina.business.garantia.model.GarantiaServicoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
 import org.springframework.data.domain.Page;
@@ -21,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/garantias")
-public class GarantiaController {
+public class GarantiaController extends GenericController<GarantiaServicoModel, GarantiaServicoDTO, GarantiaService> {
 
     private final GarantiaService garantiaService;
 
@@ -31,6 +33,7 @@ public class GarantiaController {
      * sem criação manual dentro dos métodos.
      */
     public GarantiaController(GarantiaService garantiaService) {
+        super(garantiaService);
         this.garantiaService = garantiaService;
     }
 

@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.ordemservico.dto.HistoricoStatusOrdemDTO;
 import br.com.avcar.oficina.business.ordemservico.model.HistoricoStatusOrdemModel;
 import br.com.avcar.oficina.business.ordemservico.model.OrdemServicoModel;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Mapper da entidade associativa HistoricoStatusOrdem.
  */
 @Component
-public class HistoricoStatusOrdemMapper {
+public class HistoricoStatusOrdemMapper implements IGenericMapper<HistoricoStatusOrdemModel, HistoricoStatusOrdemDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

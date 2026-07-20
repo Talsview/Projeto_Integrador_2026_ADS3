@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.peca.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.peca.dto.FornecedorDTO;
 import br.com.avcar.oficina.business.peca.model.FornecedorModel;
 import org.springframework.stereotype.Component;
@@ -8,7 +10,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável pela conversão entre FornecedorModel e FornecedorDTO.
  */
 @Component
-public class FornecedorMapper {
+public class FornecedorMapper implements IGenericMapper<FornecedorModel, FornecedorDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

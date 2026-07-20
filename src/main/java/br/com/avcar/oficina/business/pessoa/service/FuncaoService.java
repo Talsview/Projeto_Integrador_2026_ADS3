@@ -6,6 +6,7 @@ import br.com.avcar.oficina.business.pessoa.model.FuncaoModel;
 import br.com.avcar.oficina.business.pessoa.repository.IFuncaoRepository;
 import br.com.avcar.oficina.business.pessoa.validation.FuncaoValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service responsável pelas regras de negócio de Função.
  */
 @Service
-public class FuncaoService {
+public class FuncaoService extends GenericService<FuncaoModel> {
 
     private final IFuncaoRepository funcaoRepository;
     private final FuncaoValidation validation;
@@ -29,6 +30,7 @@ public class FuncaoService {
     public FuncaoService(IFuncaoRepository funcaoRepository,
                          FuncaoValidation validation,
                          FuncaoMapper mapper) {
+        super(funcaoRepository, null);
         this.funcaoRepository = funcaoRepository;
         this.validation = validation;
         this.mapper = mapper;

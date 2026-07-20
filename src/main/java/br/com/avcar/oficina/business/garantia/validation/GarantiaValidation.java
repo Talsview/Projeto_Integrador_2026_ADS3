@@ -1,5 +1,9 @@
 package br.com.avcar.oficina.business.garantia.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
+import br.com.avcar.oficina.business.garantia.dto.AcionamentoGarantiaDTO;
+
 import br.com.avcar.oficina.core.exception.FieldValidationException;
 import org.springframework.stereotype.Component;
 
@@ -7,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Validações comuns para garantias de peças e serviços.
  */
 @Component
-public class GarantiaValidation {
+public class GarantiaValidation extends GenericDtoValidation<AcionamentoGarantiaDTO> {
 
     /**
      * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou

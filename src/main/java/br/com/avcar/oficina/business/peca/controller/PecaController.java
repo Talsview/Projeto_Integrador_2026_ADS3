@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.peca.dto.PecaDTO;
 import br.com.avcar.oficina.business.peca.service.PecaService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.peca.model.PecaModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/pecas")
-public class PecaController {
+public class PecaController extends GenericController<PecaModel, PecaDTO, PecaService> {
 
     private final PecaService pecaService;
 
@@ -34,6 +36,7 @@ public class PecaController {
      * sem criação manual dentro dos métodos.
      */
     public PecaController(PecaService pecaService) {
+        super(pecaService);
         this.pecaService = pecaService;
     }
 

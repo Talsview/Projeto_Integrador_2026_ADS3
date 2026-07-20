@@ -6,6 +6,7 @@ import br.com.avcar.oficina.business.peca.model.FornecedorModel;
 import br.com.avcar.oficina.business.peca.repository.IFornecedorRepository;
 import br.com.avcar.oficina.business.peca.validation.FornecedorValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service responsável pelas regras de negócio de Fornecedor.
  */
 @Service
-public class FornecedorService {
+public class FornecedorService extends GenericService<FornecedorModel> {
 
     private final IFornecedorRepository fornecedorRepository;
     private final FornecedorValidation validation;
@@ -29,6 +30,7 @@ public class FornecedorService {
     public FornecedorService(IFornecedorRepository fornecedorRepository,
                              FornecedorValidation validation,
                              FornecedorMapper mapper) {
+        super(fornecedorRepository, null);
         this.fornecedorRepository = fornecedorRepository;
         this.validation = validation;
         this.mapper = mapper;

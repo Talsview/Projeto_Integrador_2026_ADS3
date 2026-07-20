@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.peca.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.peca.dto.ItemPecaDTO;
 import br.com.avcar.oficina.business.peca.model.FornecedorModel;
 import br.com.avcar.oficina.business.peca.model.ItemPecaModel;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável pela conversão da entidade associativa ItemPeca.
  */
 @Component
-public class ItemPecaMapper {
+public class ItemPecaMapper implements IGenericMapper<ItemPecaModel, ItemPecaDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

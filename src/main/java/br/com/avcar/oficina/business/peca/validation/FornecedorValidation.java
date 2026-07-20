@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.peca.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.peca.dto.FornecedorDTO;
 import br.com.avcar.oficina.business.peca.repository.IFornecedorRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Valida regras de entrada do cadastro de Fornecedor.
  */
 @Component
-public class FornecedorValidation {
+public class FornecedorValidation extends GenericDtoValidation<FornecedorDTO> {
 
     private final IFornecedorRepository fornecedorRepository;
 

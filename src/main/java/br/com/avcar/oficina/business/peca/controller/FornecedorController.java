@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.peca.dto.FornecedorDTO;
 import br.com.avcar.oficina.business.peca.service.FornecedorService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.peca.model.FornecedorModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/fornecedores")
-public class FornecedorController {
+public class FornecedorController extends GenericController<FornecedorModel, FornecedorDTO, FornecedorService> {
 
     private final FornecedorService fornecedorService;
 
@@ -34,6 +36,7 @@ public class FornecedorController {
      * sem criação manual dentro dos métodos.
      */
     public FornecedorController(FornecedorService fornecedorService) {
+        super(fornecedorService);
         this.fornecedorService = fornecedorService;
     }
 

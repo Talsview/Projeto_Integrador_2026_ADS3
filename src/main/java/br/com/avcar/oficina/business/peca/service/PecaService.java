@@ -7,6 +7,7 @@ import br.com.avcar.oficina.business.peca.model.PecaModel;
 import br.com.avcar.oficina.business.peca.repository.IPecaRepository;
 import br.com.avcar.oficina.business.peca.validation.PecaValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service responsável pelas regras de negócio de Peça.
  */
 @Service
-public class PecaService {
+public class PecaService extends GenericService<PecaModel> {
 
     private final IPecaRepository pecaRepository;
     private final PecaValidation validation;
@@ -32,6 +33,7 @@ public class PecaService {
                        PecaValidation validation,
                        PecaMapper mapper,
                        FornecedorService fornecedorService) {
+        super(pecaRepository, null);
         this.pecaRepository = pecaRepository;
         this.validation = validation;
         this.mapper = mapper;

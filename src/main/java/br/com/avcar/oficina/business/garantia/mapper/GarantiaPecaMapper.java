@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.garantia.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.garantia.dto.GarantiaPecaDTO;
 import br.com.avcar.oficina.business.garantia.enums.ResponsabilidadeGarantiaPeca;
 import br.com.avcar.oficina.business.garantia.enums.StatusGarantia;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável pela conversão entre GarantiaPecaModel e GarantiaPecaDTO.
  */
 @Component
-public class GarantiaPecaMapper {
+public class GarantiaPecaMapper implements IGenericMapper<GarantiaPecaModel, GarantiaPecaDTO> {
 
     /**
      * Função: Mapeia dados entre camadas durante a operação criar aguardando finalizacao.

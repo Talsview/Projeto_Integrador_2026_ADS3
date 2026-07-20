@@ -32,6 +32,7 @@ import br.com.avcar.oficina.business.veiculo.repository.IVeiculoRepository;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
 import br.com.avcar.oficina.core.notification.service.NotificacaoService;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -51,7 +52,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - OrdemServico possui pelo menos um ItemServico antes de avançar para execução.
  */
 @Service
-public class OrdemServicoService {
+public class OrdemServicoService extends GenericService<OrdemServicoModel> {
 
     private final IOrdemServicoRepository ordemServicoRepository;
     private final IClienteRepository clienteRepository;
@@ -91,6 +92,7 @@ public class OrdemServicoService {
                                HistoricoStatusOrdemMapper historicoStatusMapper,
                                ItemServicoMapper itemServicoMapper,
                                NotificacaoService notificacaoService) {
+        super(ordemServicoRepository, null);
         this.ordemServicoRepository = ordemServicoRepository;
         this.clienteRepository = clienteRepository;
         this.veiculoRepository = veiculoRepository;

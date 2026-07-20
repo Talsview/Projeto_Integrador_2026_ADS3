@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.servico.dto.EmpresaTerceirizadaDTO;
 import br.com.avcar.oficina.business.servico.service.EmpresaTerceirizadaService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.servico.model.EmpresaTerceirizadaModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/empresas-terceirizadas")
-public class EmpresaTerceirizadaController {
+public class EmpresaTerceirizadaController extends GenericController<EmpresaTerceirizadaModel, EmpresaTerceirizadaDTO, EmpresaTerceirizadaService> {
 
     private final EmpresaTerceirizadaService empresaService;
 
@@ -34,6 +36,7 @@ public class EmpresaTerceirizadaController {
      * sem criação manual dentro dos métodos.
      */
     public EmpresaTerceirizadaController(EmpresaTerceirizadaService empresaService) {
+        super(empresaService);
         this.empresaService = empresaService;
     }
 

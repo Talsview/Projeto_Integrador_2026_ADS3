@@ -6,6 +6,8 @@ import br.com.avcar.oficina.business.pagamento.enums.StatusPagamento;
 import br.com.avcar.oficina.business.pagamento.service.PagamentoService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.pagamento.model.PagamentoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/pagamentos")
-public class PagamentoController {
+public class PagamentoController extends GenericController<PagamentoModel, PagamentoDTO, PagamentoService> {
 
     private final PagamentoService pagamentoService;
 
@@ -36,6 +38,7 @@ public class PagamentoController {
      * sem criação manual dentro dos métodos.
      */
     public PagamentoController(PagamentoService pagamentoService) {
+        super(pagamentoService);
         this.pagamentoService = pagamentoService;
     }
 

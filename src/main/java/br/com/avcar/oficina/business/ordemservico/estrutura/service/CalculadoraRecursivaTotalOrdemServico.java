@@ -2,6 +2,8 @@ package br.com.avcar.oficina.business.ordemservico.estrutura.service;
 
 import br.com.avcar.oficina.business.ordemservico.model.ItemServicoModel;
 import br.com.avcar.oficina.business.peca.model.ItemPecaModel;
+import br.com.avcar.oficina.business.ordemservico.estrutura.dto.CalculoRecursivoTotalOSDTO;
+import br.com.avcar.oficina.core.service.GenericBusinessComponent;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -14,7 +16,7 @@ import java.util.List;
  * Justificativa acadêmica: demonstra recursividade em uma funcionalidade real
  * da oficina, sem usar reduce, sum ou funções prontas de agregação.
  */
-public class CalculadoraRecursivaTotalOrdemServico {
+public class CalculadoraRecursivaTotalOrdemServico extends GenericBusinessComponent<CalculoRecursivoTotalOSDTO> {
 
     /**
      * Função: Soma os valores totais dos serviços lançados na Ordem de Serviço.

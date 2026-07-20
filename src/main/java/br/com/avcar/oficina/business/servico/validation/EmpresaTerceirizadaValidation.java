@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.servico.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.servico.dto.EmpresaTerceirizadaDTO;
 import br.com.avcar.oficina.business.servico.repository.IEmpresaTerceirizadaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Valida regras de entrada do cadastro de Empresa Terceirizada.
  */
 @Component
-public class EmpresaTerceirizadaValidation {
+public class EmpresaTerceirizadaValidation extends GenericDtoValidation<EmpresaTerceirizadaDTO> {
 
     private final IEmpresaTerceirizadaRepository empresaRepository;
 

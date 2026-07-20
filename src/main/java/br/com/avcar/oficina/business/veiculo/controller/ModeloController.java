@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.veiculo.dto.ModeloDTO;
 import br.com.avcar.oficina.business.veiculo.service.ModeloService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.veiculo.model.ModeloModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/modelos")
-public class ModeloController {
+public class ModeloController extends GenericController<ModeloModel, ModeloDTO, ModeloService> {
 
     private final ModeloService modeloService;
 
@@ -34,6 +36,7 @@ public class ModeloController {
      * sem criação manual dentro dos métodos.
      */
     public ModeloController(ModeloService modeloService) {
+        super(modeloService);
         this.modeloService = modeloService;
     }
 

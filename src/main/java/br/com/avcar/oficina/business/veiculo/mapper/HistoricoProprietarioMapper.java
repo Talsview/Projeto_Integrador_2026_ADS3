@@ -1,6 +1,9 @@
 package br.com.avcar.oficina.business.veiculo.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.pessoa.model.ClienteModel;
+import br.com.avcar.oficina.business.veiculo.dto.HistoricoProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.TransferenciaProprietarioDTO;
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoDTO;
 import br.com.avcar.oficina.business.veiculo.model.HistoricoProprietarioModel;
@@ -12,7 +15,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável por criar registros de histórico de proprietário.
  */
 @Component
-public class HistoricoProprietarioMapper {
+public class HistoricoProprietarioMapper implements IGenericMapper<HistoricoProprietarioModel, HistoricoProprietarioDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

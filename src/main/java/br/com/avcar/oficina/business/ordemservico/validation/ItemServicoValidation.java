@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.ordemservico.dto.ItemServicoDTO;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
 import br.com.avcar.oficina.core.validation.ValidationUtils;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Validações de domínio do ItemServico.
  */
 @Component
-public class ItemServicoValidation {
+public class ItemServicoValidation extends GenericDtoValidation<ItemServicoDTO> {
 
     /**
      * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou

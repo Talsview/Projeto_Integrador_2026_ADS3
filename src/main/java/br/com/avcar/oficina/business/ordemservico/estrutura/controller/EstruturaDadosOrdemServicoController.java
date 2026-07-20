@@ -6,6 +6,9 @@ import br.com.avcar.oficina.business.ordemservico.estrutura.dto.ResultadoOrdenac
 import br.com.avcar.oficina.business.ordemservico.estrutura.dto.ResultadoPesquisaOrdemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.estrutura.enums.CriterioOrdenacaoOrdemServico;
 import br.com.avcar.oficina.business.ordemservico.estrutura.service.EstruturaDadosOrdemServicoService;
+import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoResumoDTO;
+import br.com.avcar.oficina.business.ordemservico.model.OrdemServicoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/estrutura-dados/ordens-servico")
-public class EstruturaDadosOrdemServicoController {
+public class EstruturaDadosOrdemServicoController extends GenericController<OrdemServicoModel, OrdemServicoResumoDTO, EstruturaDadosOrdemServicoService> {
 
     private final EstruturaDadosOrdemServicoService service;
 
@@ -30,6 +33,7 @@ public class EstruturaDadosOrdemServicoController {
      * sem criação manual dentro dos métodos.
      */
     public EstruturaDadosOrdemServicoController(EstruturaDadosOrdemServicoService service) {
+        super(service);
         this.service = service;
     }
 

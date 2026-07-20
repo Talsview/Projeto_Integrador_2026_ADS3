@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.estrutura.dto;
 
+import br.com.avcar.oficina.core.dto.BaseDTO;
+
 import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoResumoDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class FilaAtendimentoOrdemServicoDTO {
+public class FilaAtendimentoOrdemServicoDTO extends BaseDTO {
 
     private String estruturaUtilizada;
     private String justificativa;

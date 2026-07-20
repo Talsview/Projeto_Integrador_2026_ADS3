@@ -5,6 +5,8 @@ import br.com.avcar.oficina.business.pessoa.dto.ColaboradorResumoDTO;
 import br.com.avcar.oficina.business.pessoa.service.ColaboradorService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.pessoa.model.ColaboradorModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/colaboradores")
-public class ColaboradorController {
+public class ColaboradorController extends GenericController<ColaboradorModel, ColaboradorDTO, ColaboradorService> {
 
     private final ColaboradorService colaboradorService;
 
@@ -38,6 +40,7 @@ public class ColaboradorController {
      * sem criação manual dentro dos métodos.
      */
     public ColaboradorController(ColaboradorService colaboradorService) {
+        super(colaboradorService);
         this.colaboradorService = colaboradorService;
     }
 

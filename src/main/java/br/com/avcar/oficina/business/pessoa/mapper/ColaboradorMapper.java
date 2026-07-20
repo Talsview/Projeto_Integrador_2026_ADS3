@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.pessoa.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.pessoa.dto.ColaboradorDTO;
 import br.com.avcar.oficina.business.pessoa.dto.ColaboradorFuncaoDTO;
 import br.com.avcar.oficina.business.pessoa.dto.ColaboradorResumoDTO;
@@ -18,7 +20,7 @@ import org.springframework.stereotype.Component;
  * Centraliza a conversão entre Models e DTOs do módulo Colaborador.
  */
 @Component
-public class ColaboradorMapper {
+public class ColaboradorMapper implements IGenericMapper<ColaboradorModel, ColaboradorDTO> {
 
     /**
      * Função: Mapeia dados entre camadas durante a operação criar pessoa.

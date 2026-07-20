@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.garantia.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.garantia.dto.GarantiaServicoDTO;
 import br.com.avcar.oficina.business.garantia.enums.StatusGarantia;
 import br.com.avcar.oficina.business.garantia.model.GarantiaServicoModel;
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável pela conversão entre GarantiaServicoModel e GarantiaServicoDTO.
  */
 @Component
-public class GarantiaServicoMapper {
+public class GarantiaServicoMapper implements IGenericMapper<GarantiaServicoModel, GarantiaServicoDTO> {
 
     private final IExecucaoServicoTerceirizadoRepository execucaoRepository;
 

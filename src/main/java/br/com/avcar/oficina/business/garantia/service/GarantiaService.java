@@ -18,6 +18,7 @@ import br.com.avcar.oficina.business.peca.repository.IItemPecaRepository;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.service.GenericService;
 import br.com.avcar.oficina.core.validation.ValidationUtils;
 import java.time.LocalDate;
 import java.util.List;
@@ -37,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - A peça pode ter responsabilidade do fornecedor, sem excluir o atendimento da oficina.
  */
 @Service
-public class GarantiaService {
+public class GarantiaService extends GenericService<GarantiaServicoModel> {
 
     private final IGarantiaPecaRepository garantiaPecaRepository;
     private final IGarantiaServicoRepository garantiaServicoRepository;
@@ -59,6 +60,7 @@ public class GarantiaService {
                            GarantiaPecaMapper garantiaPecaMapper,
                            GarantiaServicoMapper garantiaServicoMapper,
                            GarantiaValidation validation) {
+        super(garantiaServicoRepository, null);
         this.garantiaPecaRepository = garantiaPecaRepository;
         this.garantiaServicoRepository = garantiaServicoRepository;
         this.itemPecaRepository = itemPecaRepository;

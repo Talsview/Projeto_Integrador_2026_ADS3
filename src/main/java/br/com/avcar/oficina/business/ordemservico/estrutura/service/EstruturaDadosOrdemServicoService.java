@@ -24,6 +24,7 @@ import br.com.avcar.oficina.core.estrutura.iterator.OficinaIterator;
 import br.com.avcar.oficina.core.estrutura.lista.ListaLinearBusca;
 import br.com.avcar.oficina.core.estrutura.ordenacao.OrdenadorTemplate;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Dados I aplicadas ao controle de Ordens de Serviço da oficina.
  */
 @Service
-public class EstruturaDadosOrdemServicoService {
+public class EstruturaDadosOrdemServicoService extends GenericService<OrdemServicoModel> {
 
     private final IOrdemServicoRepository ordemServicoRepository;
     private final IHistoricoStatusOrdemRepository historicoStatusRepository;
@@ -55,6 +56,7 @@ public class EstruturaDadosOrdemServicoService {
                                              IItemServicoRepository itemServicoRepository,
                                              IItemPecaRepository itemPecaRepository,
                                              OrdemServicoMapper ordemServicoMapper) {
+        super(ordemServicoRepository, null);
         this.ordemServicoRepository = ordemServicoRepository;
         this.historicoStatusRepository = historicoStatusRepository;
         this.itemServicoRepository = itemServicoRepository;

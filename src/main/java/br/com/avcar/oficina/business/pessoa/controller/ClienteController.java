@@ -7,6 +7,8 @@ import br.com.avcar.oficina.business.pessoa.dto.ClienteResumoDTO;
 import br.com.avcar.oficina.business.pessoa.service.ClienteService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.pessoa.model.ClienteModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -28,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/clientes")
-public class ClienteController {
+public class ClienteController extends GenericController<ClienteModel, ClienteResumoDTO, ClienteService> {
 
     private final ClienteService clienteService;
 
@@ -38,6 +40,7 @@ public class ClienteController {
      * sem criação manual dentro dos métodos.
      */
     public ClienteController(ClienteService clienteService) {
+        super(clienteService);
         this.clienteService = clienteService;
     }
 

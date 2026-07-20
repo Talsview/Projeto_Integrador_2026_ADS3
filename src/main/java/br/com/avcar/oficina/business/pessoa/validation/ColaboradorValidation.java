@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.pessoa.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.pessoa.dto.ColaboradorDTO;
 import br.com.avcar.oficina.business.pessoa.dto.ColaboradorFuncaoDTO;
 import br.com.avcar.oficina.business.pessoa.repository.IColaboradorRepository;
@@ -17,7 +19,7 @@ import org.springframework.stereotype.Component;
  * Valida as regras de entrada do cadastro de Colaborador.
  */
 @Component
-public class ColaboradorValidation {
+public class ColaboradorValidation extends GenericDtoValidation<ColaboradorDTO> {
 
     private final IPessoaRepository pessoaRepository;
     private final IColaboradorRepository colaboradorRepository;

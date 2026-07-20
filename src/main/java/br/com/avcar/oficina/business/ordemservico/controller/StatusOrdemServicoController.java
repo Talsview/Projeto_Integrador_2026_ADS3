@@ -4,6 +4,8 @@ import br.com.avcar.oficina.business.ordemservico.dto.StatusOrdemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.service.StatusOrdemServicoService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.ordemservico.model.StatusOrdemServicoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/status-ordem-servico")
-public class StatusOrdemServicoController {
+public class StatusOrdemServicoController extends GenericController<StatusOrdemServicoModel, StatusOrdemServicoDTO, StatusOrdemServicoService> {
 
     private final StatusOrdemServicoService statusService;
 
@@ -28,6 +30,7 @@ public class StatusOrdemServicoController {
      * sem criação manual dentro dos métodos.
      */
     public StatusOrdemServicoController(StatusOrdemServicoService statusService) {
+        super(statusService);
         this.statusService = statusService;
     }
 

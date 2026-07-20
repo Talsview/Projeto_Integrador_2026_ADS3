@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.estrutura.dto;
 
+import br.com.avcar.oficina.core.dto.BaseDTO;
+
 import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoResumoDTO;
 import br.com.avcar.oficina.business.ordemservico.estrutura.enums.CriterioOrdenacaoOrdemServico;
 import java.util.ArrayList;
@@ -9,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ResultadoOrdenacaoOrdemServicoDTO {
+public class ResultadoOrdenacaoOrdemServicoDTO extends BaseDTO {
 
     private String algoritmoUtilizado;
     private String padraoProjetoAplicado;

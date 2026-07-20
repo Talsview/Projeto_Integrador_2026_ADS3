@@ -20,9 +20,10 @@ public abstract class GenericService<E extends BaseModel> implements IGenericSer
     protected final IGenericValidation<E> validation;
 
     /**
-     * Função: Recebe as dependências necessárias para esta classe e as guarda em atributos finais.
-     * Uso no sistema: permite que o Spring ou o Angular injete serviços, repositórios e validadores
-     * sem criação manual dentro dos métodos.
+     * Função: recebe o repository genérico e, quando aplicável, uma validação genérica da entidade.
+     * Uso no sistema: permite que Services específicos estendam GenericService<T> para evidenciar o
+     * uso de Generics, mantendo suas validações próprias quando a regra de negócio exigir DTOs ou
+     * fluxos mais complexos.
      */
     protected GenericService(IGenericRepository<E> repository, IGenericValidation<E> validation) {
         this.repository = repository;
@@ -61,7 +62,9 @@ public abstract class GenericService<E extends BaseModel> implements IGenericSer
      * Uso no sistema: centraliza validação, persistência e ações pós-cadastro nos serviços base.
      */
     public E insert(E entity) {
-        validation.validateInsert(entity);
+        if (validation != null) {
+            validation.validateInsert(entity);
+        }
         beforeInsert(entity);
         entity.setAtivo(Boolean.TRUE);
         E savedEntity = repository.save(entity);
@@ -76,7 +79,9 @@ public abstract class GenericService<E extends BaseModel> implements IGenericSer
      * Uso no sistema: mantém atualização organizada e reaproveitável nos serviços genéricos.
      */
     public E update(E entity) {
-        validation.validateUpdate(entity);
+        if (validation != null) {
+            validation.validateUpdate(entity);
+        }
         findByIdActive(entity.getId());
         beforeUpdate(entity);
         entity.setAtivo(Boolean.TRUE);
@@ -92,7 +97,9 @@ public abstract class GenericService<E extends BaseModel> implements IGenericSer
      * Uso no sistema: preserva comportamento uniforme entre módulos.
      */
     public void delete(Long id) {
-        validation.validateDelete(id);
+        if (validation != null) {
+            validation.validateDelete(id);
+        }
         E entity = findByIdActive(id);
         beforeDelete(entity);
         entity.setAtivo(Boolean.FALSE);

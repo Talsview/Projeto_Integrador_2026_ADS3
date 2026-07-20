@@ -15,6 +15,7 @@ import br.com.avcar.oficina.business.pagamento.repository.IPagamentoRepository;
 import br.com.avcar.oficina.business.pagamento.validation.PagamentoValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -36,7 +37,7 @@ import org.springframework.transaction.annotation.Transactional;
  * - OS finalizada não permite alteração de pagamentos.
  */
 @Service
-public class PagamentoService {
+public class PagamentoService extends GenericService<PagamentoModel> {
 
     private final IPagamentoRepository pagamentoRepository;
     private final IHistoricoStatusOrdemRepository historicoStatusRepository;
@@ -54,6 +55,7 @@ public class PagamentoService {
                             OrdemServicoService ordemServicoService,
                             PagamentoValidation validation,
                             PagamentoMapper mapper) {
+        super(pagamentoRepository, null);
         this.pagamentoRepository = pagamentoRepository;
         this.historicoStatusRepository = historicoStatusRepository;
         this.ordemServicoService = ordemServicoService;

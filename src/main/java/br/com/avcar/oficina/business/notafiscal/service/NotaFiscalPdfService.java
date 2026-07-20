@@ -17,6 +17,7 @@ import br.com.avcar.oficina.business.pessoa.model.PessoaJuridicaModel;
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaFisicaRepository;
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaJuridicaRepository;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
@@ -53,7 +54,7 @@ import org.springframework.transaction.annotation.Transactional;
  * ou SEFAZ. Ele é um comprovante/nota simplificada para o sistema local.
  */
 @Service
-public class NotaFiscalPdfService {
+public class NotaFiscalPdfService extends GenericService<OrdemServicoModel> {
 
     private static final String EMPRESA_NOME = "AV CAR AUTO CENTER";
     private static final String EMPRESA_ENDERECO = "Avenida Universitária, QD G LT 06, Setor Leste Universitário, Goiânia-GO";
@@ -89,6 +90,7 @@ public class NotaFiscalPdfService {
                                 IHistoricoStatusOrdemRepository historicoStatusRepository,
                                 IPessoaFisicaRepository pessoaFisicaRepository,
                                 IPessoaJuridicaRepository pessoaJuridicaRepository) {
+        super(ordemServicoRepository, null);
         this.ordemServicoRepository = ordemServicoRepository;
         this.itemServicoRepository = itemServicoRepository;
         this.itemPecaRepository = itemPecaRepository;

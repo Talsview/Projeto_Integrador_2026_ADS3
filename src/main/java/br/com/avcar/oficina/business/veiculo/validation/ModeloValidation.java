@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.veiculo.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.veiculo.dto.ModeloDTO;
 import br.com.avcar.oficina.business.veiculo.repository.IMarcaRepository;
 import br.com.avcar.oficina.business.veiculo.repository.IModeloRepository;
@@ -11,7 +13,7 @@ import org.springframework.stereotype.Component;
  * Valida as regras de entrada e unicidade do cadastro de Modelo.
  */
 @Component
-public class ModeloValidation {
+public class ModeloValidation extends GenericDtoValidation<ModeloDTO> {
 
     private final IMarcaRepository marcaRepository;
     private final IModeloRepository modeloRepository;

@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.peca.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.peca.dto.ItemPecaDTO;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
 import br.com.avcar.oficina.core.validation.ValidationUtils;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Valida regras de entrada do registro de ItemPeca.
  */
 @Component
-public class ItemPecaValidation {
+public class ItemPecaValidation extends GenericDtoValidation<ItemPecaDTO> {
 
     /**
      * Função: Confere se o identificador foi informado e se possui valor válido antes da consulta ou

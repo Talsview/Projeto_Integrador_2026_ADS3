@@ -5,6 +5,8 @@ import br.com.avcar.oficina.business.servico.enums.TipoServico;
 import br.com.avcar.oficina.business.servico.service.ServicoService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.servico.model.ServicoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/servicos")
-public class ServicoController {
+public class ServicoController extends GenericController<ServicoModel, ServicoDTO, ServicoService> {
 
     private final ServicoService servicoService;
 
@@ -35,6 +37,7 @@ public class ServicoController {
      * sem criação manual dentro dos métodos.
      */
     public ServicoController(ServicoService servicoService) {
+        super(servicoService);
         this.servicoService = servicoService;
     }
 

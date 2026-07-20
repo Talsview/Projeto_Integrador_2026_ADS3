@@ -6,6 +6,8 @@ import br.com.avcar.oficina.business.ordemservico.dto.OrdemServicoResumoDTO;
 import br.com.avcar.oficina.business.ordemservico.service.OrdemServicoService;
 import br.com.avcar.oficina.core.response.ApiResponse;
 import br.com.avcar.oficina.core.response.PageResponse;
+import br.com.avcar.oficina.business.ordemservico.model.OrdemServicoModel;
+import br.com.avcar.oficina.core.controller.GenericController;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -26,7 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api/ordens-servico")
-public class OrdemServicoController {
+public class OrdemServicoController extends GenericController<OrdemServicoModel, OrdemServicoDTO, OrdemServicoService> {
 
     private final OrdemServicoService ordemServicoService;
 
@@ -36,6 +38,7 @@ public class OrdemServicoController {
      * sem criação manual dentro dos métodos.
      */
     public OrdemServicoController(OrdemServicoService ordemServicoService) {
+        super(ordemServicoService);
         this.ordemServicoService = ordemServicoService;
     }
 

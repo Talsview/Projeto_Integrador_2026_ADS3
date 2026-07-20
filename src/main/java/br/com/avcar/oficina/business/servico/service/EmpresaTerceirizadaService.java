@@ -6,6 +6,7 @@ import br.com.avcar.oficina.business.servico.model.EmpresaTerceirizadaModel;
 import br.com.avcar.oficina.business.servico.repository.IEmpresaTerceirizadaRepository;
 import br.com.avcar.oficina.business.servico.validation.EmpresaTerceirizadaValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service responsável pelas regras de negócio de Empresa Terceirizada.
  */
 @Service
-public class EmpresaTerceirizadaService {
+public class EmpresaTerceirizadaService extends GenericService<EmpresaTerceirizadaModel> {
 
     private final IEmpresaTerceirizadaRepository empresaRepository;
     private final EmpresaTerceirizadaValidation validation;
@@ -29,6 +30,7 @@ public class EmpresaTerceirizadaService {
     public EmpresaTerceirizadaService(IEmpresaTerceirizadaRepository empresaRepository,
                                       EmpresaTerceirizadaValidation validation,
                                       EmpresaTerceirizadaMapper mapper) {
+        super(empresaRepository, null);
         this.empresaRepository = empresaRepository;
         this.validation = validation;
         this.mapper = mapper;

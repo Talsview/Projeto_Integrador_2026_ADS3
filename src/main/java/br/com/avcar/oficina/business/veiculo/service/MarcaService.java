@@ -6,6 +6,7 @@ import br.com.avcar.oficina.business.veiculo.model.MarcaModel;
 import br.com.avcar.oficina.business.veiculo.repository.IMarcaRepository;
 import br.com.avcar.oficina.business.veiculo.validation.MarcaValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -15,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service responsável pelas regras de negócio de Marca.
  */
 @Service
-public class MarcaService {
+public class MarcaService extends GenericService<MarcaModel> {
 
     private final IMarcaRepository marcaRepository;
     private final MarcaValidation validation;
@@ -29,6 +30,7 @@ public class MarcaService {
     public MarcaService(IMarcaRepository marcaRepository,
                         MarcaValidation validation,
                         MarcaMapper mapper) {
+        super(marcaRepository, null);
         this.marcaRepository = marcaRepository;
         this.validation = validation;
         this.mapper = mapper;

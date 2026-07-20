@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.peca.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.peca.dto.PecaDTO;
 import br.com.avcar.oficina.business.peca.repository.IPecaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Valida regras de entrada do cadastro de Peça.
  */
 @Component
-public class PecaValidation {
+public class PecaValidation extends GenericDtoValidation<PecaDTO> {
 
     private final IPecaRepository pecaRepository;
 

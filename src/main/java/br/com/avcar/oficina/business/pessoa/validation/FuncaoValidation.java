@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.pessoa.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.pessoa.dto.FuncaoDTO;
 import br.com.avcar.oficina.business.pessoa.repository.IFuncaoRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Component;
  * Valida as regras de entrada e unicidade do cadastro de Função.
  */
 @Component
-public class FuncaoValidation {
+public class FuncaoValidation extends GenericDtoValidation<FuncaoDTO> {
 
     private final IFuncaoRepository funcaoRepository;
 

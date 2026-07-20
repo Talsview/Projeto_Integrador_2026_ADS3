@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.ordemservico.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.ordemservico.dto.ItemServicoDTO;
 import br.com.avcar.oficina.business.ordemservico.model.ExecucaoServicoTerceirizadoModel;
 import br.com.avcar.oficina.business.ordemservico.model.ItemServicoModel;
@@ -14,7 +16,7 @@ import org.springframework.stereotype.Component;
  * Mapper de ItemServico e de sua execução terceirizada opcional.
  */
 @Component
-public class ItemServicoMapper {
+public class ItemServicoMapper implements IGenericMapper<ItemServicoModel, ItemServicoDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

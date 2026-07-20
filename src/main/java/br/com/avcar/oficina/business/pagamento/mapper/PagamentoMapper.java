@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.pagamento.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.ordemservico.model.OrdemServicoModel;
 import br.com.avcar.oficina.business.pagamento.dto.PagamentoDTO;
 import br.com.avcar.oficina.business.pagamento.enums.StatusPagamento;
@@ -12,7 +14,7 @@ import org.springframework.stereotype.Component;
  * Mapper responsável pela conversão entre PagamentoDTO e PagamentoModel.
  */
 @Component
-public class PagamentoMapper {
+public class PagamentoMapper implements IGenericMapper<PagamentoModel, PagamentoDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

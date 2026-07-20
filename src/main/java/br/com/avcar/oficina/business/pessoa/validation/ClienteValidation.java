@@ -1,7 +1,10 @@
 package br.com.avcar.oficina.business.pessoa.validation;
 
+import br.com.avcar.oficina.core.validation.GenericDtoValidation;
+
 import br.com.avcar.oficina.business.pessoa.dto.ClientePessoaFisicaDTO;
 import br.com.avcar.oficina.business.pessoa.dto.ClientePessoaJuridicaDTO;
+import br.com.avcar.oficina.business.pessoa.dto.ClienteResumoDTO;
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaFisicaRepository;
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaJuridicaRepository;
 import br.com.avcar.oficina.core.exception.FieldValidationException;
@@ -14,7 +17,7 @@ import org.springframework.stereotype.Component;
  * Mantém regras de entrada e de unicidade fora da Controller e fora da View Angular.
  */
 @Component
-public class ClienteValidation {
+public class ClienteValidation extends GenericDtoValidation<ClienteResumoDTO> {
 
     private final IPessoaFisicaRepository pessoaFisicaRepository;
     private final IPessoaJuridicaRepository pessoaJuridicaRepository;

@@ -10,6 +10,7 @@ import br.com.avcar.oficina.business.peca.model.PecaModel;
 import br.com.avcar.oficina.business.peca.repository.IItemPecaRepository;
 import br.com.avcar.oficina.business.peca.validation.ItemPecaValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.math.BigDecimal;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * a uma peça cadastrada e a um fornecedor identificado.
  */
 @Service
-public class ItemPecaService {
+public class ItemPecaService extends GenericService<ItemPecaModel> {
 
     private final IItemPecaRepository itemPecaRepository;
     private final PecaService pecaService;
@@ -45,6 +46,7 @@ public class ItemPecaService {
                            GarantiaService garantiaService,
                            ItemPecaValidation validation,
                            ItemPecaMapper mapper) {
+        super(itemPecaRepository, null);
         this.itemPecaRepository = itemPecaRepository;
         this.pecaService = pecaService;
         this.fornecedorService = fornecedorService;

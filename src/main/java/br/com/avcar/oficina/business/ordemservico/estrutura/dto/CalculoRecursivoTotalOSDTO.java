@@ -1,12 +1,14 @@
 package br.com.avcar.oficina.business.ordemservico.estrutura.dto;
 
+import br.com.avcar.oficina.core.dto.BaseDTO;
+
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CalculoRecursivoTotalOSDTO {
+public class CalculoRecursivoTotalOSDTO extends BaseDTO {
 
     private Long idOrdemServico;
     private String numeroOs;

@@ -13,6 +13,7 @@ import br.com.avcar.oficina.business.servico.repository.IServicoTerceirizadoRepo
 import br.com.avcar.oficina.business.servico.validation.ServicoValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
 import br.com.avcar.oficina.core.exception.RuleValidationException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
  * permanecem sob responsabilidade da oficina perante o cliente.
  */
 @Service
-public class ServicoService {
+public class ServicoService extends GenericService<ServicoModel> {
 
     private final IServicoRepository servicoRepository;
     private final IServicoInternoRepository servicoInternoRepository;
@@ -47,6 +48,7 @@ public class ServicoService {
                           ServicoValidation validation,
                           ServicoMapper mapper,
                           EmpresaTerceirizadaService empresaTerceirizadaService) {
+        super(servicoRepository, null);
         this.servicoRepository = servicoRepository;
         this.servicoInternoRepository = servicoInternoRepository;
         this.servicoTerceirizadoRepository = servicoTerceirizadoRepository;

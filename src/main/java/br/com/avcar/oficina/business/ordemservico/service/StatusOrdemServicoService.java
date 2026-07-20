@@ -7,6 +7,7 @@ import br.com.avcar.oficina.business.ordemservico.model.StatusOrdemServicoModel;
 import br.com.avcar.oficina.business.ordemservico.repository.IStatusOrdemServicoRepository;
 import br.com.avcar.oficina.business.ordemservico.validation.StatusOrdemServicoValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Service de consulta dos status oficiais da Ordem de Serviço.
  */
 @Service
-public class StatusOrdemServicoService {
+public class StatusOrdemServicoService extends GenericService<StatusOrdemServicoModel> {
 
     private final IStatusOrdemServicoRepository statusRepository;
     private final StatusOrdemServicoValidation validation;
@@ -30,6 +31,7 @@ public class StatusOrdemServicoService {
     public StatusOrdemServicoService(IStatusOrdemServicoRepository statusRepository,
                                      StatusOrdemServicoValidation validation,
                                      StatusOrdemServicoMapper mapper) {
+        super(statusRepository, null);
         this.statusRepository = statusRepository;
         this.validation = validation;
         this.mapper = mapper;

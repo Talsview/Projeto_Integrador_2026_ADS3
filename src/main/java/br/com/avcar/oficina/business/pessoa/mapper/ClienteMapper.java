@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.pessoa.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.pessoa.dto.ClienteDetalheDTO;
 import br.com.avcar.oficina.business.pessoa.dto.ClientePessoaFisicaDTO;
 import br.com.avcar.oficina.business.pessoa.dto.ClientePessoaJuridicaDTO;
@@ -15,7 +17,7 @@ import org.springframework.stereotype.Component;
  * Centraliza a conversão entre Models e DTOs do módulo Cliente.
  */
 @Component
-public class ClienteMapper {
+public class ClienteMapper implements IGenericMapper<ClienteModel, ClienteResumoDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

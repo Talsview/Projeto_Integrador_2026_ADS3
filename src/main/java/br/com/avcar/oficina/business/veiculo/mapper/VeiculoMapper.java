@@ -1,5 +1,7 @@
 package br.com.avcar.oficina.business.veiculo.mapper;
 
+import br.com.avcar.oficina.core.mapper.IGenericMapper;
+
 import br.com.avcar.oficina.business.veiculo.dto.VeiculoDTO;
 import br.com.avcar.oficina.business.veiculo.model.ModeloModel;
 import br.com.avcar.oficina.business.veiculo.model.VeiculoModel;
@@ -9,7 +11,7 @@ import org.springframework.stereotype.Component;
  * Mapper usado para montar e atualizar o Model de Veículo a partir do DTO de entrada.
  */
 @Component
-public class VeiculoMapper {
+public class VeiculoMapper implements IGenericMapper<VeiculoModel, VeiculoDTO> {
 
     /**
      * Função: Converte entidades do domínio em DTOs usados pela API e pelo frontend.

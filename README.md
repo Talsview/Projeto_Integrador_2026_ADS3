@@ -2424,3 +2424,17 @@ src/main/java/br/com/avcar/oficina/business/peca/service/ItemPecaService.java
 ## Etapa 71 — Garantia de serviço com executor correto
 
 A tela de garantias foi ajustada para diferenciar o executor original do serviço. Serviços internos exibem o colaborador responsável da oficina. Serviços terceirizados exibem a empresa terceirizada que executou o serviço, com dados de envio e retorno quando cadastrados.
+
+## Etapa 72 — Services estendendo Generics
+
+Nesta etapa, os principais services do backend passaram a estender `GenericService<T>`, deixando mais explícito o uso de Generics na camada de serviço. A alteração reforça a aplicação de `E extends BaseModel` na arquitetura em camadas, sem alterar regras de negócio, banco de dados ou frontend.
+
+Documentação complementar: `docs/README_ETAPA72_SERVICES_ESTENDENDO_GENERICS.md` e `docs/adr/ADR-072-services-estendendo-generics.md`.
+
+## Etapa 73 — Controllers estendendo Generics
+
+Nesta etapa, a camada Controller foi ajustada para evidenciar o uso de Generics. Os principais controllers de módulos persistentes passaram a estender `GenericController<E, D, S>`, mantendo os endpoints específicos já existentes e sem alteração de regra de negócio, banco de dados ou frontend.
+
+### Etapa 74 — Generics nas camadas do pacote business
+
+Revisão arquitetural para garantir que as classes da camada `business` evidenciem a estrutura genérica do `core`: `BaseModel`, `BaseDTO`, `IGenericRepository`, `GenericService`, `GenericController`, `IGenericMapper`, `GenericDtoValidation` e `GenericBusinessComponent`.

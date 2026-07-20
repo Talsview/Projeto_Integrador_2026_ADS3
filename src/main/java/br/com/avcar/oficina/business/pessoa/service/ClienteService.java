@@ -18,6 +18,7 @@ import br.com.avcar.oficina.business.pessoa.repository.IPessoaJuridicaRepository
 import br.com.avcar.oficina.business.pessoa.repository.IPessoaRepository;
 import br.com.avcar.oficina.business.pessoa.validation.ClienteValidation;
 import br.com.avcar.oficina.core.exception.BusinessException;
+import br.com.avcar.oficina.core.service.GenericService;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -31,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Orquestra Repository, Validation, Mapper e Factory Method.
  */
 @Service
-public class ClienteService {
+public class ClienteService extends GenericService<ClienteModel> {
 
     private final IPessoaRepository pessoaRepository;
     private final IClienteRepository clienteRepository;
@@ -53,6 +54,7 @@ public class ClienteService {
                           ClienteValidation validation,
                           ClienteMapper mapper,
                           ClienteCadastroFactory clienteCadastroFactory) {
+        super(clienteRepository, null);
         this.pessoaRepository = pessoaRepository;
         this.clienteRepository = clienteRepository;
         this.pessoaFisicaRepository = pessoaFisicaRepository;
